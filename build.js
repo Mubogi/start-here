@@ -1,131 +1,182 @@
 #!/usr/bin/env node
-/* Build the START HERE courses into standalone single files.
+/* Build every course into one self-contained HTML file.
  *
  *   node build.js
  *
- * Reads:  shared/  (engine, art, verses, css)
- *         courses/ (seeker.js, new-believer.js)
- * Writes: dist/start-here-seeker.html
- *         dist/start-here-new-believer.html
+ * Reads:  shared/  (contact, strings, engine, art, scripture, css)
+ *         courses/ (one file per course)
+ * Writes: dist/<slug>.html   - the file you hand out / wrap in the app
+ *         docs/<slug>.html   - the same file, served by GitHub Pages
+ *         docs/index.html    - a landing page listing every course
  *
- * Each output is fully self-contained: no external files, no network.
- * Open it directly, or wrap it in the Android app in android/.
+ * Each output opens offline by double-click. No server, no network.
  */
 const fs = require("fs");
 const path = require("path");
 
 const ROOT = __dirname;
 const read = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
+const exists = (p) => fs.existsSync(path.join(ROOT, p));
 
+const css = read("shared/course.css");
+const contact = read("shared/contact.js");
+const strings = read("shared/strings.js");
 const engine = read("shared/course.js");
 const art = read("shared/art.js");
-const verses = read("shared/verses.js");
-const css = read("shared/course.css");
 
-function page(courseFile, title) {
-  const content = read(courseFile);
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0e1015">
-<title>${title}</title>
-<style>
-${css}
-</style>
-</head>
-<body>
-<div class="topbar">
-  <div class="in">
-    <div class="row">
-      <div class="brand"><span id="brandName">START HERE</span><small id="brandTag"></small></div>
-      <div class="who"><span>Pilgrim</span><b id="whoName"></b></div>
-    </div>
-    <div class="track"><i id="prog"></i></div>
-  </div>
-</div>
-<main class="wrap" id="view"></main>
-<div class="navbar"><div class="in" id="navIn"></div></div>
-<div class="toast" id="toast"></div>
-<script>
-/* ---- scripture (public domain, KJV) ---- */
-${verses}
-/* ---- artwork ---- */
-${art}
-/* ---- engine ---- */
-${engine}
-/* ---- course content ---- */
-${content}
-initCourse(COURSE);
-</script>
-</body>
-</html>
-`;
-}
+/* the courses, in the order they should appear on the landing page */
+const COURSES = [
+  { file: "courses/seeker.js", slug: "knowing-god", lang: "en" },
+  { file: "courses/new-believer.js", slug: "new-life-in-christ", lang: "en" },
+  { file: "courses/walking-in-love.js", slug: "walking-in-love", lang: "en" },
+  { file: "courses/not-alone.js", slug: "you-are-not-alone", lang: "en" },
+  { file: "courses/god-cares.js", slug: "god-will-take-care-of-you", lang: "en" },
+  { file: "courses/seeker-lg.js", slug: "okumanya-katonda", lang: "lg" },
+];
 
-const OUT = path.join(ROOT, "dist");       // the single files you hand out / wrap in the APK
-const PAGES = path.join(ROOT, "docs");     // what GitHub Pages serves
+const OUT = path.join(ROOT, "dist");
+const PAGES = path.join(ROOT, "docs");
 fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(PAGES, { recursive: true });
 
-const targets = [
-  ["courses/seeker.js", "START HERE — Knowing God", "start-here-seeker.html"],
-  ["courses/new-believer.js", "START HERE — New Life in Christ", "start-here-new-believer.html"],
-];
-
-for (const [src, title, out] of targets) {
-  const html = page(src, title);
-  fs.writeFileSync(path.join(OUT, out), html);
-  fs.writeFileSync(path.join(PAGES, out), html);
-  const kb = (Buffer.byteLength(html) / 1024).toFixed(1);
-  console.log(`  ${out}  (${kb} KB)`);
+/* load a course file in a tiny sandbox so we can read its metadata */
+function loadCourse(file) {
+  const src = read(file);
+  const fn = new Function("var COURSE=null;" + src + ";return COURSE;");
+  return fn();
 }
 
-/* landing page for GitHub Pages */
+/* every Scripture reference a course asks for, with ranges expanded */
+function refsUsed(file) {
+  const src = read(file);
+  const refs = new Set();
+  const re = /verses?2?\s*:\s*(\[[^\]]*\]|"[^"]*")/g;
+  let m;
+  while ((m = re.exec(src))) {
+    const inner = m[1];
+    const rre = /"([^"]+)"/g;
+    let r;
+    while ((r = rre.exec(inner))) {
+      const ref = r[1].trim().toLowerCase();
+      refs.add(ref);
+      const range = ref.match(/^(.+?)\s+(\d+):(\d+)-(\d+)$/);
+      if (range) {
+        for (let i = +range[3]; i <= +range[4]; i++) refs.add(`${range[1]} ${range[2]}:${i}`);
+      }
+    }
+  }
+  return refs;
+}
+
+/* keep only the verses this course needs, so the file stays small enough to
+   send over WhatsApp. Pass 0 to keep everything. */
+function filterVerses(src, refs) {
+  if (!src) return "";
+  const name = src.match(/var\s+(\w+)\s*=/)[1];
+  const body = src.slice(src.indexOf("{"), src.lastIndexOf("}") + 1);
+  const all = new Function("return " + body)();
+  const out = {};
+  for (const k of Object.keys(all)) if (refs.has(k)) out[k] = all[k];
+  return `var ${name} = ${JSON.stringify(out)};`;
+}
+
+/* pull exportCourse() out of the engine so we can call it from Node */
+const exportCourse = new Function(
+  "var window={},document={},navigator={},localStorage={getItem:function(){},setItem:function(){}};"
+    + contact + "\n" + strings + "\n" + engine + "\nreturn exportCourse;"
+)();
+
+const built = [];
+for (const c of COURSES) {
+  if (!exists(c.file)) {
+    console.log(`  skip ${c.slug} (no ${c.file})`);
+    continue;
+  }
+  const COURSE = loadCourse(c.file);
+  const needLug = (COURSE.vers || "kjv") === "lug";
+  const refs = refsUsed(c.file);
+  const html = exportCourse(COURSE, {
+    css,
+    contact,
+    strings,
+    art,
+    engine,
+    verses: needLug ? "" : filterVerses(read("shared/verses.js"), refs),
+    versesLug: needLug ? filterVerses(read("shared/verses-lug.js"), refs) : "",
+    course: read(c.file),
+  });
+  fs.writeFileSync(path.join(OUT, c.slug + ".html"), html);
+  fs.writeFileSync(path.join(PAGES, c.slug + ".html"), html);
+  const kb = (Buffer.byteLength(html) / 1024).toFixed(1);
+  built.push({ slug: c.slug, COURSE, kb });
+  console.log(`  ${c.slug}.html  (${kb} KB)`);
+}
+
+/* landing page - lists everything, so the series keeps growing */
+const cards = built
+  .map((b) => {
+    const i = b.COURSE.intro || {};
+    const lang = b.COURSE.lang === "lg" ? ' <span class="tag">Luganda</span>' : "";
+    return `  <a class="card" href="${b.slug}.html">
+    <div class="card-k">${b.COURSE.brand}</div>
+    <div class="card-t">${i.title || b.COURSE.tagline}${lang}</div>
+    <div class="card-d">${i.lead || ""}</div>
+    <div class="card-go">Read &rarr;</div>
+  </a>`;
+  })
+  .join("\n");
+
+const tel = (contact.match(/phone:\s*"([^"]+)"/) || [])[1] || "";
+const wa = (contact.match(/whatsapp:\s*"([^"]+)"/) || [])[1] || "";
+
 const landing = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0e1015">
-<title>START HERE — Knowing God</title>
+<title>START HERE - read the Bible, one page at a time</title>
 <link rel="stylesheet" href="course.css">
+<style>
+  .cards{display:grid; gap:14px; margin-top:22px}
+  .card{display:block; text-decoration:none; color:inherit; background:var(--panel);
+    border:1px solid var(--line); border-radius:14px; padding:18px 20px}
+  .card:hover{border-color:#4a5b86}
+  .card-k{font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); font-weight:700}
+  .card-t{font-family:var(--serif); font-size:1.35rem; margin:.3rem 0 .35rem; color:#fbfcff}
+  .card-d{font-size:.95rem; color:var(--muted)}
+  .card-go{margin-top:.6rem; font-weight:700; color:var(--blue)}
+  .tag{font-size:.7rem; background:#243; color:#8fe0ab; border-radius:6px; padding:.1rem .45rem; vertical-align:middle}
+</style>
 </head>
 <body>
-<main class="wrap" style="padding-top:34px">
+<main class="wrap" style="padding-top:34px; padding-bottom:40px">
   <div class="kicker">START HERE</div>
-  <h1>Do you want to know God?</h1>
-  <p class="lead">Two short courses that open the Word of God and walk you through it,
-  one page at a time. They work with no internet and no sign-up.</p>
+  <h1>Read the Bible, one page at a time</h1>
+  <p class="lead">Short guides that open the Word of God. Each one is a single file that works
+  with no internet and no sign-up. Read it, then send it to someone who needs it.</p>
 
-  <div class="box" style="margin-top:26px">
-    <h3>If you are still asking questions</h3>
-    <p><b>Knowing God</b> \u2014 15 pages. From \u201cis there really a God?\u201d to the
-    promises, your purpose, prayer, and how to keep standing.</p>
-    <p><a class="link" href="start-here-seeker.html" style="font-weight:700">Begin \u2014 Knowing God \u2192</a></p>
+  <div class="cards">
+${cards}
   </div>
 
-  <div class="box" style="margin-top:16px">
-    <h3>If you have just given your life to Jesus</h3>
-    <p><b>New Life in Christ</b> \u2014 16 pages. What just happened to you, forgiveness,
-    assurance, the Holy Spirit, how not to fall away, and the mission.</p>
-    <p><a class="link" href="start-here-new-believer.html" style="font-weight:700">Begin \u2014 New Life in Christ \u2192</a></p>
+  <div class="box talk" style="margin-top:26px">
+    <h3>Talk to someone</h3>
+    <p>Every page has a button to call or send a message. If you want prayer, or you want to
+    give your life to Jesus, or you just have a question, reach out.</p>
+    <div class="chips big">
+      <a class="chip call" href="tel:${tel}">&#9742; Call</a>
+      <a class="chip wa" href="https://wa.me/${wa}">WhatsApp</a>
+    </div>
   </div>
 
-  <div class="box" style="margin-top:26px">
-    <h3>About</h3>
-    <p class="small">Both courses are single files. Send one by WhatsApp or Bluetooth and it
-    opens offline. Scripture is the public-domain King James Version.</p>
-    <p class="small muted">GitHub: <a class="link" href="https://github.com/Mubogi">github.com/Mubogi</a></p>
-  </div>
+  <p class="small muted" style="margin-top:26px">Scripture is from the public-domain King James
+  Version, and for Luganda from a public-domain (CC0) Luganda New Testament.</p>
 </main>
 </body>
 </html>
 `;
 fs.writeFileSync(path.join(PAGES, "index.html"), landing);
 fs.copyFileSync(path.join(ROOT, "shared/course.css"), path.join(PAGES, "course.css"));
-console.log("  index.html  (landing page)");
-console.log("  course.css");
-console.log("Built to docs/ (GitHub Pages can serve this folder directly)");
-
+console.log(`  index.html  (landing page, ${built.length} courses)`);
+console.log("Built to dist/ and docs/");

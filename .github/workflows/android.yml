@@ -53,7 +53,7 @@ jobs:
         working-directory: android-app
         run: |
           mkdir -p www
-          cp ../dist/start-here-new-believer.html www/index.html
+          cp ../dist/knowing-god.html www/index.html
           npm install
           npx cap add android
           npx cap sync android

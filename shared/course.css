@@ -145,3 +145,30 @@ a.link{color:var(--blue); text-decoration:none}
   h1{font-size:1.72rem}
   .hero .art, .hero .art svg{height:170px}
 }
+
+/* ---------- talk to someone / share ---------- */
+.box.talk{border-color:#2f6b4a; background:linear-gradient(180deg,#141d18,#111823)}
+.box.talk h3{color:#8fe0ab}
+.box.share{border-color:#2b3a5e}
+.box.share h3{color:#a9c2ff}
+.chips.big a{padding:.75rem 1.05rem; font-size:.95rem; font-weight:700}
+.chips a.chip, .chips button.chip{display:inline-flex; align-items:center; gap:.4rem;
+  background:var(--panel2); border:1px solid var(--line); border-radius:10px;
+  padding:.55rem .85rem; color:var(--ink); text-decoration:none; font-size:.87rem; cursor:pointer;
+  font-family:inherit}
+.chips a.chip:hover, .chips button.chip:hover{border-color:#4a5b86}
+.chips a.chip.call{background:linear-gradient(180deg,#3f7f5c,#2f6349); border-color:#3f7f5c; color:#fff}
+.chips a.chip.wa{background:linear-gradient(180deg,#2fae5c,#248a49); border-color:#2fae5c; color:#fff}
+.chips a.chip.tg{background:linear-gradient(180deg,#3d9dd8,#2b7fb4); border-color:#3d9dd8; color:#fff}
+.chips a.chip.gold{background:linear-gradient(180deg,#e9bf63,#c9992f); border-color:#e9bf63; color:#241c05}
+
+/* ---------- floating WhatsApp button ---------- */
+#float{position:fixed; right:16px; bottom:88px; z-index:25; display:flex; flex-direction:column; gap:8px; align-items:flex-end}
+.fab{display:inline-flex; align-items:center; gap:.5rem; text-decoration:none;
+  color:#fff; font-weight:700; border-radius:999px; padding:.62rem 1rem;
+  box-shadow:0 8px 22px rgba(0,0,0,.42); font-size:.9rem}
+.fab:active{transform:translateY(1px)}
+.fab-ic{font-size:1.05rem}
+.fab-wa{background:linear-gradient(180deg,#2fae5c,#248a49); border:1px solid #37c46a}
+.fab-call{background:linear-gradient(180deg,#4a73e8,#3a5bc4); border:1px solid #5c85f5}
+@media (max-width:520px){ .fab-tx{display:none} .fab{padding:.8rem} }

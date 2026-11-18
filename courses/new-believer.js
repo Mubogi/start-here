@@ -4,8 +4,9 @@
 var COURSE = {
   key: "starthere_new_v1",
   brand: "START HERE",
+  lang: "en",
+  vers: "kjv",
   tagline: "New Life in Christ",
-  contact: 'GitHub: <a class="link" href="https://github.com/Mubogi" target="_blank" rel="noopener">github.com/Mubogi</a>',
 
   intro: {
     art: "sunrise",

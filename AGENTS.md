@@ -14,25 +14,48 @@ Two products:
 ```
 build.js          bundles shared/ + courses/ into one HTML file (dist/ and docs/)
 shared/
-  course.js       the engine: renders a course object page by page; localStorage progress
+  course.js       the engine: renders a course object page by page; localStorage progress;
+                  contact box + share box on every page; exportCourse() writes a single file
+  contact.js      CONTACT = {phone, whatsapp, telegram} and the tel:/wa.me/t.me link builders
+  strings.js      UI words per language (en, lg). Scripture is never translated here.
   art.js          18 SVG illustrations (ART.sceneName() -> svg string). Swap for photos.
-  verses.js       85 public-domain KJV verses (VERSES["john 3:16"] -> text)
-  course.css      reading-first stylesheet (serif body, gold verse cards)
+  verses.js       public-domain KJV verses (VERSES["john 3:16"] -> text)
+  verses-lug.js   public-domain (CC0) Luganda New Testament (VERSES_LUG["yokaana 3:16"])
+  course.css      reading-first stylesheet (serif body, gold verse cards, contact/share)
 courses/
-  seeker.js       15-page course for non-believers      (COURSE object)
-  new-believer.js 16-page course for new believers      (COURSE object)
+  seeker.js            16-page course for non-believers        (lang en, kjv)
+  new-believer.js      16-page course for new believers        (lang en, kjv)
+  walking-in-love.js   12 pages on loving people as Jesus does (lang en, kjv)
+  not-alone.js         10 pages for the lonely / fatherless    (lang en, kjv)
+  god-cares.js         10 pages on God's provision             (lang en, kjv)
+  seeker-lg.js         16-page Luganda course                  (lang lg, lug)
 dist/            built single files - the things you hand out / wrap in the APK
 docs/            same files + landing page, served by GitHub Pages
+sources/         raw public-domain source text (Luganda NT OCR)
+tools/           regenerate Scripture: parse-luganda.py, fetch-verses.py
 android-app/     Capacitor project + cloud build workflow
 images/          drop real photos here to replace SVG scenes
 ```
 
 ## Course object shape
 
-`var COURSE = { key, brand, tagline, contact, intro:{...}, lessons:[...], closing:{...}, community:[...] }`
+`var COURSE = { key, brand, tagline, lang, vers, intro:{...}, lessons:[...], closing:{...} }`
+
+- `lang` picks the UI words from `shared/strings.js` (`"en"` or `"lg"`).
+- `vers` picks the Scripture store: `"kjv"` -> `VERSES`, `"lug"` -> `VERSES_LUG`.
 
 Each lesson: `kicker, title, art, lead, verse, meaning, verses2[], prayer?, think, action, deeper?[]`.
 Every field except `prayer`/`deeper` is required, or the page renders "undefined".
+
+Verse references may be a single verse (`"john 3:16"`) or a range (`"romans 8:37-39"`); the engine
+joins the individual verses for a range. Keep reference keys lower-case.
+
+## Contact
+
+The whole point is that every page can reach a real person. Edit `shared/contact.js` once and
+every course updates: the in-page "Talk to someone" box, the two floating buttons (call +
+WhatsApp), and every prefilled message. Prefilled messages come from the `msg*` templates in
+`shared/strings.js`, filled with `{name}`, `{where}` (course name) and `{topic}` (current page).
 
 ## Build / verify
 
@@ -41,7 +64,10 @@ node build.js                       # -> dist/*.html and docs/*.html
 node --check courses/*.js shared/*.js
 ```
 
-Self-containment check (must be 0 real hits; the one match is a comment):
+The builder inlines only the verses each course actually uses, so the output stays small enough
+to send over WhatsApp (60-95 KB). A course's `vers` decides which store is embedded.
+
+Self-containment check (must be 0 hits):
 ```bash
 grep -nE "src=|fetch\(|@import|cdn|unpkg|jsdelivr" dist/*.html
 ```
@@ -55,6 +81,11 @@ verse resolves, every art key exists, no required field is missing.
 - **Never invent Scripture.** Fetch public-domain text (bible-api.com, `?translation=kjv`),
   check it, and store it in `shared/verses.js`. See VERSIONS.md for licensing.
 - **Keep it offline.** No CDNs, no external fonts, no fetch at runtime. Images must be local.
+- **No GitHub link in the product.** The courses are handed out as files; do not point readers
+  at a repo. Contact is by phone/WhatsApp/Telegram only.
+- **Escape `</script`** in anything inlined into a page. `exportCourse()` does this; keep it.
+- **Luganda is New Testament only.** The CC0 source (`sources/luganda-nt-cc0.txt`) has no Old
+  Testament, so Luganda courses must use NT references only.
 - The old `foundations/` single file was replaced by this engine; do not recreate it.
 - `emmaus/index.html` is a separate product - leave it alone unless asked.
 

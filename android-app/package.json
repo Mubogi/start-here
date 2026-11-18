@@ -4,7 +4,7 @@
   "private": true,
   "description": "START HERE — offline Bible courses wrapped as an Android app (Capacitor)",
   "scripts": {
-    "assets": "node ../build.js && mkdir -p www && cp ../dist/start-here-new-believer.html www/index.html",
+    "assets": "node ../build.js && mkdir -p www && cp ../dist/knowing-god.html www/index.html",
     "add:android": "npx cap add android",
     "sync": "npx cap sync android",
     "apk": "cd android && ./gradlew assembleDebug",

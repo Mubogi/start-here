@@ -38,7 +38,7 @@ instead, copy the other file:
 
 ```bash
 node ../build.js
-cp ../dist/start-here-seeker.html www/index.html
+cp ../dist/knowing-god.html www/index.html
 npx cap sync android
 ```
 

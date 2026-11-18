@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1015">
+<title>START HERE - God Will Take Care of You</title>
+<style>
+/* EMMAUS course engine — shared styles.
+   Designed for long-form reading: serif type, generous measure, high contrast. */
+
+:root{
+  --bg:#0e1015;
+  --panel:#171a22;
+  --panel2:#1d212b;
+  --line:#2b3140;
+  --ink:#f3f5fa;
+  --ink-soft:#d9dfeb;
+  --dim:#9aa3b7;
+  --gold:#e9bf63;
+  --gold2:#ffdc95;
+  --green:#5fd07f;
+  --blue:#8ab0ff;
+  --violet:#c2a6ff;
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --measure: 44rem;
+}
+
+*{box-sizing:border-box}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:18px; line-height:1.72;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+img{max-width:100%;display:block}
+
+.wrap{max-width:var(--measure); margin:0 auto; padding:0 22px 130px}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:20;
+  background:rgba(14,16,21,.88); backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(43,49,64,.6);
+}
+.topbar .in{max-width:var(--measure); margin:0 auto; padding:12px 22px 10px}
+.topbar .row{display:flex; justify-content:space-between; align-items:center; gap:14px}
+.topbar .brand{font-family:var(--serif); font-weight:700; font-size:1.02rem; letter-spacing:.01em}
+.topbar .brand small{display:block; font-family:var(--sans); font-weight:600; font-size:.62rem;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--gold); margin-top:2px}
+.topbar .who{font-size:.78rem; color:var(--dim); text-align:right; max-width:45%}
+.topbar .who b{color:var(--gold); display:block; font-size:.86rem; font-weight:600;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.track{height:4px; background:#232a38; border-radius:4px; margin-top:10px; overflow:hidden}
+.track i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--green),var(--gold));
+  transition:width .4s cubic-bezier(.4,0,.2,1)}
+
+/* ---------- page ---------- */
+main{padding-top:6px}
+.page{animation:rise .4s cubic-bezier(.2,.7,.3,1)}
+@keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+
+.hero{border-radius:16px; overflow:hidden; border:1px solid var(--line); background:var(--panel);
+  margin:20px 0 0; position:relative}
+.hero .art{height:210px}
+.hero .art svg{height:210px}
+.hero .cap{padding:16px 18px 18px}
+.hero .kicker{margin-top:0}
+
+.kicker{font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold);
+  font-weight:700; margin:22px 0 6px}
+h1{font-family:var(--serif); font-weight:700; font-size:2.05rem; line-height:1.18;
+  margin:.05em 0 .5em; letter-spacing:-.01em}
+h2{font-family:var(--serif); font-weight:700; font-size:1.35rem; margin:1.6em 0 .4em}
+p{margin:.75em 0}
+.lead{font-size:1.14rem; color:var(--ink-soft)}
+.small{font-size:.88rem}
+.muted{color:var(--dim)}
+.center{text-align:center}
+
+/* ---------- scripture ---------- */
+.verse{
+  background:linear-gradient(180deg,#1c2130,#161a24);
+  border:1px solid var(--line); border-left:4px solid var(--gold);
+  border-radius:12px; padding:16px 18px; margin:20px 0;
+}
+.verse .ref{font-family:var(--sans); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--gold); font-weight:700; margin-bottom:8px}
+.verse .text{font-family:var(--serif); font-size:1.19rem; line-height:1.66; color:#fbfcff}
+.verse.minor{background:#151924; border-left-color:#3d465e}
+.verse.minor .text{font-size:1.06rem; color:var(--ink-soft)}
+
+/* ---------- boxes ---------- */
+.box{background:var(--panel); border:1px solid var(--line); border-radius:12px;
+  padding:15px 17px; margin:16px 0}
+.box h3{margin:0 0 .45rem; font-family:var(--sans); font-size:.72rem; letter-spacing:.15em;
+  text-transform:uppercase; color:var(--blue); font-weight:700}
+.box.think h3{color:var(--gold2)}
+.box.do h3{color:var(--green)}
+.box.pray h3{color:var(--violet)}
+.prayer{font-family:var(--serif); font-size:1.1rem; line-height:1.72;
+  background:#1b2130; border:1px solid #33405c; border-radius:10px; padding:14px 16px; color:#f0f4ff}
+ul{margin:.5em 0; padding-left:1.25rem}
+li{margin:.4em 0}
+
+/* ---------- notes ---------- */
+label{display:block; font-size:.8rem; color:var(--dim); margin:.7rem 0 .35rem}
+input,textarea{
+  width:100%; background:#12151d; border:1px solid var(--line); color:var(--ink);
+  border-radius:10px; padding:.7rem .8rem; font-family:inherit; font-size:1rem;
+}
+textarea{min-height:100px; resize:vertical; font-family:var(--serif); font-size:1.03rem; line-height:1.66}
+input:focus,textarea:focus{outline:none; border-color:#4a5b86; box-shadow:0 0 0 3px rgba(74,91,134,.25)}
+
+/* ---------- buttons ---------- */
+button.btn{font-family:inherit; font-weight:700; font-size:1rem; border:0; border-radius:11px;
+  padding:.8rem 1.35rem; cursor:pointer; color:#fff;
+  background:linear-gradient(180deg,#4a73e8,#3a5bc4); transition:transform .08s, filter .15s}
+button.btn:active{transform:translateY(1px)}
+button.btn:hover{filter:brightness(1.07)}
+button.btn.gold{background:linear-gradient(180deg,#e9bf63,#c9992f); color:#241c05}
+button.btn.ghost{background:transparent; border:1px solid var(--line); color:var(--ink); font-weight:600}
+button.btn:disabled{opacity:.4; cursor:not-allowed}
+
+/* ---------- bottom nav ---------- */
+.navbar{position:fixed; left:0; right:0; bottom:0; z-index:20;
+  background:linear-gradient(0deg,#0e1015 55%,rgba(14,16,21,.75)); padding:12px 0 16px}
+.navbar .in{max-width:var(--measure); margin:0 auto; padding:0 22px; display:flex; gap:10px; align-items:center}
+.navbar .btn{flex:1}
+.navbar .btn.ghost{flex:0 0 auto}
+
+/* ---------- dots ---------- */
+.dots{display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin:26px 0 4px}
+.dots b{width:7px; height:7px; border-radius:50%; background:#2c3348}
+.dots b.seen{background:#4b5573}
+.dots b.on{background:var(--gold); transform:scale(1.35)}
+
+/* ---------- misc ---------- */
+.chips{display:flex; flex-wrap:wrap; gap:9px; margin-top:10px}
+.chips a{background:var(--panel2); border:1px solid var(--line); border-radius:10px;
+  padding:.55rem .85rem; color:var(--ink); text-decoration:none; font-size:.87rem}
+.chips a:hover{border-color:#4a5b86}
+a.link{color:var(--blue); text-decoration:none}
+.toast{position:fixed; left:50%; bottom:100px; transform:translateX(-50%);
+  background:#232a3a; border:1px solid var(--line); border-radius:10px; padding:.55rem 1rem;
+  font-size:.86rem; opacity:0; transition:opacity .3s; pointer-events:none; z-index:30}
+.toast.show{opacity:1}
+.big{font-family:var(--serif); font-size:1.28rem; line-height:1.62; color:#fbfcff}
+
+@media (max-width:520px){
+  html{font-size:17px}
+  h1{font-size:1.72rem}
+  .hero .art, .hero .art svg{height:170px}
+}
+
+/* ---------- talk to someone / share ---------- */
+.box.talk{border-color:#2f6b4a; background:linear-gradient(180deg,#141d18,#111823)}
+.box.talk h3{color:#8fe0ab}
+.box.share{border-color:#2b3a5e}
+.box.share h3{color:#a9c2ff}
+.chips.big a{padding:.75rem 1.05rem; font-size:.95rem; font-weight:700}
+.chips a.chip, .chips button.chip{display:inline-flex; align-items:center; gap:.4rem;
+  background:var(--panel2); border:1px solid var(--line); border-radius:10px;
+  padding:.55rem .85rem; color:var(--ink); text-decoration:none; font-size:.87rem; cursor:pointer;
+  font-family:inherit}
+.chips a.chip:hover, .chips button.chip:hover{border-color:#4a5b86}
+.chips a.chip.call{background:linear-gradient(180deg,#3f7f5c,#2f6349); border-color:#3f7f5c; color:#fff}
+.chips a.chip.wa{background:linear-gradient(180deg,#2fae5c,#248a49); border-color:#2fae5c; color:#fff}
+.chips a.chip.tg{background:linear-gradient(180deg,#3d9dd8,#2b7fb4); border-color:#3d9dd8; color:#fff}
+.chips a.chip.gold{background:linear-gradient(180deg,#e9bf63,#c9992f); border-color:#e9bf63; color:#241c05}
+
+/* ---------- floating WhatsApp button ---------- */
+#float{position:fixed; right:16px; bottom:88px; z-index:25; display:flex; flex-direction:column; gap:8px; align-items:flex-end}
+.fab{display:inline-flex; align-items:center; gap:.5rem; text-decoration:none;
+  color:#fff; font-weight:700; border-radius:999px; padding:.62rem 1rem;
+  box-shadow:0 8px 22px rgba(0,0,0,.42); font-size:.9rem}
+.fab:active{transform:translateY(1px)}
+.fab-ic{font-size:1.05rem}
+.fab-wa{background:linear-gradient(180deg,#2fae5c,#248a49); border:1px solid #37c46a}
+.fab-call{background:linear-gradient(180deg,#4a73e8,#3a5bc4); border:1px solid #5c85f5}
+@media (max-width:520px){ .fab-tx{display:none} .fab{padding:.8rem} }
+
+</style>
+</head>
+<body>
+<div class="topbar"><div class="in"><div class="row"><div class="brand"><span id="brandName">START HERE</span><small id="brandTag"></small></div><div class="who"><span>Pilgrim</span><b id="whoName"></b></div></div><div class="track"><i id="prog"></i></div></div></div>
+<main class="wrap" id="view"></main>
+<div id="float"></div>
+<div class="navbar"><div class="in" id="navIn"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+/* WHO TO CONTACT.
+ *
+ * Edit these lines and every page updates: the "Talk to someone" box, the
+ * floating button, and every prefilled WhatsApp message.
+ *
+ *   phone     - the number the Call button dials (keep the + and country code)
+ *   whatsapp  - the number for WhatsApp, digits only, with country code
+ *   telegram  - the number for Telegram, digits only (no +)
+ *   name      - how you want to be shown. Leave "" to show the number only.
+ */
+var CONTACT = {
+  name: "",
+  phone: "+256754687597",
+  whatsapp: "256754687597",
+  telegram: "256754687597"
+};
+
+/* Build the links. These never call home - they just open your phone's apps. */
+CONTACT.telLink = function () {
+  return "tel:" + CONTACT.phone;
+};
+CONTACT.waLink = function (message) {
+  return "https://wa.me/" + CONTACT.whatsapp + (message ? "?text=" + encodeURIComponent(message) : "");
+};
+CONTACT.tgLink = function () {
+  return "https://t.me/+" + CONTACT.telegram;
+};
+CONTACT.shareLink = function (message) {
+  return "https://wa.me/?text=" + encodeURIComponent(message);
+};
+CONTACT.showName = function () {
+  return CONTACT.name || CONTACT.phone;
+};
+
+/* Interface words, in each language a course can be written in.
+   The course file picks one with `lang: "en"` or `lang: "lg"`.
+   Scripture itself is never translated here - it comes from verses.js / verses-lug.js. */
+var STRINGS = {
+  en: {
+    before: "Before you begin",
+    yourName: "Your name (so your progress is kept on this device)",
+    namePlaceholder: "Type your name",
+    prayerStart: "A prayer before we start",
+    whatThis: "What this is",
+    whatMeans: "What this means",
+    readAlso: "Read also",
+    prayThis: "Pray this",
+    think: "Think about it",
+    doToday: "Do this today",
+    deeper: "Going deeper",
+    notes: "Your notes",
+    notesLabel: "Write what God is showing you on this page",
+    notesPlaceholder: "My thoughts...",
+    saveNote: "Save my note",
+    saved: "Saved. Keep going.",
+    talkTitle: "Talk to someone",
+    talkBody: "You do not have to walk this road alone. Call, or send a message, and someone will pray with you and answer your questions.",
+    call: "Call now",
+    whatsapp: "WhatsApp",
+    telegram: "Telegram",
+    askPrayer: "Ask for prayer",
+    askQuestion: "I have a question",
+    askJesus: "I want to follow Jesus",
+    shareTitle: "Share this with a friend",
+    shareBody: "Someone you know is carrying something heavy. Send them this page.",
+    shareWhatsapp: "Share on WhatsApp",
+    shareCopy: "Copy the link",
+    copied: "Link copied. Paste it anywhere.",
+    walkTitle: "Walk with others",
+    walkBody: "Faith grows in company. Ask your questions, share what you are learning, and encourage one another.",
+    notesSoFar: "Your notes so far",
+    noNotes: "No notes yet - go back and write as you read.",
+    page: "Page",
+    about: "About",
+    offline: "Offline single file. No server. Nothing leaves your device.",
+    restart: "Start again from the beginning",
+    begin: "Begin",
+    back: "Back",
+    next: "Next",
+    finish: "Finish",
+    backLessons: "Back to the lessons",
+    madeIt: "You made it",
+    pilgrim: "Pilgrim",
+    msgTalk: "My name is {name}. I am reading {where} and I would like to talk with you.",
+    msgPrayer: "My name is {name}. I am reading {where} and I would like someone to pray with me.",
+    msgQuestion: "My name is {name}. I am reading {where} and I have a question about {topic}.",
+    msgJesus: "My name is {name}. I want to give my life to Jesus. I am reading {where} and I need someone to help me."
+  },
+  lg: {
+    before: "Obutandika",
+    yourName: "Erinnya lyo (ennamba y'okukkiriza ku kyuma kino)",
+    namePlaceholder: "Wandiika erinnya lyo",
+    prayerStart: "Okusaba nga tennatandika",
+    whatThis: "Kino kye ki",
+    whatMeans: "Kino kitegeeza ki",
+    readAlso: "Soma era",
+    prayThis: "Saba kino",
+    think: "Fumiiriza ku kino",
+    doToday: "Kola kino leero",
+    deeper: "Okugenda mu maaso",
+    notes: "Ebiwandiiko byo",
+    notesLabel: "Wandiika ekyo Katonda ky'akulaga ku lupapula luno",
+    notesPlaceholder: "Ebirowoozo byange...",
+    saveNote: "Tereka ekiwandiiko kyange",
+    saved: "Kiterekereddwa. Genda mu maaso.",
+    talkTitle: "Yogera n'omuntu",
+    talkBody: "Tewali kwetaaga kutambula kkubo lino wekka. Kuba essimu, oba tuma obubaka, omuntu alisaba naawe era addemu ebibuuzo byo.",
+    call: "Kuba essimu",
+    whatsapp: "WhatsApp",
+    telegram: "Telegram",
+    askPrayer: "Nsaba onzabire",
+    askQuestion: "Nina ekibuuzo",
+    askJesus: "Njagala kugoberera Yesu",
+    shareTitle: "Gabana kino ne mukwano",
+    shareBody: "Waliwo omuntu gw'omanyi eyeetisse ekizito. Mumuweereze olupapula luno.",
+    shareWhatsapp: "Gabana ku WhatsApp",
+    shareCopy: "Koppa linki",
+    copied: "Linki ekoppiddwa. Giteeka wonna.",
+    walkTitle: "Tugende wamu",
+    walkBody: "Okukkiriza kukula mu kusisinkana. Buuza ebibuuzo byo, gabana kye oyiga, era muzanyirizane.",
+    notesSoFar: "Ebiwandiiko byo okutuusa kaakano",
+    noNotes: "Tewali biwandiiko. Ddayo owandiike nga bw'osoma.",
+    page: "Lupapula",
+    about: "Ebikwata ku kino",
+    offline: "Fayiro emu. Tewali server. Tewali kintu kiva ku kyuma kyo.",
+    restart: "Ddamu otandike okuva ku ntandikwa",
+    begin: "Tandika",
+    back: "Ddayo",
+    next: "Genda mu maaso",
+    finish: "Maliriza",
+    backLessons: "Ddayo ku masomo",
+    madeIt: "Otuuse",
+    pilgrim: "Mukyala/Musajja",
+    msgTalk: "Nze {name}. Nsoma {where} era njagala kuyogera naawe.",
+    msgPrayer: "Nze {name}. Nsoma {where} era njagala omuntu anzabire.",
+    msgQuestion: "Nze {name}. Nsoma {where} era nina ekibuuzo ku {topic}.",
+    msgJesus: "Nze {name}. Njagala okuwa obulamu bwange Yesu. Nsoma {where} era njagala omuntu annyambeko."
+  }
+};
+
+/* EMMAUS artwork — self-contained SVG illustrations.
+   Each scene is a function returning an <svg> string (viewBox 800x420).
+   To swap in a real photo later, replace a scene's body with:
+     '<img src="images/NAME.jpg" alt="..." style="width:100%;height:100%;object-fit:cover">'
+   and drop the file in an images/ folder. Nothing else changes. */
+
+var ART = (function () {
+  function defs(id, from, to) {
+    return '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="' + from + '"/><stop offset="1" stop-color="' + to + '"/></linearGradient></defs>';
+  }
+  function wrap(inner, skyFrom, skyTo) {
+    return '<svg viewBox="0 0 800 420" preserveAspectRatio="xMidYMid slice" '
+      + 'style="width:100%;height:100%;display:block" role="img">'
+      + defs("g", skyFrom, skyTo)
+      + '<rect width="800" height="420" fill="url(#g)"/>'
+      + inner + '</svg>';
+  }
+  function stars(n) {
+    var s = "", seed = 7;
+    for (var i = 0; i < n; i++) {
+      seed = (seed * 9301 + 49297) % 233280;
+      var x = Math.round((seed / 233280) * 800);
+      seed = (seed * 9301 + 49297) % 233280;
+      var y = Math.round((seed / 233280) * 230);
+      var r = (i % 5 === 0) ? 2 : 1.2;
+      s += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="#ffeec2" opacity="' + (0.35 + (i % 3) * 0.2) + '"/>';
+    }
+    return s;
+  }
+  function hills(colors) {
+    var out = "";
+    colors.forEach(function (c, i) {
+      var y = 300 + i * 26;
+      out += '<path d="M0 ' + y + ' Q200 ' + (y - 60) + ' 400 ' + (y - 10) + ' T800 ' + (y - 30)
+        + ' L800 420 L0 420 Z" fill="' + c + '"/>';
+    });
+    return out;
+  }
+  function rays(cx, cy, color, op) {
+    var out = "";
+    for (var a = 0; a < 360; a += 22.5) {
+      var r1 = 60, r2 = 340, rad = a * Math.PI / 180;
+      out += '<line x1="' + (cx + Math.cos(rad) * r1) + '" y1="' + (cy + Math.sin(rad) * r1)
+        + '" x2="' + (cx + Math.cos(rad) * r2) + '" y2="' + (cy + Math.sin(rad) * r2)
+        + '" stroke="' + color + '" stroke-width="6" opacity="' + op + '" stroke-linecap="round"/>';
+    }
+    return out;
+  }
+
+  return {
+    creation: function () {
+      return wrap(stars(46)
+        + '<circle cx="640" cy="92" r="52" fill="#ffe9b0"/><circle cx="640" cy="92" r="78" fill="#ffe9b0" opacity=".16"/>'
+        + '<circle cx="150" cy="110" r="34" fill="#eef2ff" opacity=".9"/><circle cx="168" cy="100" r="34" fill="#1e2748"/>'
+        + hills(["#3d6b52", "#2f4f3e", "#22392e"]), "#1b2545", "#3a3560");
+    },
+    seeking: function () {
+      return wrap(stars(30)
+        + '<circle cx="400" cy="120" r="90" fill="#ffe9b0" opacity=".12"/>'
+        + '<circle cx="400" cy="120" r="46" fill="#ffe9b0" opacity=".8"/>'
+        + hills(["#2f4f3e", "#22392e"])
+        + '<circle cx="400" cy="300" r="26" fill="#0f1424"/>'
+        + '<path d="M400 322 q-30 6 -40 78 h80 q-10 -72 -40 -78 Z" fill="#0f1424"/>', "#16203c", "#3a3560");
+    },
+    openBible: function () {
+      return wrap('<circle cx="400" cy="180" r="150" fill="#ffe9b0" opacity=".1"/>'
+        + '<path d="M150 300 q120 -40 250 0 v-140 q-130 -40 -250 0 Z" fill="#f6efe0"/>'
+        + '<path d="M400 300 q130 -40 250 0 v-140 q-120 -40 -250 0 Z" fill="#efe6d2"/>'
+        + '<path d="M400 160 v140" stroke="#c9b48c" stroke-width="4"/>'
+        + '<line x1="190" y1="210" x2="350" y2="200" stroke="#c9b48c" stroke-width="3" opacity=".7"/>'
+        + '<line x1="190" y1="240" x2="350" y2="232" stroke="#c9b48c" stroke-width="3" opacity=".7"/>'
+        + '<line x1="450" y1="200" x2="610" y2="210" stroke="#c9b48c" stroke-width="3" opacity=".7"/>'
+        + '<line x1="450" y1="232" x2="610" y2="240" stroke="#c9b48c" stroke-width="3" opacity=".7"/>', "#241f3d", "#4a3f6b");
+    },
+    hands: function () {
+      return wrap(rays(400, 150, "#ffe9b0", ".07")
+        + '<circle cx="400" cy="150" r="46" fill="#ffe9b0" opacity=".95"/>'
+        + '<path d="M250 400 q-10 -110 60 -150 q40 -22 90 -22 q50 0 90 22 q70 40 60 150 Z" fill="#c98d63"/>'
+        + '<path d="M400 228 v60" stroke="#a9744d" stroke-width="6"/>'
+        + '<path d="M320 300 q80 -30 160 0" stroke="#a9744d" stroke-width="6" fill="none"/>', "#2a2138", "#553f52");
+    },
+    crossroad: function () {
+      return wrap(hills(["#2f4f3e", "#22392e"])
+        + '<path d="M400 420 L400 240" stroke="#c9b48c" stroke-width="10"/>'
+        + '<path d="M400 300 L250 230" stroke="#c9b48c" stroke-width="8"/>'
+        + '<path d="M400 300 L560 220" stroke="#c9b48c" stroke-width="8"/>'
+        + '<rect x="205" y="180" width="90" height="34" rx="5" fill="#8a6a3a"/>'
+        + '<rect x="520" y="170" width="90" height="34" rx="5" fill="#8a6a3a"/>'
+        + '<circle cx="400" cy="330" r="20" fill="#12172a"/>'
+        + '<path d="M400 348 q-24 6 -30 62 h60 q-6 -56 -30 -62 Z" fill="#12172a"/>', "#2a2740", "#5a4a6b");
+    },
+    cross: function () {
+      return wrap('<circle cx="400" cy="150" r="120" fill="#ffd98a" opacity=".22"/>'
+        + '<circle cx="400" cy="150" r="70" fill="#ffe9b0" opacity=".5"/>'
+        + hills(["#6b4a5a", "#4a3346", "#2e2033"])
+        + '<rect x="392" y="70" width="16" height="200" fill="#3a2a1f"/>'
+        + '<rect x="336" y="120" width="128" height="16" fill="#3a2a1f"/>', "#3a2b52", "#c96a4a");
+    },
+    sunrise: function () {
+      return wrap('<circle cx="400" cy="250" r="66" fill="#fff0c2"/>'
+        + rays(400, 250, "#ffd98a", ".1")
+        + hills(["#3d6b52", "#2f4f3e", "#22392e"])
+        + '<path d="M120 90 q30 -26 60 0 M180 70 q26 -22 52 0" stroke="#2a2a3a" stroke-width="5" fill="none" opacity=".6"/>', "#2b2a55", "#f0a45e");
+    },
+    anchor: function () {
+      return wrap('<circle cx="400" cy="150" r="110" fill="#ffe9b0" opacity=".08"/>'
+        + '<path d="M400 110 v170" stroke="#cfd8ea" stroke-width="12"/>'
+        + '<circle cx="400" cy="104" r="18" fill="none" stroke="#cfd8ea" stroke-width="12"/>'
+        + '<path d="M330 170 h140" stroke="#cfd8ea" stroke-width="12"/>'
+        + '<path d="M320 230 q80 70 160 0" stroke="#cfd8ea" stroke-width="12" fill="none"/>'
+        + '<path d="M320 230 l-20 22 M480 230 l20 22" stroke="#cfd8ea" stroke-width="10"/>'
+        + '<path d="M0 350 q100 -26 200 0 t200 0 t200 0 t200 0 v70 H0 Z" fill="#2b4a6b" opacity=".85"/>', "#1b2545", "#2f4a6b");
+    },
+    path: function () {
+      return wrap('<circle cx="400" cy="120" r="70" fill="#ffe9b0" opacity=".3"/>'
+        + hills(["#3d6b52", "#2f4f3e"])
+        + '<path d="M300 420 Q360 300 380 240 Q392 190 400 150 L400 420 Z" fill="#c9b48c" opacity=".85"/>'
+        + '<path d="M500 420 Q440 300 420 240 Q408 190 400 150 L400 420 Z" fill="#b8a377" opacity=".85"/>', "#2a2740", "#6b5a7a");
+    },
+    lamp: function () {
+      return wrap(rays(400, 170, "#ffe9b0", ".09")
+        + '<ellipse cx="400" cy="150" rx="26" ry="44" fill="#ffd98a" opacity=".95"/>'
+        + '<ellipse cx="400" cy="150" rx="14" ry="30" fill="#fff3cf"/>'
+        + '<path d="M330 250 h140 q10 0 10 12 q0 40 -30 52 h-100 q-30 -12 -30 -52 q0 -12 10 -12 Z" fill="#c98d63"/>'
+        + '<path d="M400 250 v-46" stroke="#8a6a3a" stroke-width="8"/>'
+        + '<path d="M320 250 q-30 6 -34 34" stroke="#c98d63" stroke-width="10" fill="none"/>', "#241f3d", "#4a3f6b");
+    },
+    prayer: function () {
+      return wrap(rays(400, 130, "#ffe9b0", ".08")
+        + '<circle cx="400" cy="120" r="54" fill="#ffe9b0" opacity=".55"/>'
+        + '<circle cx="400" cy="262" r="24" fill="#12172a"/>'
+        + '<path d="M400 284 q-34 8 -40 74 h80 q-6 -66 -40 -74 Z" fill="#12172a"/>'
+        + '<path d="M362 300 q38 -26 76 0" stroke="#12172a" stroke-width="14" fill="none"/>'
+        + '<rect x="300" y="358" width="200" height="14" rx="7" fill="#2a3044"/>', "#1e2140", "#4a3f6b");
+    },
+    dove: function () {
+      return wrap(rays(400, 190, "#ffe9b0", ".07")
+        + '<path d="M300 200 q60 -60 140 -40 q40 8 70 -10 q-16 34 -50 46 q20 30 -10 62 q-40 40 -110 20 q-60 -18 -70 -46 q-6 -22 30 -32 Z" fill="#f4f7ff"/>'
+        + '<path d="M420 168 q26 -6 42 6 q-20 6 -34 20 Z" fill="#cfd8ea"/>'
+        + '<circle cx="352" cy="196" r="6" fill="#2a3044"/>'
+        + '<path d="M340 206 l-22 8 l20 6 Z" fill="#e9bf63"/>', "#1b2545", "#3a4a7a");
+    },
+    shield: function () {
+      return wrap('<circle cx="400" cy="200" r="140" fill="#ffe9b0" opacity=".07"/>'
+        + '<path d="M400 70 L560 120 v110 q0 110 -160 160 q-160 -50 -160 -160 V120 Z" fill="#3a4a70"/>'
+        + '<path d="M400 92 L538 134 v96 q0 96 -138 140 q-138 -44 -138 -140 v-96 Z" fill="#2b3a5c"/>'
+        + '<ellipse cx="400" cy="216" rx="22" ry="38" fill="#ffd98a"/>'
+        + '<ellipse cx="400" cy="216" rx="11" ry="24" fill="#fff3cf"/>', "#1b2036", "#33406b");
+    },
+    world: function () {
+      return wrap(rays(400, 200, "#ffe9b0", ".06")
+        + '<circle cx="400" cy="200" r="120" fill="#2f5a7a"/>'
+        + '<path d="M330 120 q50 30 30 70 q-20 40 30 60 q40 16 20 60 q-30 30 -80 10 q-50 -24 -40 -80 q10 -60 40 -120 Z" fill="#4a8a6a"/>'
+        + '<path d="M470 140 q40 20 30 60 q-8 30 20 46 q-30 10 -60 -20 q-20 -40 10 -86 Z" fill="#4a8a6a"/>'
+        + '<circle cx="400" cy="200" r="120" fill="none" stroke="#8fc0e0" stroke-width="6"/>'
+        + '<ellipse cx="400" cy="200" rx="120" ry="42" fill="none" stroke="#8fc0e0" stroke-width="4" opacity=".6"/>', "#16203c", "#2f4a7a");
+    },
+    together: function () {
+      return wrap('<circle cx="400" cy="150" r="90" fill="#ffe9b0" opacity=".14"/>'
+        + '<circle cx="280" cy="250" r="26" fill="#1a2036"/><path d="M280 272 q-32 8 -38 76 h76 q-6 -68 -38 -76 Z" fill="#1a2036"/>'
+        + '<circle cx="400" cy="228" r="30" fill="#12172a"/><path d="M400 254 q-36 8 -42 94 h84 q-6 -86 -42 -94 Z" fill="#12172a"/>'
+        + '<circle cx="520" cy="250" r="26" fill="#1a2036"/><path d="M520 272 q-32 8 -38 76 h76 q-6 -68 -38 -76 Z" fill="#1a2036"/>'
+        + '<path d="M300 300 q100 -40 200 0" stroke="#c9b48c" stroke-width="5" fill="none" opacity=".5"/>', "#22284a", "#4a4a7a");
+    },
+    city: function () {
+      return wrap(stars(24)
+        + '<circle cx="400" cy="150" r="120" fill="#ffe9b0" opacity=".12"/>'
+        + '<path d="M220 420 v-120 h40 v-60 h60 v60 h40 v120 Z" fill="#2a3358"/>'
+        + '<path d="M360 420 v-170 h50 v-70 h60 v70 h50 v170 Z" fill="#34406b"/>'
+        + '<path d="M540 420 v-100 h50 v-50 h50 v50 h40 v100 Z" fill="#2a3358"/>'
+        + '<rect x="300" y="330" width="16" height="24" fill="#ffe9b0" opacity=".8"/>'
+        + '<rect x="392" y="300" width="16" height="24" fill="#ffe9b0" opacity=".8"/>'
+        + '<rect x="440" y="300" width="16" height="24" fill="#ffe9b0" opacity=".8"/>'
+        + '<rect x="580" y="350" width="16" height="24" fill="#ffe9b0" opacity=".8"/>', "#151d3a", "#3a3a6b");
+    },
+    baptism: function () {
+      return wrap('<circle cx="400" cy="140" r="80" fill="#ffe9b0" opacity=".22"/>'
+        + '<path d="M0 300 q100 -24 200 0 t200 0 t200 0 t200 0 v120 H0 Z" fill="#2b4a6b"/>'
+        + '<path d="M0 340 q100 -24 200 0 t200 0 t200 0 t200 0 v80 H0 Z" fill="#20395a" opacity=".8"/>'
+        + '<circle cx="400" cy="250" r="24" fill="#12172a"/>'
+        + '<path d="M400 272 q-30 6 -36 60 h72 q-6 -54 -36 -60 Z" fill="#12172a"/>'
+        + '<path d="M360 250 q40 -50 80 0" stroke="#ffe9b0" stroke-width="5" fill="none" opacity=".6"/>', "#1e2140", "#4a6a9a");
+    },
+    peace: function () {
+      return wrap('<circle cx="400" cy="150" r="100" fill="#ffe9b0" opacity=".12"/>'
+        + '<circle cx="400" cy="130" r="40" fill="#ffe9b0" opacity=".5"/>'
+        + hills(["#3d6b52", "#2f4f3e"])
+        + '<circle cx="400" cy="290" r="22" fill="#12172a"/>'
+        + '<path d="M400 310 q-30 6 -36 66 h72 q-6 -60 -36 -66 Z" fill="#12172a"/>', "#22304a", "#6b7a9a");
+    }
+  };
+})();
+
+/* Emoji glyph per scene, used as a small badge in the UI */
+var ART_GLYPH = {
+  creation: "\u2728", seeking: "\uD83D\uDD0D", openBible: "\uD83D\uDCD6", hands: "\uD83E\uDD32",
+  crossroad: "\uD83E\uDDED", cross: "\u271D\uFE0F", sunrise: "\uD83C\uDF05", anchor: "\u2693",
+  path: "\uD83D\uDEE4", lamp: "\uD83E\uDE94", prayer: "\uD83D\uDE4F", dove: "\uD83D\uDD4A",
+  shield: "\uD83D\uDEE1\uFE0F", world: "\uD83C\uDF0D", together: "\uD83D\uDC65", city: "\uD83C\uDFD9\uFE0F",
+  baptism: "\uD83D\uDCA7", peace: "\uD83D\uDD4A\uFE0F"
+};
+
+var VERSES = {"1 peter 5:7":"Casting all your care upon him; for he careth for you.","2 corinthians 9:8":"And God is able to make all grace abound toward you; that ye, always having all sufficiency in all things, may abound to every good work:","hebrews 13:5":"Let your conversation be without covetousness; and be content with such things as ye have: for he hath said, I will never leave thee, nor forsake thee.","hebrews 13:5-6":"Let your conversation be without covetousness; and be content with such things as ye have: for he hath said, I will never leave thee, nor forsake thee. So that we may boldly say, The Lord is my helper, and I will not fear what man shall do unto me.","isaiah 40:29-31":"He giveth power to the faint; and to them that have no might he increaseth strength. Even the youths shall faint and be weary, and the young men shall utterly fall: But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.","isaiah 41:10":"Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.","luke 12:6-7":"Are not five sparrows sold for two farthings, and not one of them is forgotten before God? But even the very hairs of your head are all numbered. Fear not therefore: ye are of more value than many sparrows.","matthew 10:29-31":"Are not two sparrows sold for a farthing? and one of them shall not fall on the ground without your Father. But the very hairs of your head are all numbered. Fear ye not therefore, ye are of more value than many sparrows.","matthew 6:25-26":"Therefore I say unto you, Take no thought for your life, what ye shall eat, or what ye shall drink; nor yet for your body, what ye shall put on. Is not the life more than meat, and the body than raiment? Behold the fowls of the air: for they sow not, neither do they reap, nor gather into barns; yet your heavenly Father feedeth them. Are ye not much better than they?","matthew 6:31-33":"Therefore take no thought, saying, What shall we eat? or, What shall we drink? or, Wherewithal shall we be clothed? (For after all these things do the Gentiles seek:) for your heavenly Father knoweth that ye have need of all these things. But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.","matthew 6:33":"But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.","matthew 7:9-11":"Or what man is there of you, whom if his son ask bread, will he give him a stone? Or if he ask a fish, will he give him a serpent? If ye then, being evil, know how to give good gifts unto your children, how much more shall your Father which is in heaven give good things to them that ask him?","philippians 4:19":"But my God shall supply all your need according to his riches in glory by Christ Jesus.","proverbs 3:5-6":"Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.","psalm 121:1-3":"I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the LORD, which made heaven and earth. He will not suffer thy foot to be moved: he that keepeth thee will not slumber.","psalm 145:15-16":"The eyes of all wait upon thee; and thou givest them their meat in due season. Thou openest thine hand, and satisfiest the desire of every living thing.","psalm 23:1":"The LORD is my shepherd; I shall not want.","psalm 23:1-3":"The LORD is my shepherd; I shall not want. He maketh me to lie down in green pastures: he leadeth me beside the still waters. He restoreth my soul: he leadeth me in the paths of righteousness for his nameÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂs sake.","psalm 37:25":"I have been young, and now am old; yet have I not seen the righteous forsaken, nor his seed begging bread.","psalm 55:22":"Cast thy burden upon the LORD, and he shall sustain thee: he shall never suffer the righteous to be moved."};
+
+/* EMMAUS course engine (v2).
+ *
+ * A course is a plain object (see the bottom of each file in courses/):
+ *   { key, brand, tagline, lang, vers, intro:{...}, lessons:[...], closing:{...} }
+ *
+ * The engine renders it one page at a time, keeps progress and notes in
+ * localStorage, puts a "talk to someone" block on every page, and needs no
+ * network. It also exposes exportCourse() so a course can be written out to a
+ * single self-contained file.
+ */
+
+/* ---- shared UI strings (fall back to English if a language is missing) ---- */
+function courseStrings(lang) {
+  var base = (typeof STRINGS !== "undefined" && STRINGS.en) ? STRINGS.en : {};
+  var loc = (typeof STRINGS !== "undefined" && STRINGS[lang]) ? STRINGS[lang] : {};
+  var out = {};
+  for (var k in base) out[k] = (loc[k] !== undefined) ? loc[k] : base[k];
+  for (var k2 in loc) if (out[k2] === undefined) out[k2] = loc[k2];
+  return out;
+}
+
+/* ---- scripture lookup, with a safe fallback if a verse is missing ---- */
+function courseVerseStore(vers) {
+  if (vers === "lug" && typeof VERSES_LUG !== "undefined") return VERSES_LUG;
+  return (typeof VERSES !== "undefined") ? VERSES : {};
+}
+
+function initCourse(COURSE) {
+  var S = courseStrings(COURSE.lang || "en");
+  var V = courseVerseStore(COURSE.vers || "kjv");
+  var KEY = COURSE.key;
+  var DB = load();
+  var idx = 0;
+  var welcome = true;
+  var done = false;
+
+  var view, navIn, progEl, whoEl, floatEl;
+
+  function load() {
+    try { var r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {}
+    return { name: "", seen: {}, notes: {} };
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) {} }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+    });
+  }
+  function verseText(ref) {
+    if (V[ref]) return V[ref];
+    var m = ref.match(/^(.+?)\s+(\d+):(\d+)-(\d+)$/);
+    if (m) {
+      var parts = [];
+      for (var i = +m[3]; i <= +m[4]; i++) {
+        var t = V[m[1] + " " + m[2] + ":" + i];
+        if (t) parts.push(t);
+      }
+      if (parts.length) return parts.join(" ");
+    }
+    return "";
+  }
+
+  /* ---- the message someone sends you, written for them in advance ---- */
+  function fill(tpl, topic) {
+    var where = COURSE.brand + (COURSE.tagline ? " - " + COURSE.tagline : "");
+    return String(tpl || "")
+      .replace("{name}", DB.name || "...")
+      .replace("{where}", where)
+      .replace("{topic}", topic || currentTitle() || "");
+  }
+  function prefill(kind) {
+    if (kind === "prayer") return fill(S.msgPrayer);
+    if (kind === "question") return fill(S.msgQuestion);
+    if (kind === "jesus") return fill(S.msgJesus);
+    return fill(S.msgTalk);
+  }
+  function currentTitle() {
+    if (welcome) return (COURSE.intro || {}).title || "";
+    if (done) return (COURSE.closing || {}).title || "";
+    var L = COURSE.lessons[idx];
+    return L ? L.title : "";
+  }
+  function shareMessage() {
+    return (currentTitle() ? currentTitle() + " - " : "") + COURSE.brand +
+      (COURSE.tagline ? " - " + COURSE.tagline : "") + ".\nBw'olina omuntu eyeetaaga, mumuweereze kino.";
+  }
+
+  /* ---- pieces ---- */
+  function verseBlock(ref, minor) {
+    var t = verseText(ref);
+    if (!t) return "";
+    return '<div class="verse' + (minor ? " minor" : "") + '">'
+      + '<div class="ref">' + esc(ref.toUpperCase()) + '</div>'
+      + '<div class="text">' + esc(t) + '</div></div>';
+  }
+  function hero(artKey, kicker, title, lead) {
+    var art = (typeof ART !== "undefined" && ART[artKey]) ? ART[artKey]() : "";
+    return '<div class="hero">'
+      + '<div class="art">' + art + '</div>'
+      + '<div class="cap">'
+      + (kicker ? '<div class="kicker">' + esc(kicker) + '</div>' : '')
+      + '<h1>' + esc(title) + '</h1>'
+      + (lead ? '<p class="lead" style="margin-bottom:0">' + esc(lead) + '</p>' : '')
+      + '</div></div>';
+  }
+  function dots() {
+    var s = "";
+    for (var i = 0; i < COURSE.lessons.length; i++) {
+      s += '<b class="' + (i < idx ? "seen" : (i === idx ? "on" : "")) + '"></b>';
+    }
+    return '<div class="dots">' + s + '</div>';
+  }
+
+  /* The box that puts a person in front of them on every single page. */
+  function contactBox() {
+    return '<div class="box talk">'
+      + '<h3>' + esc(S.talkTitle) + '</h3>'
+      + '<p>' + esc(S.talkBody) + '</p>'
+      + '<div class="chips big">'
+      + '<a class="chip call" href="' + esc(CONTACT.telLink()) + '">&#9742; ' + esc(S.call) + '</a>'
+      + '<a class="chip wa" href="' + esc(CONTACT.waLink(prefill("talk"))) + '" target="_blank" rel="noopener">WhatsApp</a>'
+      + '<a class="chip tg" href="' + esc(CONTACT.tgLink()) + '" target="_blank" rel="noopener">Telegram</a>'
+      + '</div>'
+      + '<div class="chips">'
+      + '<a class="chip" href="' + esc(CONTACT.waLink(prefill("prayer"))) + '" target="_blank" rel="noopener">' + esc(S.askPrayer) + '</a>'
+      + '<a class="chip" href="' + esc(CONTACT.waLink(prefill("question"))) + '" target="_blank" rel="noopener">' + esc(S.askQuestion) + '</a>'
+      + '<a class="chip gold" href="' + esc(CONTACT.waLink(prefill("jesus"))) + '" target="_blank" rel="noopener">' + esc(S.askJesus) + '</a>'
+      + '</div>'
+      + '<p class="small muted">' + esc(CONTACT.showName()) + '</p>'
+      + '</div>';
+  }
+
+  /* Send this page to a friend - the whole point of the series. */
+  function shareBox() {
+    return '<div class="box share">'
+      + '<h3>' + esc(S.shareTitle) + '</h3>'
+      + '<p class="small">' + esc(S.shareBody) + '</p>'
+      + '<div class="chips">'
+      + '<button class="chip wa" id="shareBtn">' + esc(S.shareWhatsapp) + '</button>'
+      + '<button class="chip" id="copyBtn">' + esc(S.shareCopy) + '</button>'
+      + '</div></div>';
+  }
+
+  /* ---- screens ---- */
+  function screenWelcome() {
+    var i = COURSE.intro || {};
+    return '<div class="page">'
+      + hero(i.art || "creation", COURSE.brand, i.title, i.lead)
+      + '<div class="box">'
+      + '<h3>' + esc(i.noteTitle || S.before) + '</h3>'
+      + '<p class="small">' + esc(i.note || "") + '</p>'
+      + '<label>' + esc(S.yourName) + '</label>'
+      + '<input id="nm" placeholder="' + esc(S.namePlaceholder) + '" value="' + esc(DB.name) + '" autocomplete="off">'
+      + '</div>'
+      + (i.prayer ? '<div class="box pray"><h3>' + esc(S.prayerStart) + '</h3><p class="big">' + esc(i.prayer) + '</p></div>' : '')
+      + '<div class="box"><h3>' + esc(S.whatThis) + '</h3><ul>'
+      + (i.points || []).map(function (p) { return '<li>' + esc(p) + '</li>'; }).join("")
+      + '</ul></div>'
+      + contactBox()
+      + shareBox()
+      + '</div>';
+  }
+
+  function screenLesson(L) {
+    var n = idx + 1;
+    return '<div class="page">'
+      + '<div class="hero"><div class="art">' + ((typeof ART !== "undefined" && ART[L.art]) ? ART[L.art]() : "") + '</div></div>'
+      + '<div class="kicker">' + esc(L.kicker) + '</div>'
+      + '<h1>' + esc(L.title) + '</h1>'
+      + '<p class="lead">' + esc(L.lead) + '</p>'
+      + verseBlock(L.verse, false)
+      + '<div class="box"><h3>' + esc(S.whatMeans) + '</h3><p>' + esc(L.meaning) + '</p></div>'
+      + ((L.verses2 && L.verses2.length)
+        ? '<div class="box"><h3>' + esc(S.readAlso) + '</h3>' + L.verses2.map(function (r) { return verseBlock(r, true); }).join("") + '</div>'
+        : '')
+      + (L.prayer ? '<div class="box pray"><h3>' + esc(S.prayThis) + '</h3><div class="prayer">' + esc(L.prayer) + '</div></div>' : '')
+      + '<div class="box think"><h3>' + esc(S.think) + '</h3><p>' + esc(L.think) + '</p></div>'
+      + '<div class="box do"><h3>' + esc(S.doToday) + '</h3><p>' + esc(L.action) + '</p></div>'
+      + ((L.deeper && L.deeper.length)
+        ? '<div class="box"><h3>' + esc(S.deeper) + '</h3>'
+          + L.deeper.map(function (d) {
+              return '<p style="margin-top:.6em"><b>' + esc(d.title) + '</b></p><p>' + esc(d.body) + '</p>';
+            }).join("")
+          + '</div>'
+        : '')
+      + '<div class="box"><h3>' + esc(S.notes) + '</h3>'
+      + '<label>' + esc(S.notesLabel) + '</label>'
+      + '<textarea id="note" placeholder="' + esc(S.notesPlaceholder) + '">' + esc(DB.notes[n] || "") + '</textarea>'
+      + '<button class="btn gold" id="saveNote" style="margin-top:10px">' + esc(S.saveNote) + '</button>'
+      + '</div>'
+      + contactBox()
+      + shareBox()
+      + dots()
+      + '</div>';
+  }
+
+  function screenClosing() {
+    var c = COURSE.closing || {};
+    return '<div class="page">'
+      + hero(c.art || "city", c.kicker || S.madeIt, c.title, c.lead)
+      + (c.boxes || []).map(function (b) {
+          return '<div class="box ' + (b.cls || "") + '"><h3>' + esc(b.title) + '</h3>' + b.html + '</div>';
+        }).join("")
+      + contactBox()
+      + shareBox()
+      + '<div class="box"><h3>' + esc(S.notesSoFar) + '</h3>'
+      + (function () {
+          var ks = Object.keys(DB.notes).filter(function (k) { return DB.notes[k]; })
+            .sort(function (a, b) { return a - b; });
+          return ks.length
+            ? ks.map(function (k) {
+                return '<p class="small"><b>' + esc(S.page) + ' ' + esc(k) + ':</b> ' + esc(DB.notes[k]) + '</p>';
+              }).join("")
+            : '<p class="small muted">' + esc(S.noNotes) + '</p>';
+        })()
+      + '</div>'
+      + '<div class="box center"><h3>' + esc(S.about) + '</h3>'
+      + '<p class="small">' + esc(COURSE.brand) + (COURSE.tagline ? ' - ' + esc(COURSE.tagline) : '') + '</p>'
+      + '<p class="small">' + esc(CONTACT.showName()) + '</p>'
+      + '<p class="small muted">' + esc(S.offline) + '</p>'
+      + '<p class="small" style="margin-top:10px">'
+      + '<button class="btn ghost" id="restart">' + esc(S.restart) + '</button></p>'
+      + '</div></div>';
+  }
+
+  /* ---- render ---- */
+  function render() {
+    var pos = welcome ? 0 : (done ? COURSE.lessons.length : idx + 1);
+    progEl.style.width = Math.round(100 * pos / COURSE.lessons.length) + "%";
+    whoEl.textContent = DB.name || "";
+
+    if (welcome) { view.innerHTML = screenWelcome(); wireWelcome(); }
+    else if (done) { view.innerHTML = screenClosing(); wireClosing(); }
+    else { view.innerHTML = screenLesson(COURSE.lessons[idx]); wireLesson(); }
+    wireCommon();
+    window.scrollTo(0, 0);
+    drawNav();
+  }
+
+  function wireCommon() {
+    var sb = document.getElementById("shareBtn");
+    if (sb) sb.onclick = function () {
+      var msg = shareMessage();
+      if (navigator.share) { navigator.share({ text: msg }).catch(function () {}); return; }
+      window.open(CONTACT.shareLink(msg), "_blank");
+    };
+    var cb = document.getElementById("copyBtn");
+    if (cb) cb.onclick = function () {
+      var msg = shareMessage() + " " + location.href;
+      var done = function () { toast(S.copied); };
+      if (navigator.clipboard) navigator.clipboard.writeText(msg).then(done, done);
+      else { window.prompt("Copy:", msg); }
+    };
+  }
+  function wireWelcome() {
+    var i = document.getElementById("nm");
+    i.addEventListener("input", function () {
+      DB.name = i.value.trim(); save(); whoEl.textContent = DB.name;
+    });
+  }
+  function wireLesson() {
+    var t = document.getElementById("note");
+    if (t) t.addEventListener("input", function () { DB.notes[idx + 1] = t.value; save(); });
+    var b = document.getElementById("saveNote");
+    if (b) b.onclick = function () {
+      DB.notes[idx + 1] = document.getElementById("note").value;
+      DB.seen[idx] = true; save(); toast(S.saved);
+    };
+  }
+  function wireClosing() {
+    var r = document.getElementById("restart");
+    if (r) r.onclick = function () { welcome = true; done = false; idx = 0; render(); };
+  }
+
+  /* ---- nav ---- */
+  function drawNav() {
+    if (welcome) {
+      navIn.innerHTML = '<button class="btn gold" id="beginBtn">' + esc(S.begin) + ' &rarr;</button>';
+      document.getElementById("beginBtn").onclick = function () { welcome = false; idx = 0; render(); };
+      return;
+    }
+    if (done) {
+      navIn.innerHTML = '<button class="btn ghost" id="backL">&larr; ' + esc(S.backLessons) + '</button>';
+      document.getElementById("backL").onclick = function () { done = false; idx = COURSE.lessons.length - 1; render(); };
+      return;
+    }
+    var back = '<button class="btn ghost" id="bBack">&larr; ' + esc(S.back) + '</button>';
+    var next;
+    if (idx < COURSE.lessons.length - 1) next = '<button class="btn" id="bNext">' + esc(S.next) + ' &rarr;</button>';
+    else next = '<button class="btn gold" id="bNext">' + esc(S.finish) + ' &rarr;</button>';
+    navIn.innerHTML = back + next;
+    document.getElementById("bBack").onclick = function () {
+      if (idx === 0) { welcome = true; } else { idx--; }
+      render();
+    };
+    document.getElementById("bNext").onclick = function () {
+      DB.seen[idx] = true; save();
+      if (idx === COURSE.lessons.length - 1) { done = true; } else { idx++; }
+      render();
+    };
+  }
+
+  var toastT;
+  function toast(m) {
+    var el = document.getElementById("toast");
+    el.textContent = m; el.classList.add("show");
+    clearTimeout(toastT); toastT = setTimeout(function () { el.classList.remove("show"); }, 1900);
+  }
+
+  /* ---- the always-there buttons to reach you ---- */
+  function drawFloat() {
+    var f = document.getElementById("float");
+    if (!f) return;
+    f.innerHTML =
+      '<a class="fab fab-call" href="' + esc(CONTACT.telLink()) + '" title="' + esc(S.call) + '">'
+      + '<span class="fab-ic">&#9742;</span><span class="fab-tx">' + esc(S.call) + '</span></a>'
+      + '<a class="fab fab-wa" href="' + esc(CONTACT.waLink(prefill("talk"))) + '" target="_blank" rel="noopener" title="' + esc(S.whatsapp) + '">'
+      + '<span class="fab-ic">&#128172;</span><span class="fab-tx">' + esc(S.whatsapp) + '</span></a>';
+  }
+
+  /* ---- boot ---- */
+  view = document.getElementById("view");
+  navIn = document.getElementById("navIn");
+  progEl = document.getElementById("prog");
+  whoEl = document.getElementById("whoName");
+  floatEl = document.getElementById("float");
+  document.getElementById("brandName").textContent = COURSE.brand;
+  document.getElementById("brandTag").textContent = COURSE.tagline || "";
+  document.title = COURSE.brand + (COURSE.tagline ? " - " + COURSE.tagline : "");
+  render();
+  drawFloat();
+}
+
+/* Write a course out as one self-contained HTML file (used by build.js).
+   Everything it needs is inlined, so the file opens offline with no server. */
+function exportCourse(COURSE, parts) {
+  var css = parts.css || "";
+  var js = [parts.contact || "", parts.strings || "", parts.art || "",
+            parts.verses || "", parts.versesLug || "",
+            parts.engine || "", parts.course || ""].join("\n");
+  /* a literal "<\/script" inside any of these would close the page's script
+     tag early, so break it up. It is only ever inside a string. */
+  js = js.replace(/<\/script/gi, "<\\/script");
+  return '<!DOCTYPE html>\n<html lang="' + (COURSE.lang === "lg" ? "lg" : "en") + '">\n<head>\n'
+    + '<meta charset="utf-8">\n'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
+    + '<meta name="theme-color" content="#0e1015">\n'
+    + '<title>' + COURSE.brand + (COURSE.tagline ? " - " + COURSE.tagline : "") + '</title>\n'
+    + '<style>\n' + css + '\n</style>\n</head>\n<body>\n'
+    + '<div class="topbar"><div class="in"><div class="row">'
+    + '<div class="brand"><span id="brandName">' + COURSE.brand + '</span><small id="brandTag"></small></div>'
+    + '<div class="who"><span>' + (COURSE.lang === "lg" ? "Omutambuzi" : "Pilgrim") + '</span><b id="whoName"></b></div>'
+    + '</div><div class="track"><i id="prog"></i></div></div></div>\n'
+    + '<main class="wrap" id="view"></main>\n'
+    + '<div id="float"></div>\n'
+    + '<div class="navbar"><div class="in" id="navIn"></div></div>\n'
+    + '<div class="toast" id="toast"></div>\n'
+    + '<script>\n' + js + '\ninitCourse(COURSE);\n<\/script>\n</body>\n</html>\n';
+}
+
+/* START HERE - God Will Take Care of You.
+   For anyone worried about money, food, school fees, or tomorrow. */
+
+var COURSE = {
+  key: "starthere_care_v1",
+  brand: "START HERE",
+  tagline: "God Will Take Care of You",
+  lang: "en",
+  vers: "kjv",
+
+  intro: {
+    art: "world",
+    title: "You will not be forgotten",
+    lead: "Rent. Fees. Food. Tomorrow. If worry keeps you awake at night, this is 10 short pages for you. Jesus spoke directly about this, and He did not scold anyone for being afraid.",
+    noteTitle: "Before you begin",
+    note: "This course is not asking you to be careless. You will still work, plan, and do your part. It is asking you to stop carrying it alone, and to trust the One who feeds the birds.",
+    prayer: "Father, you know what I need. I am tired of worrying. Teach me to trust you, and help me do my part today. Amen.",
+    points: [
+      "10 short pages for anyone who is worried about provision.",
+      "Scripture, a plain word, and one practical step each day.",
+      "A way to reach a real person for prayer on every page."
+    ]
+  },
+
+  lessons: [
+ {
+  kicker: "Lesson 1 - Known",
+  title: "Your Father already knows",
+  art: "world",
+  lead: "Before you ask, before you explain, God already knows what you need.",
+  verse: "matthew 6:31-33",
+  meaning: "Do not worry, saying what shall we eat, or what shall we drink, or what shall we wear. Your heavenly Father knows that you need them. But seek first His kingdom and His righteousness, and all these things will be given to you as well.",
+  verses2: ["matthew 6:25-26"],
+  think: "What are you most worried about today?",
+  action: "Write your biggest worry in your notes. Then write next to it: my Father already knows."
+ },
+ {
+  kicker: "Lesson 2 - The birds",
+  title: "If He feeds the birds, He will feed you",
+  art: "creation",
+  lead: "Jesus used birds to make a point about you.",
+  verse: "matthew 6:25-26",
+  meaning: "Look at the birds of the air. They do not sow or reap or store away in barns, and yet your heavenly Father feeds them. Are you not much more valuable than they? You are not a bird. You are His child.",
+  verses2: ["matthew 10:29-31"],
+  think: "Have you ever seen God provide for you before, even in a small way?",
+  action: "Think back to one time you were helped when you had nothing. Thank God for it out loud."
+ },
+ {
+  kicker: "Lesson 3 - Cast it",
+  title: "Give your worry to Him",
+  art: "path",
+  lead: "Worry is heavy. You are not meant to hold it. You are meant to hand it over.",
+  verse: "1 peter 5:7",
+  meaning: "Cast all your anxiety on Him, because He cares for you. Notice: not some of it. All of it. And notice the reason: because He cares for you. You are not dumping your problems on someone who is annoyed with you. You are giving them to someone who loves you.",
+  verses2: ["psalm 55:22"],
+  think: "What is the one worry you have never handed over?",
+  action: "Say it out loud, then say: I cast this on you, because you care for me. Then leave it there."
+ },
+ {
+  kicker: "Lesson 4 - Seek first",
+  title: "Put God first, and the rest follows",
+  art: "lamp",
+  lead: "Jesus gives an order of priority, and a promise attached to it.",
+  verse: "matthew 6:33",
+  meaning: "Seek first the kingdom of God and His righteousness, and all these things will be added to you. This is not a formula for getting rich. It is a promise that when God is first, the things you were chasing stop controlling you.",
+  verses2: ["psalm 37:25"],
+  think: "What usually comes first in your life, before God?",
+  action: "Do one thing today that puts God first: pray before you plan, or read before you scroll."
+ },
+ {
+  kicker: "Lesson 5 - The good Father",
+  title: "He gives good gifts",
+  art: "hands",
+  lead: "Some people cannot trust God as a Father, because their own father was harsh or absent. Jesus corrects that picture.",
+  verse: "matthew 7:9-11",
+  meaning: "Which of you, if your son asks for bread, will give him a stone? If you, though you are evil, know how to give good gifts to your children, how much more will your Father in heaven give good gifts to those who ask Him. He is better than the best father you can imagine.",
+  verses2: ["luke 12:6-7"],
+  think: "What is your picture of God as a provider?",
+  action: "Ask God for what you need today, plainly, as a child asks a good father."
+ },
+ {
+  kicker: "Lesson 6 - Contentment",
+  title: "Learning to be content",
+  art: "peace",
+  lead: "There is a freedom on the other side of always wanting more.",
+  verse: "hebrews 13:5-6",
+  meaning: "Keep your lives free from the love of money and be content with what you have, because God has said: never will I leave you, never will I forsake you. The antidote to greed is not poverty. It is trust.",
+  verses2: ["philippians 4:19"],
+  think: "What are you chasing that you think will finally make you happy?",
+  action: "Name three things you already have, and thank God for each one."
+ },
+ {
+  kicker: "Lesson 7 - Sowing",
+  title: "Work, and give, and God blesses",
+  art: "world",
+  lead: "Trusting God does not mean doing nothing. It means working with open hands.",
+  verse: "2 corinthians 9:8",
+  meaning: "God is able to bless you abundantly, so that in all things at all times, having all that you need, you will abound in every good work. He provides so that you can be generous, not so that you can hoard.",
+  verses2: ["proverbs 3:5-6"],
+  think: "Who could you help with what you already have?",
+  action: "Give something small to someone who needs it today, even if it is little. Give cheerfully."
+ },
+ {
+  kicker: "Lesson 8 - The shepherd",
+  title: "The Lord is my shepherd",
+  art: "path",
+  lead: "A shepherd does not run out on his sheep. This is one of the oldest and best pictures in the Bible.",
+  verse: "psalm 23:1-3",
+  meaning: "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures, He leads me beside quiet waters, He restores my soul. Notice: I shall not want. Not I shall be rich. I shall have what I truly need.",
+  verses2: ["psalm 121:1-3"],
+  think: "Where do you need rest and restoration right now?",
+  action: "Read Psalm 23 slowly, out loud, once tonight before you sleep."
+ },
+ {
+  kicker: "Lesson 9 - Do not fear",
+  title: "He will strengthen you",
+  art: "shield",
+  lead: "Fear and faith can both be in the room. God speaks into the fear.",
+  verse: "isaiah 41:10",
+  meaning: "Do not fear, for I am with you. Do not be dismayed, for I am your God. I will strengthen you and help you. I will uphold you with my righteous right hand. He does not just say stop worrying. He says why you can stop.",
+  verses2: ["isaiah 40:29-31"],
+  think: "What are you afraid will happen?",
+  action: "Say the verse out loud twice, then take one practical step toward your need today."
+ },
+ {
+  kicker: "Lesson 10 - Enough",
+  title: "He will supply all your need",
+  art: "sunrise",
+  lead: "This is the promise to stand on, and to keep coming back to.",
+  verse: "philippians 4:19",
+  meaning: "My God will meet all your needs according to the riches of His glory in Christ Jesus. According to His riches, not yours. Not according to the economy. According to His glory. That is a foundation you can stand on.",
+  verses2: ["psalm 145:15-16"],
+  think: "What is the biggest need you are facing?",
+  action: "Write the need down with today's date. Pray over it. Keep the note, and look back at it in a month. Then send this course to someone who is worrying."
+ }
+  ],
+
+  closing: {
+    art: "city",
+    kicker: "You made it",
+    title: "You will not be forgotten",
+    lead: "Worry does not disappear in one reading. It fades as trust grows. Come back to these pages whenever the night is long.",
+    boxes: [
+      { cls: "talk", title: "Talk to someone",
+        html: "<p>If you are in real need right now, do not carry it alone. Call, or send a message. Tell them you read this course. Someone will pray with you, and may even be able to help.</p>" }
+    ]
+  }
+};
+
+initCourse(COURSE);
+</script>
+</body>
+</html>
