@@ -135,8 +135,8 @@ if (fs.existsSync(emmausSrc)) {
   fs.copyFileSync(emmausSrc, path.join(dir, "index.html"));
   emmausCard = `  <a class="card" href="emmaus/index.html">
     <div class="card-k">THE GAME</div>
-    <div class="card-t">EMMAUS — The Unfolding <span class="tag">Journey game</span></div>
-    <div class="card-d">A Scripture-discovery journey for people who already believe. Ten chapters from the Garden to the City. Unfold one verse deeper and deeper — the words, the hidden type of Christ, the practice, and the prayer. One puzzle a day. Works offline.</div>
+    <div class="card-t">EMMAUS — The Unfolding <span class="tag">10 games</span></div>
+    <div class="card-d">Ten chapters from the Garden to the City — and each chapter is its own arcade game: catch, dodge, slide, slice, tap, stack, time, remember, run, guard. 21 levels each (20 + an endless mode), three stars a level, a daily seeded challenge, streaks and a leaderboard. Beat a level and the verse unfolds into the deeper study. Works offline.</div>
     <div class="card-go">Play &rarr;</div>
   </a>`;
   console.log("  emmaus/index.html  (the game, published to docs/)");

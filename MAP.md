@@ -179,9 +179,12 @@ its Hebrew/Greek word underneath. Imported versions live in a JSON file the app 
 5. **Two lamps + Family Mode** (§7), the full **Pulpit** (§8), and the **contact/community**
    layer (§10). — done.
 6. **Rebuilt as a real arcade game** — canvas rendering, a play loop with physics, particles
-   and sound, catch-the-manna play, stars, and a journey map; the chapter opens when you play
-   it, then unfolds word by word into the study scroll. — done. Verified by
-   `tools/test-emmaus.js`, which plays a level through the real loop.
+   and sound, stars, and a journey map; the chapter opens when you play it, then unfolds word
+   by word into the study scroll. — done.
+7. **Ten chapters, ten games** — each chapter is its own arcade mechanic (catch, dodge, slide,
+   slice, tap, stack, time, remember, run, guard), 21 levels each (20 + endless), three stars a
+   level, a daily seeded challenge, streaks, and a local leaderboard. — done. Verified by
+   `tools/test-emmaus.js`, which plays all ten modes through the real loop.
 
 ---
 

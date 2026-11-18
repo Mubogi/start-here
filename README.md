@@ -6,7 +6,10 @@ no internet, no server, and no sign-up** — and every page has a button to call
 person for prayer.
 
 There is also a game: **EMMAUS — The Unfolding** (`emmaus/index.html`), a Scripture-discovery
-journey for people who already believe. See [MAP.md](MAP.md) for its design.
+journey for people who already believe. **Ten chapters, ten different arcade games** — catch,
+dodge, slide, slice, tap, stack, time, remember, run, guard — 21 levels each (20 + an endless
+mode), three stars a level, a daily seeded challenge, streaks, and a local leaderboard. See
+[MAP.md](MAP.md) for its design.
 
 > Built by an AI agent (OpenHands) on behalf of the project owner.
 

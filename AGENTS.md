@@ -101,27 +101,47 @@ verse resolves, every art key exists, no required field is missing.
 
 ## EMMAUS game (`emmaus/index.html`)
 
-One offline file. It is a **real arcade game**, not a study page: a canvas
-(2D) renders every frame through a `requestAnimationFrame` loop with its own
+One offline file. It is a **game platform**, not a study page: a canvas (2D)
+renders every frame through a `requestAnimationFrame` loop with its own
 update/draw, physics, particle bursts, screen shake, and a small Web Audio
-synth (no sound files). The player moves a basket left/right to catch falling
-**manna**; golden **letters** spell the chapter's word for a bonus; red
-**shadows** cost one of three lives. Catching fills the **Unfold** bar; when it
-fills, the chapter opens.
+synth (no sound files).
 
-Structure:
-- `CHAPTERS` (10) and `KID` (the Little Lamp child layer, one per chapter) hold
-  all the Scripture content; `WORDS` gives each chapter its gatherable word.
-- `CONTACT` and `COMMUNITY` hold the reach-out details.
-- Screens are `<section>` elements toggled by `show()`; the canvas is always the
-  backdrop. Screens: menu, map (the journey path), play (HUD over canvas),
-  reveal (the verse, word by word), study (the full chapter), notebook,
-  community, about.
-- Per-user state (marks, best, stars, notes, sound) is in localStorage under
-  `emmaus_v2`. Three stars per chapter; a star opens the next chapter.
-- `levelColors(id)` gives each chapter its own palette.
+**Ten chapters, ten different games.** `CH_MODE` maps each chapter to a mode in
+the `MODES` registry, and each mode is a genuinely different mechanic:
 
-Verify with `node tools/test-emmaus.js`. It runs the real code against a
-minimal DOM, checks the MAP rules, and then plays a level through the actual
-`update()` loop — catching manna to a win, gathering the word, and losing to
-three shadows — so the mechanics are tested, not just the content.
+| # | Chapter | Mode | Play |
+|---|---------|------|------|
+| 1 | The Garden | `garden` | catch good fruit, avoid the rot |
+| 2 | The Fall | `fall` | dodge the darkness and survive |
+| 3 | The Ark | `ark` | slide the raft through gaps in the flood |
+| 4 | The Lamb | `lamb` | swipe through shadows, spare the lambs |
+| 5 | The Wilderness | `wilderness` | tap the manna, ignore the serpents |
+| 6 | The Temple | `temple` | drop each stone true, build without toppling |
+| 7 | The Veil | `veil` | tap when the light crosses the mark |
+| 8 | The Tomb | `tomb` | remember and match the stones |
+| 9 | The Upper Room | `upper` | run and jump, do not fall into the fire |
+| 10 | The City | `city` | guard the city, turn back every shadow |
+
+Each chapter has `LEVELS_PER_CH` (21) levels: 20 that get harder, then an
+**endless** mode. A level awards up to three stars by how many hearts you keep;
+eight stars of a chapter open the next chapter. Progress is per pilgrim:
+`{marks, stars:{ch-lv:n}, best:{ch-lv:score}, notes:[], sound, daily:{}, streak, plays}`
+in localStorage under `emmaus_v3`.
+
+Add a mode by calling `regMode({id, meter, init(A), update(A,dt), draw(A),
+tap(A,x,y), move(A,x,y)})`; set `CH_MODE[chapter]=id`. `A` is the arena: `A.t`,
+`A.px`, `A.diff` (0..1), `A.speed`, `A.rng`, `A.obj` (your own state). Helpers:
+`good()`, `hurt()`, `setProgress()`, `winLevel()`, `loseLevel()`, `drawPaddle()`,
+`drawPlayerLight()`, `glow()`, `circ()`, `burst()`, `txt()`. Use `A.obj.next` /
+`A.obj.wait` timers for delayed steps — **never** `setTimeout` inside a mode
+(it breaks when paused and in tests).
+
+Screens are `<section>` elements toggled by `showScreen()`; the canvas is always
+the backdrop: menu, chapters, levels, reveal (the verse, word by word), study
+(the five layers, deeper notes, Little Lamp, Pulpit, notebook), leaderboard,
+daily, notebook, community, about.
+
+Verify with `node tools/test-emmaus.js`. It runs the real code against a minimal
+DOM, checks the MAP rules, then **plays all ten modes through the actual
+update()/tap()/move() loop** to a win, and checks losing, endless, the daily
+seed, the study scroll, contact, and self-containment.
