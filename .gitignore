@@ -1,2 +1,9 @@
 # local preview artifacts
 *.log
+
+# APK build scratch (the APK itself is a GitHub Release asset)
+dist/apk-build/
+dist/emmaus.keystore
+android/assets/index.html
+dist/EMMAUS.apk
+dist/EMMAUS.apk.idsig
