@@ -63,6 +63,10 @@ const api = new Function(
     + "studyHTML:studyHTML, chapterOf:chapterOf, levelColors:levelColors, mulberry:mulberry, seedFrom:seedFrom, "
     + "BACKS:BACKS, WORD_MEANING:WORD_MEANING, EXERCISE:EXERCISE, DEVOTION:DEVOTION, FRUIT:FRUIT, VARIANTS:VARIANTS, "
     + "variantOf:variantOf, goLevel:goLevel, showFruit:showFruit, showResults:showResults, EXERCISE_OF:function(ch){ return EXERCISE[CH_MODE[ch]]; }, "
+    + "TRIALS:TRIALS, trialFor:trialFor, TWISTS:TWISTS, twistOf:twistOf, levelBlurb:levelBlurb, CHANCES:CHANCES, "
+    + "chancesLeft:chancesLeft, levelResting:levelResting, renewalText:renewalText, freePlay:freePlay, "
+    + "beginWithTrial:beginWithTrial, showTrial:showTrial, passTrial:passTrial, failTrial:failTrial, showRenewal:showRenewal, "
+    + "trialKey:trialKey, openLevels:openLevels, renewalDue:renewalDue, clearRenewal:clearRenewal, "
     + "TITLES:TITLES, CUTSCENES:CUTSCENES, LAMPS:LAMPS, lampState:lampState, newLamps:newLamps, cutArt:cutArt, "
     + "openIntro:openIntro, showCutscene:showCutscene, maybeIntro:maybeIntro, onIntroDone:function(){ return onIntroDone; }, "
     + "openChapters:openChapters, openLan:openLan, renderLan:renderLan, "
@@ -485,6 +489,104 @@ check(api.PREFS.cb === true, "the choice is remembered");
 check(dom.document.body.classList.contains("cb-safe"), "turning it on adds the cb-safe class to the body");
 api.prefToggle("cb", false);
 check(!dom.document.body.classList.contains("cb-safe"), "turning it off removes the class again");
+
+/* 28. the trial — a question on what you just read */
+console.log("28. The trial before every level");
+check(Object.keys(api.TRIALS).length === 10, "every chapter has a trial bank");
+let trialOk = true, optOk = true, ansOk = true;
+for (let ch = 1; ch <= 10; ch++) {
+  const bank = api.TRIALS[ch];
+  if (!bank || bank.length < 4) trialOk = false;
+  bank.forEach((q) => {
+    if (!q.q || !Array.isArray(q.o) || q.o.length < 2 || !q.why) optOk = false;
+    if (typeof q.a !== "number" || q.a < 0 || q.a >= q.o.length) ansOk = false;
+  });
+}
+check(trialOk, "each chapter has at least four trial questions");
+check(optOk, "every question has text, options and a why");
+check(ansOk, "every answer index points at a real option");
+const q1 = api.trialFor(1, 1), q2 = api.trialFor(1, 2);
+check(q1 && q2 && q1.q !== q2.q, "levels ask different questions");
+check(q1.a >= 0 && q1.a < q1.o.length, "the trial gives a valid answer");
+check(api.trialFor(1, 7).q === api.trialFor(1, 1).q, "the questions rotate back round");
+check(api.CHANCES === 3, "three chances per level");
+// the trial actually appears when a level is opened
+api.prefToggle("free", false);
+const ru = api.setUser("reader2");
+ru.cuts[1] = 1;                        // skip the cutscene for the test
+api.beginWithTrial(1, 1, {});
+const tHtml = api.getEl("trialBody").innerHTML;
+check(/The Trial/.test(tHtml), "opening a level shows the trial");
+check(/Genesis 1:26-27/.test(tHtml), "the trial shows the verse to read");
+check(new RegExp(api.trialFor(1, 1).q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).test(tHtml), "the trial asks its question");
+check(/data-tpick/.test(tHtml), "the trial offers tappable answers");
+check(/❤/.test(tHtml), "the trial shows the chances left");
+
+/* 29. chances and renewal */
+console.log("29. Chances and renewal");
+api.prefToggle("free", false);
+const tu = api.setUser("trialler");
+check(api.chancesLeft(tu, 1, 1) === 3, "a fresh level has three chances");
+check(api.levelResting(tu, 1, 1) === false, "a fresh level is not resting");
+api.failTrial(1, 1, {});
+check(api.chancesLeft(tu, 1, 1) === 2, "a wrong answer costs a chance");
+api.failTrial(1, 1, {});
+api.failTrial(1, 1, {});
+check(api.chancesLeft(tu, 1, 1) === 0, "three wrong answers use every chance");
+check(api.levelResting(tu, 1, 1) === true, "the level rests after the last chance");
+check(api.chancesLeft(tu, 1, 2) === 3, "another level is untouched");
+check(api.renewalText().indexOf("h") > 0, "renewal reports a countdown");
+// renewal opens at the next dawn
+tu.rest[api.trialKey(1, 1)] = "2000-01-01";
+check(api.renewalDue(tu).length === 1, "a stale rest is due for renewal");
+check(api.clearRenewal(tu) === true, "renewal clears the stale rest");
+check(api.levelResting(tu, 1, 1) === false, "the level opens again at renewal");
+// a passed trial lets the level straight through
+api.passTrial(1, 3, {});
+check((tu.pass || {})[api.trialKey(1, 3)] === 1, "answering right records the pass");
+
+/* 30. every level is different */
+console.log("30. Every level differs");
+check(api.TWISTS.length >= 8, "there are several twists");
+check(api.TWISTS.every(t => t.id && t.name && t.desc && typeof t.mult === "number"), "every twist is named and explained");
+const combos = {};
+let dupes = 0;
+for (let ch = 1; ch <= 10; ch++) {
+  const seen = {};
+  for (let l = 1; l < api.LEVELS_PER_CH; l++) {
+    const key = api.variantOf(ch, l).id + "+" + api.twistOf(ch, l).id;
+    if (seen[key]) dupes++;
+    seen[key] = 1;
+  }
+  if (Object.keys(seen).length < api.LEVELS_PER_CH - 1) combos[ch] = Object.keys(seen).length;
+}
+check(dupes === 0, "no two levels in a chapter share a variant+twist");
+check(Object.keys(combos).length === 0, "all 20 levels of a chapter feel distinct");
+check(api.levelBlurb(1, 1).length > 10, "a level can describe its own twist");
+const tw = (() => { const su = api.setUser("twisty"); api.startLevel(1, 3); return api.getA(); })();
+check(!!tw.twist && tw.twist.id === api.twistOf(1, 3).id, "the twist is carried into the level");
+check(tw.speedMul !== undefined, "the twist changes the speed");
+
+/* 31. free play — open everything at once */
+console.log("31. Free play");
+api.prefToggle("free", false);
+const fu = api.setUser("freebird");
+check(api.freePlay() === false, "free play is off by default");
+check(api.chapterOpen(fu, 10) === false, "chapter 10 is locked on the road");
+check(api.maxOpenLevel(fu, 5) === 1, "only level 1 is open at the start");
+api.prefToggle("free", true);
+check(api.freePlay() === true, "free play can be switched on");
+check(api.chapterOpen(fu, 10) === true, "every chapter opens in free play");
+check(api.maxOpenLevel(fu, 5) === api.LEVELS_PER_CH, "every level opens in free play");
+fu.rest[api.trialKey(2, 2)] = "2099-01-01";
+check(api.levelResting(fu, 2, 2) === false, "free play skips the renewal wait");
+check(api.chancesLeft(fu, 2, 2) === api.CHANCES, "free play restores the chances");
+api.openLevels(3);
+check(/Free play/.test(api.getEl("lvBody").innerHTML), "the level screen says free play is on");
+api.prefToggle("free", false);
+check(api.chapterOpen(fu, 10) === false, "turning free play off restores the road");
+check(/id="prefFree"/.test(api.getEl("setBody").innerHTML) || (api.openSettings(), /id="prefFree"/.test(api.getEl("setBody").innerHTML)),
+  "settings offers the free-play switch");
 
 console.log(`\n10 chapters, 10 modes, ${Object.keys(MODES).length} games, ${api.LEVELS_PER_CH} levels each.`);
 console.log(failures ? `${failures} FAILURES` : "ALL PASS");

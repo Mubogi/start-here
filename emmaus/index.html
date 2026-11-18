@@ -15,7 +15,7 @@
     --green:#5bd67a; --blue:#6f9dff; --violet:#a98bff; --rose:#ff7a90;
     /* v1.2 sanctuary tokens */
     --bg2:#070a14; --panel3:#232a44; --line2:#3a4266;
-    --ink2:#c6cde0; --gold3:#a8791f; --amber:#ffb861; --olive:#8a9a5b;
+    --ink2:#c6cde0; --gold3:#a8791f; --amber:#ffb861; --olive:#8a9a5b; --warn2:#ffb3b3;
     --depth-1:0 1px 0 rgba(255,255,255,.05) inset,0 6px 18px rgba(0,0,0,.35);
     --depth-2:0 1px 0 rgba(255,255,255,.06) inset,0 16px 40px rgba(0,0,0,.5);
     --depth-3:0 1px 0 rgba(255,255,255,.07) inset,0 28px 70px rgba(0,0,0,.6);
@@ -370,6 +370,19 @@
     font-size:.82rem;font-weight:800;background:rgba(11,14,26,.6);border:1px solid var(--line);color:#5c6480}
   .hud-word i.have{color:var(--gold2);border-color:#8a7020;background:rgba(58,47,16,.8)}
   .lv.boss{border-color:#8a7020;background:linear-gradient(180deg,#2a2210,#161009)}
+  .lv.rest{background:linear-gradient(180deg,#241c33,#141020);border-color:#4a3a6b;color:#c9b6ff}
+  .lv.rest .endless{color:#b6a3e6}
+  .twist{background:linear-gradient(120deg,rgba(169,139,255,.14),rgba(169,139,255,.02))!important;
+    border-color:#4a3a6b!important;color:#d8ccff!important}
+  .trialnote{margin-top:12px;background:linear-gradient(120deg,rgba(111,157,255,.12),rgba(111,157,255,.02));
+    border:1px solid #274a78;border-radius:14px;padding:10px 13px;font-size:.85rem;color:#cfe0ff}
+  .trialnote.rest{background:linear-gradient(120deg,rgba(169,139,255,.14),rgba(169,139,255,.02));
+    border-color:#4a3a6b;color:#e0d6ff}
+  .trialq{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+    margin:12px 0;font-size:1.02rem;line-height:1.5}
+  .hearts-line{text-align:center;font-size:1.3rem;letter-spacing:4px;margin-top:10px}
+  .links .lk.bad{border-color:#6b2a2a;background:#2a1414;color:#ffb3b3}
+  .links .lk.good{border-color:#2c6b3d;background:#16281c;color:#9df0b6}
   .badge{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
     padding:.2rem .55rem;font-size:.72rem;margin:.15rem .15rem 0 0;color:var(--gold2)}
 
@@ -568,6 +581,7 @@
           <span class="chip" id="whoChip">Pilgrim</span>
           <span class="chip gold" id="starChip">★ 0</span>
           <span class="chip" id="streakChip">🔥 0</span>
+          <button class="chip" id="freeChip" title="Free play — open every level">🎟 Free play</button>
           <button class="chip" id="themeChip" title="Switch theme">🌙</button>
         </div>
         <div class="emojis" style="margin-top:.8rem">🌿 🕊️ 🛶 🐑 🍞 🕯️ ✨ 🌅 🔥 👑</div>
@@ -720,6 +734,9 @@
 
   <!-- DEVOTION (before a level) -->
   <div class="overlay" id="ovDev"><div class="scroll"><div class="body" id="devBody"></div></div></div>
+
+  <!-- THE TRIAL (a question before you may play) -->
+  <div class="overlay" id="ovTrial"><div class="scroll"><div class="body" id="trialBody"></div></div></div>
 
   <!-- FRUIT (after a level) -->
   <div class="overlay" id="ovFruit"><div class="scroll"><div class="body" id="fruitBody"></div></div></div>
@@ -1012,6 +1029,166 @@ var COMMUNITY = [
 /* ---------- the word you spell in each chapter ---------- */
 var WORDS = {1:"IMAGE",2:"COVER",3:"REFUGE",4:"BLOOD",5:"MANNA",6:"DWELL",7:"ACCESS",8:"RISEN",9:"SPIRIT",10:"COME"};
 
+/* ---------- THE TRIAL — a question on what you just read ----------
+   Every level opens with one question about its own chapter: the verse,
+   the Hebrew/Greek word, or the thread to Christ. Answer it and you play.
+   Miss three times and the level rests until RENEWAL (the next dawn) —
+   so the reading is never skipped, but grace is never far off either. */
+var TRIALS={
+ 1:[
+  {q:"In Genesis 1, whose image are you made in?", o:["Your family's","God's","Your own"], a:1,
+   why:"Genesis 1:27 — \u201cin the image of God created he him.\u201d"},
+  {q:"The Hebrew word \u201ctselem\u201d means\u2026", o:["image, likeness","breath, wind","dust, clay"], a:0,
+   why:"tselem \u2014 a likeness made to represent the King."},
+  {q:"\u201cNephesh\u201d (Genesis 2:7) describes\u2026", o:["a stone altar","the whole living self \u2014 body and breath","a kind of sacrifice"], a:1,
+   why:"nephesh \u2014 the whole self, body and breath together."},
+  {q:"When was your worth settled, according to Genesis 1?", o:["After you did good works","Before you did anything at all","At the end of your life"], a:1,
+   why:"Your worth was settled in Genesis 1 before you did anything."},
+  {q:"Paul calls Adam \u201cthe figure of him that was to come.\u201d Who?", o:["Moses","Christ, the last Adam","Noah"], a:1,
+   why:"Romans 5:14; 1 Corinthians 15:45 \u2014 the last Adam."},
+  {q:"The word \u201cdominion\u201d in Genesis 1 means\u2026", o:["to rule as God's image-bearer","to crush others","to hide"], a:0,
+   why:"Dominion is stewardship \u2014 ruling the way God rules, in love."},
+
+ ],
+ 2:[
+  {q:"After they sinned, what did God do for Adam and Eve?", o:["Left them naked","Made them coats of skins","Sent them away without hope"], a:1,
+   why:"Genesis 3:21 \u2014 God clothed them himself."},
+  {q:"\u201cChata,\u201d the Hebrew word for sin, literally means\u2026", o:["to miss the mark","to run fast","to build"], a:0,
+   why:"chata \u2014 to miss the mark, as an arrow falls short (Romans 3:23)."},
+  {q:"\u201cKaphar\u201d means\u2026", o:["to scatter","to cover, to atone","to shout"], a:1,
+   why:"kaphar \u2014 the root behind \u201catonement.\u201d Something must cover."},
+  {q:"The first death in the Bible happened so that\u2026", o:["animals could be eaten","the guilty could be covered","the garden could be planted"], a:1,
+   why:"An animal died to cover them \u2014 a shadow of the Lamb."},
+  {q:"What is the Bible's way when you feel ashamed?", o:["Hide from God","Confess and be cleansed","Punish yourself"], a:1,
+   why:"1 John 1:9 \u2014 confess and be cleansed, not perform penance."},
+  {q:"Who came looking for Adam and Eve after the fall?", o:["God, calling \u201cWhere art thou?\u201d","An angel with a sword","They were never sought"], a:0,
+   why:"Genesis 3:9 \u2014 God seeks first. Grace moves toward the guilty."},
+
+ ],
+ 3:[
+  {q:"Who shut the door of the ark?", o:["Noah","The LORD","An angel"], a:1,
+   why:"Genesis 7:16 \u2014 \u201cthe LORD shut him in.\u201d"},
+  {q:"\u201cTebah,\u201d the word for the ark, is also used for\u2026", o:["baby Moses' basket","a king's throne","a temple curtain"], a:0,
+   why:"tebah \u2014 the same word as baby Moses' basket. A place of safety."},
+  {q:"In the New Testament, Christ says: \u201cI am the\u2026\u201d", o:["door","storm","mountain"], a:0,
+   why:"John 10:9 \u2014 \u201cI am the door.\u201d"},
+  {q:"What does the ark teach about salvation?", o:["We rescue ourselves","It is God's doing, not ours","It depends on being strong"], a:1,
+   why:"Noah could not shut the door himself."},
+  {q:"The devotion notes God said \u201cCome into the ark\u201d \u2014 not \u201cgo.\u201d That means\u2026", o:["He was already inside, waiting","Noah built a second boat","The ark was empty"], a:0,
+   why:"God was already in the boat. He is in it with you."},
+  {q:"The ark had only one door. That points to\u2026", o:["One way in \u2014 Christ","Many ways to God","No way in"], a:0,
+   why:"One door, one way: \u201cI am the door\u201d (John 10:9)."},
+
+ ],
+ 4:[
+  {q:"In Exodus 12, what was the sign that spared the people?", o:["A white robe","The blood on the doorposts","A loud shout"], a:1,
+   why:"Exodus 12:13 \u2014 \u201cwhen I see the blood, I will pass over you.\u201d"},
+  {q:"\u201cPesach\u201d means\u2026", o:["to pass over, to spare","to build a wall","to wash"], a:0,
+   why:"pesach \u2014 Passover, from \u201cto pass over, to spare.\u201d"},
+  {q:"\u201cSeh\u201d means\u2026", o:["a lamb, a substitute","a king","a trumpet"], a:0,
+   why:"seh \u2014 a lamb, a substitute (John 1:29)."},
+  {q:"John the Baptist called Jesus\u2026", o:["the Lion of Judah only","the Lamb of God","a great teacher only"], a:1,
+   why:"John 1:29 \u2014 \u201cthe Lamb of God, which taketh away the sin of the world.\u201d"},
+  {q:"The Bible's way when you feel unclean is\u2026", o:["Clean yourself first","Receive the cleansing already given","Ignore it"], a:1,
+   why:"The blood is applied, then you are clean."},
+  {q:"The blood was put on the doorposts with\u2026", o:["a hyssop branch","a sword","a cup"], a:0,
+   why:"Exodus 12:22 \u2014 hyssop, the branch of cleansing (Psalm 51:7)."},
+
+ ],
+ 5:[
+  {q:"\u201cManna\u201d literally means\u2026", o:["What is it?","Bread of kings","Sweet honey"], a:0,
+   why:"manna \u2014 man hu, \u201cWhat is it?\u201d (Exodus 16:15)."},
+  {q:"What happened to manna kept overnight?", o:["It stayed fresh","It bred worms","It turned to gold"], a:1,
+   why:"Exodus 16:19-20 \u2014 it bred worms. It could not be hoarded."},
+  {q:"\u201cLechem\u201d means\u2026", o:["water","bread, food","light"], a:1,
+   why:"lechem \u2014 bread, food. \u201cBread from heaven\u201d (Exodus 16:4)."},
+  {q:"Jesus said, \u201cI am the\u2026\u201d", o:["bread of life","door of the sheep only","good shepherd only"], a:0,
+   why:"John 6:35 \u2014 \u201cI am the bread of life.\u201d"},
+  {q:"The devotion teaches us to ask for\u2026", o:["A year's supply at once","Today's bread only","Nothing at all"], a:1,
+   why:"\u201cGive us this day our daily bread.\u201d Daily trust, no hoarding."},
+  {q:"The manna fell with the\u2026", o:["morning dew","evening wind","noonday sun"], a:0,
+   why:"Numbers 11:9 \u2014 when the dew fell, the manna came with it."},
+
+ ],
+ 6:[
+  {q:"Why did God tell them to build a sanctuary?", o:["To impress other nations","That He may dwell among them","To store treasure"], a:1,
+   why:"Exodus 25:8 \u2014 \u201cthat I may dwell among them.\u201d"},
+  {q:"\u201cShachah\u201d means\u2026", o:["to bow down, to worship","to run","to build"], a:0,
+   why:"shachah \u2014 the posture of the whole self before God."},
+  {q:"\u201cMishkan\u201d means\u2026", o:["dwelling place, tabernacle","a sword","a feast"], a:0,
+   why:"mishkan \u2014 the dwelling place where God meets His people."},
+  {q:"Where does God's dwelling move in the Bible's story?", o:["Tabernacle \u2192 temple \u2192 Christ's body \u2192 you","Temple \u2192 tabernacle \u2192 a mountain","It never moves"], a:0,
+   why:"The dwelling moved: tabernacle, temple, Christ's body, then you (1 Cor 6:19)."},
+  {q:"The Bible's way when you feel empty and far from God is\u2026", o:["Try harder to earn Him","Worship \u2014 He chose to dwell with you","Wait until you feel worthy"], a:1,
+   why:"The Bible's way is worship, not striving."},
+  {q:"Jesus is the Word who\u2026", o:["dwelt among us","stayed far away","spoke only in dreams"], a:0,
+   why:"John 1:14 \u2014 \u201cthe Word was made flesh, and dwelt among us.\u201d"},
+
+ ],
+ 7:[
+  {q:"When the veil tore, which direction did it tear?", o:["Bottom to top","Top to bottom","Side to side"], a:1,
+   why:"Matthew 27:51 \u2014 \u201cfrom the top to the bottom.\u201d"},
+  {q:"What does that direction tell us?", o:["Man opened the way","God opened the way","It was an accident"], a:1,
+   why:"It tore from the top \u2014 God did it, not man. Access is a gift."},
+  {q:"\u201cKatapetasma\u201d means\u2026", o:["veil, curtain","mercy seat","lampstand"], a:0,
+   why:"katapetasma \u2014 the barrier between the holy place and the most holy (Heb 10:20)."},
+  {q:"\u201cHilasterion\u201d means\u2026", o:["propitiation, mercy seat","a trumpet","a journey"], a:0,
+   why:"hilasterion \u2014 the mercy seat where blood was sprinkled and God met man."},
+  {q:"Hebrews 10 says we may enter the holiest by\u2026", o:["our own goodness","the blood of Jesus","long fasting"], a:1,
+   why:"Hebrews 10:19-20 \u2014 boldness to enter by the blood of Jesus."},
+  {q:"We may draw near with\u2026", o:["a true heart, in full assurance","fear and hiding","many excuses"], a:0,
+   why:"Hebrews 10:22 \u2014 draw near with a true heart, sprinkled and washed."},
+
+ ],
+ 8:[
+  {q:"Which prophet did Jesus name as the sign of His death and rising?", o:["Isaiah","Jonah","Elijah"], a:1,
+   why:"Matthew 12:40 \u2014 \u201cas Jonas was three days and three nights\u2026\u201d"},
+  {q:"How long was Jonah in the belly of the whale?", o:["Three days and three nights","Seven days","One night"], a:0,
+   why:"Jonah 1:17 \u2014 three days and three nights."},
+  {q:"\u201cAnastasis\u201d means\u2026", o:["resurrection, a raising up","a falling down","a journey"], a:0,
+   why:"anastasis \u2014 a raising up, standing again after falling."},
+  {q:"\u201cAparche\u201d (firstfruits) means\u2026", o:["the last harvest","the first sheaf, a promise of the whole","a kind of bread"], a:1,
+   why:"aparche \u2014 the first sheaf, a promise the whole harvest is coming (1 Cor 15:20)."},
+  {q:"The devotion's way through defeat is\u2026", o:["Accept it as final","Resurrection faith \u2014 the third day is coming","Blame others"], a:1,
+   why:"Declare the promise, not the circumstance."},
+  {q:"The empty tomb is God's\u2026", o:["\u201cYes\u201d to every promise","last word of judgement","silent farewell"], a:0,
+   why:"The resurrection is God's amen over every promise (2 Cor 1:20)."},
+
+ ],
+ 9:[
+  {q:"On the day of Pentecost, what filled the house?", o:["A sound like a rushing mighty wind","A river","A bright cloud only"], a:0,
+   why:"Acts 2:2 \u2014 \u201ca sound from heaven as of a rushing mighty wind.\u201d"},
+  {q:"\u201cPneuma\u201d means\u2026", o:["spirit, wind, breath","fire only","tongue, language"], a:0,
+   why:"pneuma \u2014 spirit, wind, breath; the Holy Spirit is the breath of God."},
+  {q:"\u201cGlossa\u201d means\u2026", o:["tongue, language","wind","bread"], a:0,
+   why:"glossa \u2014 tongue, language (Acts 2; 1 Corinthians 14)."},
+  {q:"Daniel prayed and the answer was delayed by\u2026", o:["his own sin","spiritual opposition (the prince of Persia)","a storm"], a:1,
+   why:"Daniel 10:13 \u2014 \u201cthe prince of the kingdom of Persia withstood me.\u201d"},
+  {q:"The angel told Daniel his words were heard\u2026", o:["after 21 days","from the first day","only at the end"], a:1,
+   why:"Daniel 10:12 \u2014 \u201cfrom the first day that thou didst set thine heart\u2026 thy words were heard.\u201d"},
+  {q:"The Spirit gives\u2026", o:["power to be witnesses","power to rule others","only quiet feelings"], a:0,
+   why:"Acts 1:8 \u2014 \u201cye shall receive power\u2026 witnesses unto me.\u201d"},
+
+ ],
+ 10:[
+  {q:"What comes down out of heaven in Revelation 21?", o:["A great mountain","The holy city, New Jerusalem","A fiery chariot"], a:1,
+   why:"Revelation 21:2 \u2014 \u201cthe holy city, new Jerusalem, coming down from God out of heaven.\u201d"},
+  {q:"\u201cParousia\u201d means\u2026", o:["coming, arrival, presence","a farewell","a temple"], a:0,
+   why:"parousia \u2014 the coming, arrival, presence of Christ."},
+  {q:"\u201cMaranatha\u201d means\u2026", o:["\u201cOur Lord, come!\u201d","\u201cPeace be with you\u201d","\u201cIt is finished\u201d"], a:0,
+   why:"maranatha \u2014 one of the earliest Christian prayers (1 Corinthians 16:22)."},
+  {q:"The Bible ends with\u2026", o:["a command to fight","an invitation: \u201cCome\u201d","a warning only"], a:1,
+   why:"Revelation 22:17 \u2014 \u201cthe Spirit and the bride say, Come.\u201d"},
+  {q:"Where does the whole Bible's story end?", o:["In a garden lost","God dwelling with His people in a City","In exile"], a:1,
+   why:"The Bible ends where it began \u2014 God with His people \u2014 now in a City that cannot be lost."},
+  {q:"In the City, God will wipe away\u2026", o:["every tear","every memory","every name"], a:0,
+   why:"Revelation 21:4 \u2014 no more death, sorrow, crying, or pain."}
+ ]
+};
+function trialFor(ch,lv){ var bank=TRIALS[ch]||[]; if(!bank.length) return null;
+  var i=(Math.max(1,lv)-1)%bank.length; var q=bank[i];
+  return {q:q.q, o:q.o.slice(), a:q.a, why:q.why, n:i+1, of:bank.length}; }
+
 /* ---------- the ten chapters are ten different games ---------- */
 var CH_MODE = {1:"garden",2:"fall",3:"ark",4:"lamb",5:"wilderness",6:"temple",7:"veil",8:"tomb",9:"upper",10:"city"};
 var LEVELS_PER_CH = 21;   /* 20 levels + an endless mode */
@@ -1302,6 +1479,33 @@ var VARIANTS=[
 function variantOf(ch,lv){ return VARIANTS[(lv-1)%VARIANTS.length]; }
 function levelTitle(ch,lv){ var v=variantOf(ch,lv); return "Level "+lv+" · "+v.name; }
 
+/* ---------- TWISTS — a second layer, so no two levels feel the same ----------
+   The variant sets the stakes (hearts, clock, the word). The twist changes how
+   the game actually plays: faster, slower, more crowded, letters required early.
+   Rotating twist × variant × trial question gives 20 genuinely different levels
+   per chapter, not 20 copies of one level. */
+var TWISTS=[
+  {id:"plain",  name:"The Open Path",  desc:"The chapter's game, plainly told.",                 mult:1},
+  {id:"swift",  name:"Swift Water",    desc:"Everything falls a little faster.",                 mult:1.18},
+  {id:"steady", name:"Still Waters",   desc:"Slower — room to breathe and think.",                mult:0.86},
+  {id:"crowd",  name:"The Crowd",      desc:"More comes at you, all at once.",                   mult:1.14, spawn:0.78},
+  {id:"sparse", name:"The Quiet Hour", desc:"Sparser, but each loss stings more.",               mult:1,    spawn:1.28},
+  {id:"tithe",  name:"The Firstfruits",desc:"Gather a little more before you may rest.",         mult:1.05, need:1.22},
+  {id:"breeze", name:"The Gentle Wind",desc:"A lighter run — gather fewer to finish.",           mult:0.98, need:0.8},
+  {id:"gale",   name:"The Whirlwind",  desc:"Faster and busier both at once.",                   mult:1.16, spawn:0.84, need:1.1},
+  {id:"watch",  name:"Keep Watch",     desc:"A calm pace, but stay alert throughout.",           mult:0.96, spawn:1.05},
+  {id:"letter", name:"The Scribe",     desc:"Letters fall sooner — gather the word early.",      mult:1.04, letters:2}
+];
+function twistOf(ch,lv){
+  /* offset the twist by the decade so levels 1–20 all pair differently */
+  var n=TWISTS.length, i=(lv-1)%n, shift=Math.floor((lv-1)/n);
+  return TWISTS[(i+shift)%n];
+}
+function levelBlurb(ch,lv){
+  var v=variantOf(ch,lv), t=twistOf(ch,lv);
+  return v.desc+" "+t.desc;
+}
+
 /* ---------- opening titles ---------- */
 var TITLES=[
   {t:"EMMAUS",p:"The road to a village called Emmaus.",word:"EMMAUS",gloss:"The place where two disciples walked with a stranger — and their eyes were opened."},
@@ -1357,7 +1561,7 @@ var LS_KEY = "emmaus_v3";
 var DB = load();
 
 function blankUser(){ return {marks:0, stars:{}, best:{}, notes:[], sound:true, daily:{}, streak:0, plays:0,
-  lamps:{}, cuts:{}, intro:false}; }
+  lamps:{}, cuts:{}, intro:false, tries:{}, rest:{}, pass:{}}; }
 function load(){
   try{ var r=localStorage.getItem(LS_KEY); if(r){ var d=JSON.parse(r); norm(d); return d; } }catch(e){}
   return {active:null, users:{}};
@@ -1377,8 +1581,26 @@ function starKey(ch,lv){ return ch+"-"+lv; }
 function chStars(u,ch){ var t=0; for(var l=1;l<=LEVELS_PER_CH;l++) t+=(u.stars[starKey(ch,l)]||0); return t; }
 function totalStars(u){ var t=0; Object.keys(u.stars||{}).forEach(function(k){ t+=u.stars[k]; }); return t; }
 function levelsDone(u,ch){ var n=0; for(var l=1;l<=LEVELS_PER_CH;l++) if(u.stars[starKey(ch,l)]) n++; return n; }
-function chapterOpen(u,ch){ return ch===1 || levelsDone(u,ch-1)>=8; }
-function maxOpenLevel(u,ch){ for(var l=1;l<LEVELS_PER_CH;l++){ if(!u.stars[starKey(ch,l)]) return l; } return LEVELS_PER_CH; }
+function chapterOpen(u,ch){ return freePlay() || ch===1 || levelsDone(u,ch-1)>=8; }
+function maxOpenLevel(u,ch){ if(freePlay()) return LEVELS_PER_CH;
+  for(var l=1;l<LEVELS_PER_CH;l++){ if(!u.stars[starKey(ch,l)]) return l; } return LEVELS_PER_CH; }
+function freePlay(){ return !!(typeof PREFS!=="undefined" && PREFS && PREFS.free); }
+
+/* ---------- THE TRIAL, CHANCES AND RENEWAL ----------
+   Each level asks one question before it will let you play. You get three
+   chances. Use them all and the level rests until RENEWAL — the next dawn —
+   when the mercy is new (Lam 3:22-23). Not a punishment: a rhythm of coming
+   back, so the reading is never skipped and never a dead end. */
+var CHANCES=3;
+function trialKey(ch,lv){ return "t"+ch+"-"+lv; }
+function today(){ return dayKey(); }
+function renewalDue(u){ var r=u.rest||{}, out=[]; Object.keys(r).forEach(function(k){ if(r[k]!==today()) out.push(k); }); return out; }
+function clearRenewal(u){ var r=u.rest||{}, ch=false; Object.keys(r).forEach(function(k){ if(r[k]!==today()){ delete r[k]; ch=true; } }); if(ch) save(); return ch; }
+function levelResting(u,ch,lv){ if(freePlay()) return false; return (u.rest||{})[trialKey(ch,lv)]===today(); }
+function chancesLeft(u,ch,lv){ if(freePlay()) return CHANCES; return CHANCES-((u.tries||{})[trialKey(ch,lv)]||0); }
+function msToRenewal(){ var n=new Date(), d=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1,0,0,5); return d-n; }
+function renewalText(){ var ms=msToRenewal(), h=Math.floor(ms/36e5), m=Math.floor(ms%36e5/6e4);
+  return h+"h "+m+"m"; }
 
 /* ============================================================
    RNG — deterministic per day for the Daily Challenge
@@ -1472,10 +1694,11 @@ function startLevel(ch, lv, opts){
   var u=me(); if(!u) return openProfiles();
   var mode=CH_MODE[ch], endless=(lv>=LEVELS_PER_CH);
   var v = endless ? VARIANTS[0] : variantOf(ch,lv);
+  var tw = endless ? TWISTS[0] : twistOf(ch,lv);
   var lampsBefore = lampState(u);
   A={
     ch:ch, lv:lv, mode:mode, endless:endless, daily:!!opts.daily, label:opts.label||"", lampsBefore:lampsBefore,
-    variant:v, boss:(v.id==="boss"),
+    variant:v, twist:tw, boss:(v.id==="boss"),
     rng:opts.rng||mulberry(seedFrom("E"+ch+"-"+lv+(opts.seed||""))),
     t:0, score:0, lives:3, combo:0, comboBest:0, progress:0,
     over:false, won:false, paused:false, inv:0, shake:0, flash:0,
@@ -1493,11 +1716,17 @@ function startLevel(ch, lv, opts){
     if(v.id==="quiet") A.speedMul=0.82; if(v.id==="boss") A.speedMul=1.15;
     if(v.id==="storm"||v.id==="boss") A.spawnMul=0.76;
     if(v.id==="quiet") A.spawnMul=1.3;
+    /* the twist layers on top of the variant */
+    A.speedMul=(A.speedMul||1)*tw.mult;
+    if(tw.spawn) A.spawnMul*=tw.spawn;
+    A.twistNeed=tw.need||1;
+    A.letterBoost=tw.letters||1;
   }
   if(A.timed) A.timeMax=A.timeLeft;
   A.speed=(105+ch*4)*(1+A.diff*1.05)*(A.speedMul||1);
   if(MODES[mode].init) MODES[mode].init(A);
-  el("hudMode").textContent=MODE_INFO[mode].name+(endless?"  ·  ENDLESS":"  ·  Lv "+lv+" · "+v.name);
+  if(A.twistNeed && A.obj.need) A.obj.need=Math.max(4,Math.round(A.obj.need*A.twistNeed));
+  el("hudMode").textContent=MODE_INFO[mode].name+(endless?"  ·  ENDLESS":"  ·  Lv "+lv+" · "+v.name+" · "+tw.name);
   el("hudScore").textContent="0"; el("meterBar").style.width="0%";
   el("meterLab").textContent=(A.needWord?"Gather "+A.word+" — ":"")+(MODES[mode].meter||"Progress");
   drawLife(); updateHudWord();
@@ -1521,6 +1750,7 @@ function good(x,y,rgb,pts){ A.combo++; A.comboBest=Math.max(A.comboBest,A.combo)
 function hurt(dmg){ if(A.inv>0) return; A.lives-=(dmg||1); A.combo=0; A.shake=1.25; A.flash=.7; A.inv=1.05; A.hitstop=Math.max(A.hitstop,.09);
   SFX.bad(); burst(W/2,H-70,"255,110,130",26,280); drawLife(); if(A.lives<=0) loseLevel(); }
 function letterDrop(A,ch){ A.letters.push({x:24+A.rng()*(W-48),y:-20,ch:ch,vy:A.speed*0.95}); }
+function maybeLetter(A){ return A.rng()<(0.05+A.diff*0.05)*(A.letterBoost||1); }
 function updLetters(A,dt){
   for(var i=A.letters.length-1;i>=0;i--){ var L=A.letters[i]; L.y+=L.vy*dt;
     if(L.y>H-64 && Math.abs(L.x-A.px)<70){ A.letters.splice(i,1); grantLetter(L); continue; }
@@ -1606,7 +1836,7 @@ regMode({
     if(o.spawn<=0){ o.spawn=(0.9-A.diff*0.5)*(0.75+A.rng()*0.6)*A.spawnMul;
       var rot=A.rng()<(0.18+A.diff*0.18);
       o.items.push({x:34+A.rng()*(W-68),y:-24,r:rot?18:16,rot:rot,vy:A.speed*(0.85+A.rng()*0.5),vx:(A.rng()-.5)*30,sp:0}); }
-    if(A.rng()<(0.05+A.diff*0.05)) letterDrop(A,A.word[Math.floor(A.rng()*A.word.length)]);
+    if(maybeLetter(A)) letterDrop(A,A.word[Math.floor(A.rng()*A.word.length)]);
     for(var i=o.items.length-1;i>=0;i--){ var it=o.items[i];
       it.y+=it.vy*dt; it.x+=it.vx*dt; it.sp+=dt*4;
       if(it.x<22||it.x>W-22) it.vx*=-1;
@@ -1688,7 +1918,7 @@ regMode({
     var o=A.obj; o.spawn-=dt;
     if(o.spawn<=0){ o.spawn=(0.8-A.diff*0.42)*(0.7+A.rng()*0.7)*A.spawnMul; var lamb=A.rng()<0.3;
       o.items.push({x:30+A.rng()*(W-60),y:-20,r:lamb?15:19,lamb:lamb,vy:A.speed*(0.9+A.rng()*0.6)}); }
-    if(A.rng()<(0.05+A.diff*0.05)) letterDrop(A,A.word[Math.floor(A.rng()*A.word.length)]);
+    if(maybeLetter(A)) letterDrop(A,A.word[Math.floor(A.rng()*A.word.length)]);
     for(var i=o.items.length-1;i>=0;i--){ var it=o.items[i]; it.y+=it.vy*dt;
       if(it.y>H+30) o.items.splice(i,1); }
     for(var j=o.trail.length-1;j>=0;j--){ o.trail[j].life-=dt*3.2; if(o.trail[j].life<=0) o.trail.splice(j,1); }
@@ -1722,7 +1952,7 @@ regMode({
     if(o.spawn<=0){ o.spawn=(0.9-A.diff*0.5)*(0.7+A.rng()*0.6)*A.spawnMul; var snake=A.rng()<(0.22+A.diff*0.15);
       var life=snake?1.0:1.5;
       o.items.push({x:34+A.rng()*(W-68),y:84+A.rng()*(H-240),r:snake?17:19,snake:snake,life:life,max:life}); }
-    if(A.rng()<(0.05+A.diff*0.04)) letterDrop(A,A.word[Math.floor(A.rng()*A.word.length)]);
+    if(maybeLetter(A)) letterDrop(A,A.word[Math.floor(A.rng()*A.word.length)]);
     for(var i=o.items.length-1;i>=0;i--){ var it=o.items[i]; it.life-=dt; if(it.life<=0) o.items.splice(i,1); }
     updLetters(A,dt);
   },
@@ -2038,19 +2268,22 @@ function openLevels(ch){
   var openLv=maxOpenLevel(u,ch);
   var cells="";
   for(var l=1;l<LEVELS_PER_CH;l++){
-    var st=u.stars[starKey(ch,l)]||0, isOpen=l<=openLv, v=variantOf(ch,l);
-    var cls=st?"done":(isOpen?"now":"locked");
-    cells+='<div class="lv '+cls+(v.id==="boss"?" boss":"")+'" data-lv="'+l+'" title="'+esc(v.name)+' — '+esc(v.desc)+'">'
-      +(isOpen?(st?"✓":l):"🔒")
+    var st=u.stars[starKey(ch,l)]||0, isOpen=l<=openLv, v=variantOf(ch,l), tw=twistOf(ch,l);
+    var resting=isOpen && !st && levelResting(u,ch,l);
+    var cls=st?"done":(resting?"rest":(isOpen?"now":"locked"));
+    cells+='<div class="lv '+cls+(v.id==="boss"?" boss":"")+'" data-lv="'+l+'" title="'+esc(v.name)+' · '+esc(tw.name)+' — '+esc(v.desc)+' '+esc(tw.desc)+'">'
+      +(isOpen?(st?"✓":(resting?"🌅":l)):"🔒")
       +'<span class="s">'+(v.id==="boss"?"◆":(st?starsHTML(st).replace(/<[^>]+>/g,""):""))+'</span>'
-      +'<span class="endless" style="color:#8a93b0">'+esc(v.name)+'</span></div>';
+      +'<span class="endless" style="color:#8a93b0">'+esc(tw.name)+'</span></div>';
   }
   cells+='<div class="lv now" data-lv="'+LEVELS_PER_CH+'" style="grid-column:span 2;aspect-ratio:auto;padding:12px">'
     +'<div>∞</div><div class="endless">ENDLESS</div></div>';
   el("lvBody").innerHTML='<div class="lvhead" style="--c1:'+col.sky+'">'
     +'<div class="tiny">'+esc(mi.name)+'</div><h1>'+esc(c.title)+'</h1>'
     +'<div class="tiny">'+esc(mi.how)+'</div>'
-    +'<div class="tiny" style="margin-top:6px;color:var(--gold2)">'+esc(EXERCISE[CH_MODE[ch]].name)+'</div></div>'
+    +'<div class="tiny" style="margin-top:6px;color:var(--gold2)">'+esc(EXERCISE[CH_MODE[ch]].name)+'</div>'
+    +(freePlay()?'<div class="tiny" style="margin-top:6px;color:var(--green)">🎟 Free play — every level open</div>':'')
+    +'</div>'
     +'<div class="sec-title">Levels 1–20 · each one a different trial</div>'
     +'<div class="lvgrid">'+cells+'</div>'
     +'<div class="sec-title">The chapter</div>'
@@ -2068,6 +2301,7 @@ function goLevel(ch,lv,opts){
   var c=chapterOf(ch), d=DEVOTION[ch], ex=EXERCISE[CH_MODE[ch]];
   var endless=(lv>=LEVELS_PER_CH);
   var v=endless?{id:"endless",name:"Endless",desc:"It never ends — go as far as you can."}:variantOf(ch,lv);
+  var tw=endless?{id:"plain",name:"",desc:""}:twistOf(ch,lv);
   var goal='<span>'+esc(ex.name)+'</span><span>'+esc(v.desc)+'</span>';
   if(!endless){
     if(v.id==="trial"||v.id==="boss") goal+='<span class="warn">only 2 hearts</span>';
@@ -2075,16 +2309,23 @@ function goLevel(ch,lv,opts){
     if(v.id==="harvest") goal+='<span class="warn">against the clock</span>';
     if(v.id==="boss") goal+='<span class="warn">the long haul</span>';
     if(v.id==="offering"||v.id==="covenant"||v.id==="boss") goal+='<span class="warn">gather '+esc(WORDS[ch])+'</span>';
+    goal+='<span class="twist">'+esc(tw.name)+' — '+esc(tw.desc)+'</span>';
   }
+  var u=me();
+  var trialNote = (!endless && !freePlay() && !levelResting(u,ch,lv)) ?
+    '<div class="trialnote">📖 A question on this chapter comes first — you get '+CHANCES+' chances.</div>' : '';
+  if(!endless && levelResting(u,ch,lv))
+    trialNote='<div class="trialnote rest">🌅 This level rests until renewal (about '+renewalText()+'). Read the chapter, come back at dawn.</div>';
   el("devBody").innerHTML=
     '<div class="eyebrow">Before you play · Chapter '+ch+'</div>'
    +'<h2>'+esc(ex.name)+'</h2>'
    +'<div class="ref">'+esc(d.verse)+'</div>'
-   +'<div class="exercise"><div class="t">'+esc(v.name)+'</div>'+esc(ex.ex)+'</div>'
+   +'<div class="exercise"><div class="t">'+esc(v.name)+' · '+esc(tw.name)+'</div>'+esc(ex.ex)+'</div>'
    +'<p>'+esc(d.teach)+'</p>'
    +'<div class="verse">'+esc(c.plain.kjv)+'<br><span class="tiny">'+esc(c.plain.ref)+'</span></div>'
    +'<div class="fruit"><b>Take it with you:</b> '+esc(d.practice)+'</div>'
    +'<div class="goal">'+goal+'</div>'
+   +trialNote
    +'<div class="wordbar">'+WORDS[ch].split("").map(function(x){ return "<i>"+x+"</i>"; }).join("")+'</div>'
    +'<p class="tiny" style="text-align:center">Gather the letters <b>in order</b> to spell '+esc(WORDS[ch])+'.</p>'
    +'<div class="row" style="margin-top:14px">'
@@ -2092,10 +2333,102 @@ function goLevel(ch,lv,opts){
    +'<button class="btn ghost" id="devRead">📖 Read the chapter</button></div>';
   el("ovDev").classList.add("on");
   el("devGo").onclick=function(){ el("ovDev").classList.remove("on"); actx();
-    var u=me();
-    if(!endless && u && !u.cuts[ch]) showCutscene(ch,function(){ startLevel(ch,lv,opts); });
-    else startLevel(ch,lv,opts); };
+    beginWithTrial(ch,lv,opts); };
   el("devRead").onclick=function(){ el("ovDev").classList.remove("on"); openStudy(ch); };
+}
+/* ---------- the trial: read it, then answer ---------- */
+function launchLevel(ch,lv,opts){
+  startLevel(ch,lv,opts);
+}
+function beginWithTrial(ch,lv,opts){
+  var u=me(); if(!u) return openProfiles();
+  var endless=(lv>=LEVELS_PER_CH);
+  if(opts && opts.daily) return launchLevel(ch,lv,opts);
+  /* a first visit to a chapter plays its cutscene, then the trial */
+  if(!endless && !u.cuts[ch]) return showCutscene(ch,function(){ beginWithTrial(ch,lv,opts); });
+  if(endless || freePlay()) return launchLevel(ch,lv,opts);
+  var q=trialFor(ch,lv);
+  if(!q) return launchLevel(ch,lv,opts);
+  /* already passed this level's trial, or it is resting until renewal */
+  if((u.pass||{})[trialKey(ch,lv)] || u.stars[starKey(ch,lv)]) return launchLevel(ch,lv,opts);
+  if(levelResting(u,ch,lv)) return showRenewal(ch,lv);
+  showTrial(ch,lv,opts);
+}
+function showTrial(ch,lv,opts){
+  var u=me(), c=chapterOf(ch), q=trialFor(ch,lv);
+  var left=chancesLeft(u,ch,lv);
+  el("trialBody").innerHTML=
+    '<div class="eyebrow">The Trial · Chapter '+ch+' · Level '+lv+'</div>'
+   +'<h2>'+esc(c.title)+'</h2>'
+   +'<div class="ref">'+esc(c.plain.ref)+'</div>'
+   +'<div class="verse">'+esc(c.plain.kjv)+'</div>'
+   +'<p class="tiny" style="text-align:center">Read it once more, then answer.</p>'
+   +'<div class="trialq"><b>'+esc(q.q)+'</b></div>'
+   +'<div class="links" id="trialOpts">'
+   + q.o.map(function(o,i){ return '<span class="lk tappable" data-tpick="'+i+'">'+esc(o)+'</span>'; }).join("")
+   +'</div>'
+   +'<p class="tiny" id="trialMsg" style="min-height:1.4em;text-align:center"></p>'
+   +'<div class="hearts-line" id="trialHearts">'+heartsRow(left)+'</div>'
+   +'<p class="tiny" style="text-align:center" id="trialHint">'+chancesText(left)+'</p>'
+   +'<div class="row" style="margin-top:12px"><button class="btn ghost" id="trialRead">📖 Read the chapter</button></div>';
+  el("ovTrial").classList.add("on");
+  el("trialRead").onclick=function(){ el("ovTrial").classList.remove("on"); openStudy(ch); };
+  var opts2=document.querySelectorAll("[data-tpick]");
+  for(var i=0;i<opts2.length;i++) opts2[i].onclick=function(){
+    var pick=+this.dataset.tpick;
+    if(pick===q.a){ passTrial(ch,lv,opts); }
+    else { failTrial(ch,lv,opts,this); }
+  };
+}
+function heartsRow(left){ var s=""; for(var i=0;i<CHANCES;i++) s+= i<left?"❤":"<span style='opacity:.25'>❤</span>"; return s; }
+function chancesText(left){
+  if(left>=CHANCES) return "Three chances before this level rests until renewal.";
+  if(left>1) return left+" chances left. Read it carefully.";
+  if(left===1) return "One chance left. Take your time.";
+  return "";
+}
+function passTrial(ch,lv,opts){
+  var u=me(); if(u){ u.pass=u.pass||{}; u.pass[trialKey(ch,lv)]=1; if(u.tries) delete u.tries[trialKey(ch,lv)]; save(); }
+  SFX.word(); cheer("📖");
+  lockTrial();
+  var m=el("trialMsg"); if(m) m.innerHTML='<span style="color:var(--green)">Well answered ✓ — the level opens.</span>';
+  setTimeout(function(){ el("ovTrial").classList.remove("on"); startLevel(ch,lv,opts); }, 620);
+}
+function lockTrial(){ var o=el("trialOpts"); if(o) o.style.pointerEvents="none"; }
+function failTrial(ch,lv,opts,node){
+  var u=me(); if(!u) return;
+  u.tries=u.tries||{}; var k=trialKey(ch,lv);
+  u.tries[k]=(u.tries[k]||0)+1; save();
+  var left=chancesLeft(u,ch,lv);
+  if(node) node.classList.add("bad");
+  SFX.bad();
+  if(left>0){
+    var m=el("trialMsg");
+    if(m) m.innerHTML='<span style="color:var(--warn2)">Not quite. Read the verse again.</span>';
+    var h=el("trialHearts"); if(h) h.innerHTML=heartsRow(left);
+    var t=el("trialHint"); if(t) t.textContent=chancesText(left);
+  } else {
+    lockTrial();
+    el("ovTrial").classList.remove("on");
+    showRenewal(ch,lv);
+  }
+}
+function showRenewal(ch,lv){
+  var u=me(); if(u){ u.rest=u.rest||{}; u.rest[trialKey(ch,lv)]=today(); save(); }
+  var c=chapterOf(ch), q=trialFor(ch,lv);
+  el("trialBody").innerHTML=
+    '<div class="eyebrow">The level rests · Chapter '+ch+' · Level '+lv+'</div>'
+   +'<h2>Out of chances — for today</h2>'
+   +'<div class="ref">Lamentations 3:22-23</div>'
+   +'<div class="verse">It is of the LORD\u2019s mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.<br><span class="tiny">Lamentations 3:22-23</span></div>'
+   +'<p>You have used all three chances on this level. It will open again at <b>renewal</b> — the next dawn. This is not a punishment; it is the rhythm of mercy. Read the chapter tonight, and come back.</p>'
+   +'<div class="goal"><span>Renewal in about <b>'+renewalText()+'</b></span><span>'+esc(c.plain.ref)+'</span></div>'
+   +'<div class="exercise"><div class="t">Tonight, read</div>'+esc(c.plain.kjv)+'</div>'
+   +'<div class="row" style="margin-top:14px"><button class="btn gold" id="renewRead">📖 Read the chapter</button>'
+   +'<button class="btn ghost" id="renewMap">Back to levels</button></div>';
+  el("ovTrial").classList.add("on");
+  el("renewRead").onclick=function(){ el("ovTrial").classList.remove("on"); openStudy(ch); };
+  el("renewMap").onclick=function(){ el("ovTrial").classList.remove("on"); openLevels(ch); };
 }
 /* ---------- the fruit: learn after you play ---------- */
 function showFruit(){
@@ -2564,6 +2897,9 @@ el("lbBtn").onclick=function(){ actx(); SFX.tap(); if(!DB.active) return openPro
 el("lanBtn").onclick=function(){ actx(); openLan(); };
 el("themeChip").onclick=function(){ setTheme(PREFS.theme==="light"?"dark":"light");
   el("themeChip").textContent=(PREFS.theme==="light"?"☀️":"🌙"); SFX.tap(); };
+el("freeChip").onclick=function(){ SFX.tap(); prefToggle("free",!PREFS.free);
+  el("freeChip").classList.toggle("on",PREFS.free);
+  toast(PREFS.free?"🎟 Free play on — every chapter and level is open":"Free play off — the road unlocks again"); };
 el("whoChip").onclick=openProfiles;
 el("starChip").onclick=openLeaderboard;
 el("streakChip").onclick=openDaily;
@@ -2587,7 +2923,7 @@ document.addEventListener("keydown",function(e){
 /* ============================================================
    v1.2 · PREFERENCES (accessibility + audio)
    ============================================================ */
-var PREFS={size:1, motion:false, cb:false, vol:0.6, music:true, theme:"dark"};
+var PREFS={size:1, motion:false, cb:false, vol:0.6, music:true, theme:"dark", free:false};
 function loadPrefs(){ try{ var p=JSON.parse(localStorage.getItem("emmaus_prefs")||"{}");
   Object.keys(p).forEach(function(k){ if(k in PREFS) PREFS[k]=p[k]; }); }catch(e){} applyPrefs(); }
 function savePrefs(){ try{ localStorage.setItem("emmaus_prefs", JSON.stringify(PREFS)); }catch(e){} }
@@ -2846,6 +3182,10 @@ function openSettings(){
    +'<div class="setrow"><div class="lbl">Reduce motion<small>Calmer screen — fewer shakes and fades</small></div><div class="sw'+(PREFS.motion?" on":"")+'" id="prefMotion" role="switch" aria-label="Reduce motion"></div></div>'
    +'<div class="setrow"><div class="lbl">Colourblind-friendly<small>Blue instead of green, amber instead of red</small></div><div class="sw'+(PREFS.cb?" on":"")+'" id="prefCb" role="switch" aria-label="Colourblind friendly"></div></div>'
    +'</div>'
+   +'<div class="card"><h2>Free play</h2>'
+   +'<div class="setrow"><div class="lbl">Open every chapter &amp; level<small>For showing the game, testing, or playing with someone. No unlocking, no waiting for renewal.</small></div><div class="sw'+(PREFS.free?" on":"")+'" id="prefFree" role="switch" aria-label="Free play"></div></div>'
+   +'<p class="tiny">Turn this on to explore any chapter or level at once. Your stars and progress are still saved.</p>'
+   +'</div>'
    +'<div class="card"><h2>Sound</h2>'
    +'<div class="setrow"><div class="lbl">Sound effects</div><div class="sw'+(u&&u.sound!==false?" on":"")+'" id="prefSfx" role="switch" aria-label="Sound effects"></div></div>'
    +'<div class="setrow"><div class="lbl">Music<small>A soft ambient bed</small></div><div class="sw'+(PREFS.music?" on":"")+'" id="prefMusic" role="switch" aria-label="Music"></div></div>'
@@ -2866,6 +3206,8 @@ function openSettings(){
   el("thLight").onclick=function(){ setTheme("light"); openSettings(); };
   el("prefMotion").onclick=function(){ prefToggle("motion",!PREFS.motion); this.classList.toggle("on",PREFS.motion); };
   el("prefCb").onclick=function(){ prefToggle("cb",!PREFS.cb); this.classList.toggle("on",PREFS.cb); };
+  el("prefFree").onclick=function(){ prefToggle("free",!PREFS.free); this.classList.toggle("on",PREFS.free);
+    toast(PREFS.free?"🎟 Free play on — every level is open":"Free play off — the road unlocks again"); };
   el("prefMusic").onclick=function(){ prefToggle("music",!PREFS.music); this.classList.toggle("on",PREFS.music); MUS.gestured=true; if(PREFS.music) musicStart(); };
   el("prefVol").oninput=function(){ PREFS.vol=parseFloat(this.value); savePrefs(); if(MUS.on){ try{ MUS.g.gain.value=Math.max(.0002,PREFS.vol*0.045); }catch(e){} } };
   el("prefSfx").onclick=function(){ if(u){ u.sound=!(u.sound!==false); save(); this.classList.toggle("on",u.sound); } };
@@ -2904,6 +3246,8 @@ document.addEventListener("visibilitychange",function(){
 
 function init(){ loadPrefs(); resize(); refreshChips(); showScreen("menu");
   var tc=el("themeChip"); if(tc) tc.textContent=(PREFS.theme==="light"?"☀️":"🌙");
+  var fc=el("freeChip"); if(fc) fc.classList.toggle("on",PREFS.free);
+  var mu=me(); if(mu && clearRenewal(mu)) toast("🌅 Renewal — the levels that rested are open again");
   spawnFloaties();
   var q=location.search||"";
   if(/[?&]join=/.test(q)){ var m=q.match(/[?&]join=([A-Za-z0-9]{1,6})/), nm=q.match(/[?&]name=([^&]+)/);
