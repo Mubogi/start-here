@@ -98,3 +98,18 @@ verse resolves, every art key exists, no required field is missing.
   `git push "https://${GH_PAT}@github.com/Mubogi/start-here.git" master`
 - Live site: https://mubogi.github.io/start-here/ (Pages rebuilds a few minutes after push).
 - APK: `.github/workflows/android.yml` builds a debug APK in the cloud (Actions -> Run workflow).
+
+## EMMAUS game (`emmaus/index.html`)
+
+One offline file. All content lives at the top of the file: `CHAPTERS` (10), `KID`
+(the Little Lamp child layer, one per chapter), `CONTACT`, `COMMUNITY`. Per-user state
+(marks, unlocked chapters, unfolded layers, notebook, manna, child quiz, Family Mode,
+lights) is in localStorage under `emmaus_v1`; `normalize()` back-fills new fields on
+load, so old saves keep working when you add features.
+
+Each chapter renders, in order: the five Unfolding layers (Plain, Words, Thread,
+Practice, Watch), any `extra` deeper notes (Chapter 9 has four), the Little Lamp,
+the contact box, the version table, the Pulpit, and the notebook.
+
+Verify with `node tools/test-emmaus.js` (10 chapters, five layers, truth tags, Manna
+determinism, Little Lamp, contact, self-containment).

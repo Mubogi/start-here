@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EMMAUS — The Unfolding</title>
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#0e1018; --panel:#171a26; --panel2:#1e2231; --line:#2a3044;
+    --ink:#eef1f8; --dim:#98a0b8; --gold:#e8b84b; --gold2:#ffd98a;
+    --green:#5bd67a; --blue:#6f9dff; --violet:#a98bff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#1b2036 0%,var(--bg) 60%);
+    color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+  .app{max-width:880px;margin:0 auto;padding:18px 16px 90px}
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand b{font-size:1.25rem;letter-spacing:.14em;color:var(--gold2)}
+  .brand span{font-size:.72rem;color:var(--dim);letter-spacing:.22em;text-transform:uppercase}
+  .who{font-size:.78rem;color:var(--dim);text-align:right;line-height:1.25}
+  .who b{color:var(--gold);display:block;font-size:.9rem}
+  nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 18px}
+  nav.tabs button{background:var(--panel);border:1px solid var(--line);color:var(--dim);
+    padding:.45rem .8rem;border-radius:999px;font:inherit;font-size:.82rem;cursor:pointer}
+  nav.tabs button.on{background:linear-gradient(180deg,#2b3350,#232941);color:var(--ink);border-color:#3d4a70}
+  h1{font-size:1.3rem;margin:.2rem 0 .1rem}
+  h2{font-size:1.02rem;margin:1.1rem 0 .4rem;color:var(--gold2)}
+  h3{font-size:.9rem;margin:.8rem 0 .3rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+  p{margin:.4rem 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0}
+  .muted{color:var(--dim);font-size:.86rem}
+  .tiny{font-size:.76rem;color:var(--dim)}
+  button.btn{background:linear-gradient(180deg,#4a73e8,#3a5bc4);border:0;border-radius:10px;
+    color:#fff;font:inherit;font-weight:600;padding:.55rem 1rem;cursor:pointer}
+  button.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
+  button.btn.gold{background:linear-gradient(180deg,#e8b84b,#c9962c);color:#241c05}
+  button.btn:disabled{opacity:.45;cursor:not-allowed}
+  input,textarea,select{background:#12141f;border:1px solid var(--line);color:var(--ink);
+    border-radius:9px;padding:.55rem .7rem;font:inherit;width:100%}
+  textarea{min-height:90px;resize:vertical}
+  label{display:block;font-size:.78rem;color:var(--dim);margin:.5rem 0 .2rem}
+
+  .journey{position:relative;padding-left:34px}
+  .journey:before{content:"";position:absolute;left:13px;top:6px;bottom:6px;width:3px;
+    background:linear-gradient(180deg,var(--green),var(--gold),var(--violet));border-radius:3px;opacity:.5}
+  .node{position:relative;margin:0 0 12px;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:12px 14px;cursor:pointer;transition:transform .12s,border-color .12s}
+  .node:hover{transform:translateX(3px);border-color:#3d4a70}
+  .node .dot{position:absolute;left:-27px;top:16px;width:19px;height:19px;border-radius:50%;
+    background:var(--panel2);border:3px solid var(--line)}
+  .node.done .dot{background:var(--green);border-color:#2c6b3d;box-shadow:0 0 12px #5bd67a88}
+  .node.open .dot{background:var(--gold);border-color:#8a6a1c;box-shadow:0 0 12px #e8b84b88}
+  .node.locked{opacity:.55;cursor:not-allowed}
+  .node h3{margin:0 0 .15rem;color:var(--ink);text-transform:none;letter-spacing:0;font-size:1rem}
+  .node .life{font-size:.8rem;color:var(--gold2)}
+  .node .bar{height:6px;background:#12141f;border-radius:6px;margin-top:8px;overflow:hidden}
+  .node .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--gold));width:0}
+  .pill{display:inline-block;font-size:.68rem;padding:.12rem .5rem;border-radius:999px;
+    border:1px solid var(--line);color:var(--dim);margin-left:6px;vertical-align:middle}
+
+  .tag{display:inline-block;font-size:.68rem;font-weight:700;padding:.14rem .5rem;border-radius:6px;margin-bottom:.4rem}
+  .tag.t-text{background:#1d3a25;color:#7ee39a;border:1px solid #2c6b3d}
+  .tag.t-trad{background:#3a3218;color:#f0cf78;border:1px solid #6b5a20}
+  .tag.t-read{background:#1c2a44;color:#9dc0ff;border:1px solid #2f4a7a}
+
+  .layer{border:1px solid var(--line);border-radius:12px;margin:8px 0;overflow:hidden}
+  .layer>.head{display:flex;justify-content:space-between;align-items:center;gap:8px;
+    padding:.6rem .8rem;background:var(--panel2);cursor:pointer}
+  .layer>.head b{font-size:.92rem}
+  .layer>.body{padding:.2rem .9rem .9rem;display:none;background:var(--panel)}
+  .layer.open>.body{display:block}
+  .layer.done>.head b:after{content:" ✓";color:var(--green)}
+
+  table.versions{width:100%;border-collapse:collapse;font-size:.88rem}
+  table.versions th,table.versions td{text-align:left;vertical-align:top;padding:.5rem .6rem;
+    border-bottom:1px solid var(--line)}
+  table.versions th{color:var(--gold2);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;width:110px}
+  .missing{color:#67708c;font-style:italic}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+
+  .note{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:var(--panel2)}
+  .note .ref{color:var(--gold2);font-weight:600}
+  a.link{color:var(--blue);text-decoration:none}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chips a{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);
+    padding:.5rem .8rem;border-radius:10px;color:var(--ink);text-decoration:none;font-size:.85rem}
+  .chips a:hover{border-color:#3d4a70}
+  .hidden{display:none}
+  .center{text-align:center}
+  .big{font-size:2rem;color:var(--gold2);font-weight:700}
+  .markline{display:flex;align-items:center;gap:10px;margin:.3rem 0}
+  .markline .b{flex:1;height:9px;background:#12141f;border-radius:9px;overflow:hidden}
+  .markline .b i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--gold))}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#232941;
+    border:1px solid var(--line);border-radius:10px;padding:.6rem 1rem;font-size:.86rem;opacity:0;
+    pointer-events:none;transition:opacity .3s;z-index:50}
+  .toast.show{opacity:1}
+  .manna-grid{display:flex;flex-direction:column;gap:6px;align-items:center;margin:12px 0}
+  .mguess{display:flex;gap:5px}
+  .mcell{width:38px;height:38px;display:grid;place-items:center;border-radius:7px;font-weight:700;
+    text-transform:uppercase;background:#12141f;border:1px solid var(--line)}
+  .mcell.hit{background:#2c6b3d;border-color:#3d8a52}
+  .mcell.near{background:#6b5a20;border-color:#8a7429}
+  .mcell.miss{background:#2a3044;border-color:#333a52}
+
+  .layer.kid>.head{background:linear-gradient(180deg,#2a2410,#241f0e)}
+  .layer.kid>.head b{color:var(--gold2)}
+  .chips.big a{font-size:.92rem;padding:.6rem .95rem}
+  .chips a.call{background:#1d3a25;border-color:#2c6b3d;color:#9df0b6}
+  .chips a.wa{background:#12351f;border-color:#1f5c34;color:#8fe0ab}
+  .chips a.tg{background:#152a44;border-color:#274a78;color:#9dc0ff}
+  .fabs{position:fixed;right:14px;bottom:16px;display:flex;flex-direction:column;gap:10px;z-index:60}
+  .fabs a{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:1.35rem;
+    text-decoration:none;color:#fff;box-shadow:0 6px 18px #0008;border:0}
+  .fabs a.call{background:linear-gradient(180deg,#4a73e8,#3a5bc4)}
+  .fabs a.wa{background:linear-gradient(180deg,#2fae5a,#1f8a45)}
+  .switch{display:inline-flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:999px;padding:.35rem .75rem;font-size:.8rem;cursor:pointer;color:var(--ink)}
+  .switch input{width:auto;margin:0}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><b>EMMAUS</b><span>The Unfolding</span></div>
+    <div class="who hidden" id="whoBox"><span>Pilgrim</span><b id="whoName">—</b></div>
+  </header>
+  <nav class="tabs hidden" id="tabs">
+    <button data-go="journey">Journey</button>
+    <button data-go="manna">Manna</button>
+    <button data-go="notebook">Notebook</button>
+    <button data-go="community">Community</button>
+    <button data-go="about">About</button>
+    <button data-go="profiles">Switch user</button>
+  </nav>
+  <main id="view"></main>
+</div>
+<div class="fabs" id="fabs">
+  <a class="call" id="fabCall" href="#" aria-label="Call">&#9742;</a>
+  <a class="wa" id="fabWa" href="#" aria-label="WhatsApp" target="_blank" rel="noopener">&#128172;</a>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   EMMAUS - offline single-file game. No server, no external requests.
+   ============================================================ */
+
+/* ---------- CONTENT: the ten chapters ---------- */
+var CHAPTERS = [
+ {
+  id:1, title:"The Garden", life:"Identity - \u201cwho am I?\u201d",
+  plain:{ref:"Genesis 1:26-27",
+    kjv:"And God said, Let us make man in our image, after our likeness: and let them have dominion over the fish of the sea, and over the fowl of the air, and over the cattle, and over all the earth, and over every creeping thing that creepeth upon the earth. So God created man in his own image, in the image of God created he him; male and female created he them.",
+    web:"God said, \u201cLet us make man in our image, after our likeness: and let them have dominion over the fish of the sea, and over the birds of the sky, and over the livestock, and over all the earth, and over every creeping thing that creeps on the earth.\u201d God created man in his own image. In God\u2019s image he created him; male and female he created them."},
+  words:[{t:"tselem", lang:"Hebrew", m:"image, likeness - a representative. You are not an accident; you are a likeness made to represent the King."},
+         {t:"nephesh", lang:"Hebrew", m:"living being, soul (Gen 2:7) - the whole self, body and breath together."}],
+  thread:{ot:"Adam is called \u201cthe son of God\u201d (Luke 3:38) and given dominion over the earth.",
+    nt:"Christ is \u201cthe last Adam\u201d (1 Cor 15:45) - the true image (Col 1:15) who restores what Adam lost.", tag:"t-text",
+    note:"Paul calls Adam \u201cthe figure of him that was to come\u201d (Rom 5:14). The first Adam points forward to the second."},
+  practice:"You keep comparing yourself to others and feel you are \u201cnot enough.\u201d The Bible\u2019s answer is not to try harder - it is that your worth was settled in Genesis 1 before you did anything. Write one sentence: \u201cI am made in the image of God, therefore ___.\u201d",
+  watch:"Pray with Genesis 1:27 open. Thank God for making you in His image - not for what you do, but for who He made you to be.",
+  sermon:"Text: Genesis 1:26-27 \u00b7 Words: tselem, nephesh \u00b7 Thread: Adam to the Last Adam (Rom 5:14; 1 Cor 15:45) \u00b7 Practice: identity before performance \u00b7 Watch: adoration"
+ },
+ {
+  id:2, title:"The Fall", life:"Shame, guilt, failure",
+  plain:{ref:"Genesis 3:21",
+    kjv:"Unto Adam also and to his wife did the LORD God make coats of skins, and clothed them.",
+    web:"Yahweh God made coats of animal skins for Adam and for his wife, and clothed them."},
+  words:[{t:"chata", lang:"Hebrew", m:"sin - literally \u201cto miss the mark,\u201d as an arrow falls short. (Rom 3:23, \u201ccome short.\u201d)"},
+         {t:"kaphar", lang:"Hebrew", m:"to cover, to atone - the root behind \u201catonement.\u201d Something must cover."}],
+  thread:{ot:"In the Garden, God Himself clothes the guilty - an animal dies to cover them.",
+    nt:"Our covering is Christ: \u201cye have put on Christ\u201d (Gal 3:27); He is our righteousness (2 Cor 5:21).", tag:"t-text",
+    note:"The first death in the Bible is to cover sinners - a shadow of the Lamb."},
+  practice:"You sinned and now you hide from God, ashamed. The Bible\u2019s way is 1 John 1:9 - confess and be cleansed, not perform penance. Name the sin to God plainly, then receive forgiveness.",
+  watch:"Pray a confession prayer using Psalm 51. Do not bargain. Simply confess and thank God that He is \u201cfaithful and just to forgive.\u201d",
+  sermon:"Text: Genesis 3:21 \u00b7 Words: chata, kaphar \u00b7 Thread: the first covering to Christ our righteousness \u00b7 Practice: confession not hiding \u00b7 Watch: confession"
+ },
+ {
+  id:3, title:"The Ark", life:"Fear, crisis, sudden loss",
+  plain:{ref:"Genesis 7:16",
+    kjv:"And they that went in, went in male and female of all flesh, as God had commanded him: and the LORD shut him in.",
+    web:"Those who went in, went in male and female of all flesh, as God commanded him; then Yahweh shut him in."},
+  words:[{t:"tebah", lang:"Hebrew", m:"ark, box, vessel (same word as baby Moses\u2019 basket). A place of safety in the storm."},
+         {t:"kaphar", lang:"Hebrew", m:"to cover, to pitch - the ark was \u201cpitched within and without.\u201d"}],
+  thread:{ot:"The ark saves Noah from judgment, and God Himself shuts the door (Gen 7:16).",
+    nt:"Christ is our ark - the door is in His side. \u201cI am the door: by me if any man enter in, he shall be saved\u201d (John 10:9).", tag:"t-text",
+    note:"Noah could not shut the door himself. Salvation is God\u2019s doing, not ours."},
+  practice:"You are in a crisis and gripped by fear. The Bible\u2019s way is to enter the refuge and let God shut the door - trust Him to hold what you cannot. Name the fear aloud, then pray \u201cLORD, you shut the door. I will rest in you.\u201d",
+  watch:"Pray Psalm 46 (\u201cGod is our refuge and strength\u201d). Let the fear become a petition for shelter, not a spiral.",
+  sermon:"Text: Genesis 7:16 \u00b7 Word: tebah \u00b7 Thread: the ark\u2019s door to Christ the door (John 10:9) \u00b7 Practice: refuge, not self-rescue \u00b7 Watch: surrender and petition"
+ },
+ {
+  id:4, title:"The Lamb", life:"Guilt, need for cleansing",
+  plain:{ref:"Exodus 12:13",
+    kjv:"And the blood shall be to you for a token upon the houses where ye are: and when I see the blood, I will pass over you, and the plague shall not be upon you to destroy you, when I smite the land of Egypt.",
+    web:"The blood shall be to you for a token on the houses where you are: and when I see the blood, I will pass over you, and no plague will be on you to destroy you when I strike the land of Egypt."},
+  words:[{t:"pesach", lang:"Hebrew", m:"Passover - from \u201cto pass over, to spare.\u201d The blood is the sign."},
+         {t:"seh", lang:"Hebrew", m:"lamb, a young sheep - a substitute. (John 1:29, \u201cthe Lamb of God.\u201d)"}],
+  thread:{ot:"The Passover lamb dies so the firstborn may live; the blood is the protection.",
+    nt:"\u201cBehold the Lamb of God, which taketh away the sin of the world\u201d (John 1:29); \u201cChrist our passover is sacrificed for us\u201d (1 Cor 5:7).", tag:"t-text",
+    note:"The NT explicitly names Christ as the Passover. This is a direct fulfilment."},
+  practice:"You feel unclean and unworthy after a failure. The Bible\u2019s way is not to clean yourself first - the blood is applied, then you are clean. Thank God for the substitute, then walk in it.",
+  watch:"Pray a thanksgiving prayer for the cross. Read John 1:29 aloud, then thank Jesus for taking what you deserved.",
+  sermon:"Text: Exodus 12:13 \u00b7 Words: pesach, seh \u00b7 Thread: Passover lamb to the Lamb of God \u00b7 Practice: cleansing received, not achieved \u00b7 Watch: thanksgiving"
+ },
+ {
+  id:5, title:"The Wilderness", life:"Worry, provision, waiting",
+  plain:{ref:"Exodus 16:15",
+    kjv:"And when the children of Israel saw it, they said one to another, It is manna: for they wist not what it was. And Moses said unto them, This is the bread which the LORD hath given you to eat.",
+    web:"When the children of Israel saw it, they said one to another, \u201cWhat is it?\u201d For they didn\u2019t know what it was. Moses said to them, \u201cIt is the bread which Yahweh has given you to eat.\u201d"},
+  words:[{t:"manna", lang:"Hebrew", m:"literally \u201cWhat is it?\u201d (man hu) - a name born of confusion and wonder."},
+         {t:"lechem", lang:"Hebrew", m:"bread, food - \u201cbread from heaven\u201d (Exod 16:4)."}],
+  thread:{ot:"God rains bread daily, and it cannot be stored - left over it \u201cbred worms\u201d (Exod 16:19-20).",
+    nt:"\u201cI am the bread of life\u201d (John 6:35, 48-51); the Rock that followed them \u201cwas Christ\u201d (1 Cor 10:4).", tag:"t-text",
+    note:"Jesus quotes this very chapter and says He is what the manna pointed to."},
+  practice:"You are anxious about tomorrow\u2019s provision. The Bible\u2019s way is daily trust - enough for today (Matt 6:11, \u201cdaily bread\u201d; Deut 8:3; Matt 4:4). Do not hoard worry. Ask for today, and thank God for today.",
+  watch:"Pray \u201cGive us this day our daily bread.\u201d Ask for today only, and let tomorrow rest with God.",
+  sermon:"Text: Exodus 16:15 \u00b7 Words: manna (\u201cWhat is it?\u201d), lechem \u00b7 Thread: manna and the Rock to the Bread of Life (John 6; 1 Cor 10:4) \u00b7 Practice: daily trust, no hoarding \u00b7 Watch: daily bread"
+ },
+ {
+  id:6, title:"The Temple", life:"Emptiness, longing for God",
+  plain:{ref:"Exodus 25:8",
+    kjv:"And let them make me a sanctuary; that I may dwell among them.",
+    web:"Let them make me a sanctuary, that I may dwell among them."},
+  words:[{t:"shachah", lang:"Hebrew", m:"to bow down, to worship - the posture of the whole self before God."},
+         {t:"mishkan", lang:"Hebrew", m:"dwelling place, tabernacle - where God meets His people."}],
+  thread:{ot:"God commands a dwelling so He can live among His people.",
+    nt:"\u201cDestroy this temple, and in three days I will raise it up... he spake of the temple of his body\u201d (John 2:19-21); and now \u201cyour body is the temple of the Holy Ghost\u201d (1 Cor 6:19).", tag:"t-text",
+    note:"The dwelling moved: tabernacle, then temple, then Christ\u2019s body, then you."},
+  practice:"You feel empty and far from God. The Bible\u2019s way is worship, not striving - God chose to dwell with you. Bow the heart (shachah) and thank Him that He is near.",
+  watch:"Pray John 4:23-24 - worship \u201cin spirit and in truth.\u201d Ask the Holy Spirit to fill the emptiness with Himself.",
+  sermon:"Text: Exodus 25:8 \u00b7 Words: shachah, mishkan \u00b7 Thread: tabernacle to His body to your body \u00b7 Practice: worship over striving \u00b7 Watch: worship in spirit and truth"
+ },
+ {
+  id:7, title:"The Veil", life:"Rejection, feeling cut off from God",
+  plain:{ref:"Matthew 27:51",
+    kjv:"And, behold, the veil of the temple was rent in twain from the top to the bottom; and the earth did quake, and the rocks rent;",
+    web:"Behold, the veil of the temple was torn in two from the top to the bottom. The earth quaked and the rocks were split."},
+  words:[{t:"hilasterion", lang:"Greek", m:"propitiation, mercy seat - where blood was sprinkled and God met man."},
+         {t:"katapetasma", lang:"Greek", m:"veil, curtain - the barrier between the holy place and the most holy (Heb 10:20)."}],
+  thread:{ot:"A thick veil kept everyone but the high priest out of God\u2019s presence (Exod 26:33).",
+    nt:"At the cross the veil tears \u201cfrom the top to the bottom\u201d - God opens the way: \u201cboldness to enter into the holiest by the blood of Jesus\u201d (Heb 10:19-20).", tag:"t-text",
+    note:"It tore from top to bottom - God did it, not man. Access is a gift."},
+  practice:"You feel rejected and cut off from God. The Bible\u2019s way is to walk through the torn veil with boldness - not to earn your way back. Come near, because the barrier is gone.",
+  watch:"Pray Hebrews 10:19-22. Intercede for someone who feels cut off, and enter God\u2019s presence with confidence yourself.",
+  sermon:"Text: Matthew 27:51 \u00b7 Words: hilasterion, katapetasma \u00b7 Thread: the veil torn for us (Heb 10:19-20) \u00b7 Practice: bold access \u00b7 Watch: intercession"
+ },
+ {
+  id:8, title:"The Tomb", life:"Hopelessness, defeat, addiction",
+  plain:{ref:"Matthew 12:40",
+    kjv:"For as Jonas was three days and three nights in the whale\u2019s belly; so shall the Son of man be three days and three nights in the heart of the earth.",
+    web:"For as Jonah was three days and three nights in the belly of the whale, so will the Son of Man be three days and three nights in the heart of the earth."},
+  words:[{t:"anastasis", lang:"Greek", m:"resurrection, a raising up - standing again after falling."},
+         {t:"aparche", lang:"Greek", m:"firstfruits - the first sheaf, a promise that the whole harvest is coming (1 Cor 15:20)."}],
+  thread:{ot:"Jonah is swallowed and comes out on the third day (Jonah 1:17).",
+    nt:"\u201cAs Jonas was three days and three nights... so shall the Son of man be\u201d (Matt 12:40); Christ is \u201cthe firstfruits of them that slept\u201d (1 Cor 15:20).", tag:"t-text",
+    note:"Jesus Himself named Jonah as the sign. This is explicitly confirmed."},
+  practice:"You are in defeat and it feels final, like a tomb. The Bible\u2019s way is resurrection faith - the third day is coming. Declare the promise, not the circumstance.",
+  watch:"Pray a declaration prayer: \u201cChrist is risen, and I will rise with Him.\u201d Speak hope over the place that feels dead.",
+  sermon:"Text: Matthew 12:40 \u00b7 Words: anastasis, aparche \u00b7 Thread: Jonah to the Son of man; firstfruits to resurrection \u00b7 Practice: resurrection faith \u00b7 Watch: declaration"
+ },
+ {
+  id:9, title:"The Upper Room", life:"Spiritual battle, weakness, fear",
+  plain:{ref:"Acts 2:1-4",
+    kjv:"And when the day of Pentecost was fully come, they were all with one accord in one place. And suddenly there came a sound from heaven as of a rushing mighty wind, and it filled all the house where they were sitting. And there appeared unto them cloven tongues like as of fire, and it sat upon each of them. And they were all filled with the Holy Ghost, and began to speak with other tongues, as the Spirit gave them utterance.",
+    web:"Now when the day of Pentecost had come, they were all with one accord in one place. Suddenly there came from the sky a sound like the rushing of a mighty wind, and it filled all the house where they were sitting. Tongues like fire appeared and were distributed to them, and one sat on each of them. They were all filled with the Holy Spirit, and began to speak with other languages, as the Spirit gave them the ability to speak."},
+  words:[{t:"pneuma", lang:"Greek", m:"spirit, wind, breath - the Holy Spirit is the breath of God."},
+         {t:"glossa", lang:"Greek", m:"tongue, language - the gift at Pentecost and in 1 Cor 14."},
+         {t:"proseuchomai", lang:"Greek", m:"to pray, to worship - the ordinary word for prayer."}],
+  thread:{ot:"Daniel prays and waits; an angel comes, delayed by spiritual opposition (Dan 10:12-13).",
+    nt:"\u201cIf I pray in an unknown tongue, my spirit prayeth\u201d (1 Cor 14:14-15); \u201cpraying in the Holy Ghost\u201d (Jude 20); \u201ctrue worshippers shall worship the Father in spirit and in truth\u201d (John 4:23-24).", tag:"t-trad",
+    note:"Held across traditions. Praying \u201cin the Spirit\u201d is read as tongues in Pentecostal/charismatic tradition, and as Spirit-led prayer elsewhere. Both are sincere - the game does not force one."},
+  extra:[
+   {head:"Daniel\u2019s 21 days - what the text actually says", tag:"t-text",
+    body:"The angel tells Daniel: \u201cfrom the first day that thou didst set thine heart to understand... thy words were heard, and I am come for thy words\u201d (Dan 10:12). The answer was heard on day one. The 21 days was opposition - \u201cthe prince of the kingdom of Persia withstood me\u201d (Dan 10:13). So the lesson of long prayer is not that we must pay for God\u2019s attention, but that we are in a real spiritual battle and must persist. You may have heard it taught the other way."},
+   {head:"Worship in spirit and in truth", tag:"t-text",
+    body:"John 4:23-24 is about the nature of worship - not its place (the mountain) or ritual, but the heart, led by the Spirit and grounded in truth (the Word). It connects to praying in tongues (spirit) and to the Word (truth), but it is not the same statement. Link them; do not fuse them."},
+   {head:"Angels and the night", tag:"t-read",
+    body:"Scripture has real night events: Paul and Silas pray at midnight (Acts 16:25), Peter\u2019s angel comes at night (Acts 12), angels announce at night (Luke 2). The game shows the pattern of God moving at night - it does not sell a fixed angelic schedule. That would be a reading, not the text."},
+   {head:"A word that is not in the Bible", tag:"t-read",
+    body:"\u201cShekinah\u201d is a beautiful word for God\u2019s dwelling presence, but it is a later rabbinic term - it does not appear in the Bible. Honour it as tradition and as a reading, not as a verse."}
+  ],
+  practice:"You feel weak and afraid, and spiritual things feel distant. The Bible\u2019s way is to be filled and to pray - including praying in the Spirit (1 Cor 14:14-15; Jude 20) - and to persist through opposition like Daniel. Pray, and keep praying.",
+  watch:"Pray in the Spirit and with the understanding (1 Cor 14:15). Try a night watch: set a time at night to pray, as the early church did at midnight (Acts 16:25).",
+  sermon:"Text: Acts 2:1-4 \u00b7 Words: pneuma, glossa, proseuchomai \u00b7 Thread: Daniel\u2019s battle and Pentecost to praying in the Spirit \u00b7 Practice: be filled, persist \u00b7 Watch: praying in the Spirit; the night watch"
+ },
+ {
+  id:10, title:"The City", life:"Purpose, legacy, hope",
+  plain:{ref:"Revelation 21:2-3",
+    kjv:"And I John saw the holy city, new Jerusalem, coming down from God out of heaven, prepared as a bride adorned for her husband. And I heard a great voice out of heaven saying, Behold, the tabernacle of God is with men, and he will dwell with them, and they shall be his people, and God himself shall be with them, and be their God.",
+    web:"I saw the holy city, New Jerusalem, coming down out of heaven from God, prepared like a bride adorned for her husband. I heard a loud voice out of heaven saying, \u201cBehold, God\u2019s dwelling is with people, and he will dwell with them, and they will be his people, and God himself will be with them as their God."},
+  words:[{t:"parousia", lang:"Greek", m:"coming, arrival, presence - the return of Christ."},
+         {t:"maranatha", lang:"Aramaic", m:"\u201cOur Lord, come!\u201d - one of the earliest Christian prayers (1 Cor 16:22)."}],
+  thread:{ot:"God promises to dwell with His people and be their God (the covenant refrain).",
+    nt:"\u201cThe tabernacle of God is with men\u201d (Rev 21:3); \u201cthe Spirit and the bride say, Come\u201d (Rev 22:17); \u201cSurely I come quickly... Even so, come, Lord Jesus\u201d (Rev 22:20).", tag:"t-text",
+    note:"The whole Bible ends where it began - God with His people - but now in a City that cannot be lost."},
+  practice:"You wonder if your life has purpose and whether it lasts. The Bible\u2019s way is hope anchored in the City to come - live now toward what is coming. Let your legacy be faithfulness, not fame.",
+  watch:"Pray the oldest prayer: \u201cMaranatha - come, Lord Jesus.\u201d Ask God to make your life count for His kingdom.",
+  sermon:"Text: Revelation 21:2-3 \u00b7 Words: parousia, maranatha \u00b7 Thread: God with His people to the New Jerusalem \u00b7 Practice: hope and legacy \u00b7 Watch: \u201cCome, Lord Jesus\u201d"
+ }
+];
+
+/* ---------- CONTACT: how a pilgrim reaches a real person ---------- */
+var CONTACT = {
+  name: "",
+  phone: "+256754687597",
+  whatsapp: "256754687597",
+  telegram: "256754687597"
+};
+CONTACT.tel = function(){ return "tel:"+CONTACT.phone; };
+CONTACT.wa = function(msg){ return "https://wa.me/"+CONTACT.whatsapp+(msg?"?text="+encodeURIComponent(msg):""); };
+CONTACT.tg = function(){ return "https://t.me/+"+CONTACT.telegram; };
+CONTACT.show = function(){ return CONTACT.name||CONTACT.phone; };
+CONTACT.msg = function(what, where){
+  return "My name is "+what+". I am playing EMMAUS ("+where+") and I would like to talk, or have someone pray with me.";
+};
+
+/* ---------- COMMUNITY: group links. Put your own group URLs here. ---------- */
+var COMMUNITY = [
+  {n:"WhatsApp group", u:"", hint:"your church WhatsApp group invite link"},
+  {n:"Telegram group", u:"", hint:"your Telegram group link"},
+  {n:"Facebook group", u:"", hint:"your Facebook group link"}
+];
+
+/* ---------- LITTLE LAMP: the child's layer for each chapter (MAP \u00a77) ---------- */
+var KID = {
+ 1:{story:"God made everything. Then God made people \u2014 and made them like himself, to look after the world.",
+    truth:"You are made in God\u2019s image. You are not a mistake.",
+    do:"Tell someone one thing you are good at, and say: \u201cGod made me like this.\u201d",
+    quiz:{q:"Who made you?", o:["God","Nobody"], a:0}},
+ 2:{story:"People did wrong and felt ashamed, so they hid. But God did not leave them \u2014 He covered them.",
+    truth:"When you do wrong, God does not want you to hide. He wants to forgive you.",
+    do:"If you did something wrong today, say sorry to God, then thank Him for forgiving you.",
+    quiz:{q:"What should you do when you do wrong?", o:["Hide","Tell God and say sorry"], a:1}},
+ 3:{story:"God told Noah to build a big boat. The rain came, but God shut the door and kept Noah safe inside.",
+    truth:"God is your safe place in a storm.",
+    do:"When you feel scared, say: \u201cGod, you are my safe place.\u201d",
+    quiz:{q:"Who kept Noah safe?", o:["God","The rain"], a:0}},
+ 4:{story:"God\u2019s people put lamb\u2019s blood on their doors. The lamb died so they could live.",
+    truth:"Jesus is God\u2019s Lamb. He took the punishment so you can be free.",
+    do:"Thank Jesus for loving you that much.",
+    quiz:{q:"Who is God\u2019s Lamb?", o:["Jesus","A lion"], a:0}},
+ 5:{story:"God\u2019s people were hungry in the desert. Every morning God gave them bread called manna.",
+    truth:"God gives you what you need, one day at a time.",
+    do:"Thank God for today\u2019s food, and ask Him for tomorrow.",
+    quiz:{q:"How often did God give manna?", o:["Every day","Once a year"], a:0}},
+ 6:{story:"God told His people to build a house so He could live with them. Now God lives inside His people.",
+    truth:"God wants to be with you.",
+    do:"Say: \u201cGod, thank you for living in me.\u201d",
+    quiz:{q:"Where does God want to be?", o:["Far away","With you"], a:1}},
+ 7:{story:"A big curtain kept people away from God\u2019s room. When Jesus died, the curtain tore open.",
+    truth:"Because of Jesus, you can come close to God.",
+    do:"Come close to God now \u2014 just talk to Him.",
+    quiz:{q:"What happened to the curtain?", o:["It tore open","It got taller"], a:0}},
+ 8:{story:"Jesus died and was put in a tomb. On the third day the stone rolled away \u2014 He is alive!",
+    truth:"Jesus is alive, so nothing is too hard for Him.",
+    do:"Say it out loud: \u201cJesus is alive!\u201d",
+    quiz:{q:"Is Jesus still dead?", o:["Yes","No, He is alive"], a:1}},
+ 9:{story:"Jesus\u2019 friends waited and prayed. Then the Holy Spirit came like wind and fire, and filled them.",
+    truth:"God gives you His Spirit to help you.",
+    do:"Ask God to fill you with His Spirit today.",
+    quiz:{q:"Who did God send to help us?", o:["The Holy Spirit","A king"], a:0}},
+ 10:{story:"One day God will make everything new. He will live with His people in a beautiful city, and there will be no more crying.",
+    truth:"God has a forever home for you.",
+    do:"Say: \u201cCome, Lord Jesus.\u201d",
+    quiz:{q:"What will God do one day?", o:["Make everything new","Leave us alone"], a:0}}
+};
+
+/* ---------- MANNA: daily, unstockpilable ---------- */
+var MANNA_WORDS = ["MANNA","GRACE","FAITH","ALTAR","LAMB","VEIL","MERCY","GLORY","ROCK","BREAD","PSALM","HOLY","CROSS","LIGHT","PRAYER","TEMPLE","SPIRIT","HOPE","LOVE","CITY"];
+function dayKey(d){ d=d||new Date(); return d.toISOString().slice(0,10); }
+function mannaWord(){ var k=dayKey(), h=0; for(var i=0;i<k.length;i++) h=(h*31+k.charCodeAt(i))>>>0; return MANNA_WORDS[h%MANNA_WORDS.length]; }
+
+/* ---------- STATE ---------- */
+var LS_KEY = "emmaus_v1";
+var DB = load();
+
+function blankUser(){ return {marks:0, unlocked:[1], layers:{}, notes:[], manna:{}, kid:{}, family:false, lights:{}}; }
+function load(){
+  try{ var r=localStorage.getItem(LS_KEY); if(r){ var d=JSON.parse(r); normalize(d); return d; } }catch(e){}
+  return {active:null, users:{}};
+}
+function normalize(d){
+  if(!d.users) d.users={};
+  Object.keys(d.users).forEach(function(n){
+    var u=d.users[n], b=blankUser();
+    Object.keys(b).forEach(function(k){ if(u[k]===undefined) u[k]=b[k]; });
+  });
+}
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e){} }
+function me(){ return DB.active ? DB.users[DB.active] : null; }
+function ensure(u){ if(!DB.users[u]) DB.users[u]=blankUser(); else normalize(DB); return DB.users[u]; }
+
+/* ---------- ROUTER ---------- */
+var view = document.getElementById("view");
+var route = {screen:"profiles"};
+
+function go(screen, arg){
+  route = {screen:screen, arg:arg};
+  var btns=document.querySelectorAll("#tabs button");
+  for(var i=0;i<btns.length;i++) btns[i].classList.toggle("on", btns[i].dataset.go===screen);
+  render();
+}
+document.getElementById("tabs").addEventListener("click", function(e){
+  var b=e.target.closest("button"); if(!b) return; go(b.dataset.go);
+});
+
+/* ---------- RENDER ---------- */
+function render(){
+  document.getElementById("tabs").classList.toggle("hidden", !DB.active);
+  document.getElementById("whoBox").classList.toggle("hidden", !DB.active);
+  if(DB.active) document.getElementById("whoName").textContent = DB.active;
+  var u = me();
+  wireFabs(u);
+  if(!u || route.screen==="profiles"){ view.innerHTML = screenProfiles(); wireProfiles(); return; }
+  if(route.screen==="journey"){ view.innerHTML = screenJourney(u); wireJourney(u); return; }
+  if(route.screen==="chapter"){ view.innerHTML = screenChapter(u, route.arg); wireChapter(u, route.arg); return; }
+  if(route.screen==="manna"){ view.innerHTML = screenManna(u); wireManna(u); return; }
+  if(route.screen==="notebook"){ view.innerHTML = screenNotebook(u); wireNotebook(u); return; }
+  if(route.screen==="community"){ view.innerHTML = screenCommunity(); return; }
+  if(route.screen==="about"){ view.innerHTML = screenAbout(); wireAbout(); return; }
+}
+
+/* the two floating buttons: always one tap from a real person */
+function wireFabs(u){
+  var msg = u ? CONTACT.msg(DB.active||"a pilgrim", "the journey") : "";
+  var c=document.getElementById("fabCall"), w=document.getElementById("fabWa");
+  if(c) c.href = CONTACT.tel();
+  if(w) w.href = CONTACT.wa(msg);
+}
+
+/* ----- profiles ----- */
+function screenProfiles(){
+  var names = Object.keys(DB.users);
+  var list = names.length
+    ? '<div class="chips" style="margin:8px 0">'+names.map(function(n){
+        return '<a href="#" data-user="'+esc(n)+'">\uD83D\uDE42 '+esc(n)+' <span class="tiny">\u00b7 '+DB.users[n].marks+' marks</span></a>';
+      }).join("")+'</div>'
+    : '<p class="muted">No pilgrims yet. Add one below.</p>';
+  return ''
+  +'<div class="card center">'
+  +'  <h1>Welcome, pilgrim</h1>'
+  +'  <p class="muted">\u201cBeginning with Moses and all the Prophets, he explained to them what was said in all the Scriptures concerning himself.\u201d \u2014 Luke 24:27</p>'
+  +'</div>'
+  +'<div class="card">'
+  +'  <h2>Who is walking today?</h2>'
+  +  list
+  +'  <label>Add a new pilgrim</label>'
+  +'  <div style="display:flex;gap:8px">'
+  +'    <input id="newName" placeholder="Name" autocomplete="off">'
+  +'    <button class="btn" id="addUser" style="white-space:nowrap">Add</button>'
+  +'  </div>'
+  +'  <p class="tiny" style="margin-top:10px">Several people can share this device. Each keeps their own journey, marks, and notebook.</p>'
+  +'</div>';
+}
+function wireProfiles(){
+  var add=document.getElementById("addUser");
+  var inp=document.getElementById("newName");
+  if(add) add.onclick=function(){
+    var n=(inp.value||"").trim(); if(!n) return toast("Enter a name");
+    ensure(n); DB.active=n; save(); go("journey");
+  };
+  var as=document.querySelectorAll("[data-user]");
+  for(var i=0;i<as.length;i++) as[i].onclick=function(e){
+    e.preventDefault(); DB.active=this.dataset.user; save(); go("journey");
+  };
+}
+
+/* ----- journey ----- */
+function totalLayers(c){ return 5 + ((c.extra||[]).length); }
+function doneLayers(u,c){ return ((u.layers[c.id]||[]).length); }
+function screenJourney(u){
+  var nodes = CHAPTERS.map(function(c){
+    var open = u.unlocked.indexOf(c.id)>=0;
+    var done = doneLayers(u,c) >= totalLayers(c);
+    var cls = done?"done":(open?"open":"locked");
+    var pct = Math.round(100*doneLayers(u,c)/totalLayers(c));
+    return '<div class="node '+cls+'" data-ch="'+c.id+'">'
+      +'<span class="dot"></span>'
+      +'<h3>'+c.id+'. '+c.title+(done?' <span class="pill">complete</span>':'')+(!open?' <span class="pill">locked</span>':'')+'</h3>'
+      +'<div class="life">'+c.life+'</div>'
+      +'<div class="bar"><i style="width:'+pct+'%"></i></div>'
+      +'<div class="tiny" style="margin-top:5px">'+doneLayers(u,c)+' / '+totalLayers(c)+' layers unfolded</div>'
+      +'</div>';
+  }).join("");
+  return ''
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">Your journey \u2014 the Garden to the City</h2>'
+  +'  <div class="markline"><span class="tiny">Marks</span><div class="b"><i style="width:'+Math.min(100,u.marks)+'%"></i></div><b>'+u.marks+'</b></div>'
+  +'  <p class="tiny">Marks rise with depth, not repetition. Complete a chapter\u2019s layers to make it glow and unlock the next.</p>'
+  +'  <label class="switch" style="margin-top:8px"><input type="checkbox" id="famMode"'+(u.family?" checked":"")+'> Family Mode \u2014 play this chapter with a child</label>'
+  +'  <p class="tiny" style="margin-top:6px">When a grown-up unfolds a deeper layer, a light appears that a child can see. Faith passes down by watching.</p>'
+  +'</div>'
+  +'<div class="journey">'+nodes+'</div>'
+  +'<p class="tiny center">Locked chapters open as your Marks grow. Manna gives Marks daily.</p>';
+}
+function wireJourney(u){
+  var fam=document.getElementById("famMode");
+  if(fam) fam.onchange=function(){ u.family=this.checked; save(); toast(this.checked?"Family Mode on":"Family Mode off"); };
+  var ns=document.querySelectorAll(".node");
+  for(var i=0;i<ns.length;i++) ns[i].onclick=function(){
+    var id=+this.dataset.ch; var u=me();
+    if(u.unlocked.indexOf(id)<0) return toast("Keep unfolding \u2014 this chapter opens as your Marks grow");
+    go("chapter", id);
+  };
+}
+
+/* ----- chapter ----- */
+function screenChapter(u, id){
+  var c=null; for(var i=0;i<CHAPTERS.length;i++) if(CHAPTERS[i].id===id) c=CHAPTERS[i];
+  if(!c) return '<div class="card">Chapter not found.</div>';
+  var done = u.layers[c.id]||[];
+  var layers = [
+    {k:"plain", n:"1 \u00b7 The Plain", sub:"What it says"},
+    {k:"words", n:"2 \u00b7 The Words", sub:"Hebrew / Greek meaning"},
+    {k:"thread", n:"3 \u00b7 The Thread", sub:"The hidden type of Christ \u2192 the New Testament"},
+    {k:"practice", n:"4 \u00b7 The Practice", sub:"A real situation and the biblical way through it"},
+    {k:"watch", n:"5 \u00b7 The Watch", sub:"How to pray it"}
+  ];
+  return ''
+  +'<button class="btn ghost" onclick="go(\'journey\')">\u2190 Journey</button>'
+  +'<div class="card">'
+  +'  <h1 style="margin-bottom:0">'+c.id+'. '+c.title+'</h1>'
+  +'  <div class="life">'+c.life+'</div>'
+  +'  <div class="tiny" style="margin-top:6px">Unfold the lens to go deeper. Each layer gives Marks.</div>'
+  +'</div>'
+  + (u.family ? familyLights(c, u) : "")
+  + layers.map(function(L){ return layerHTML(c,L,done); }).join("")
+  + (c.extra||[]).map(function(x,i){ return extraHTML(c,x,i,done); }).join("")
+  + littleHTML(c, u)
+  + contactCard(u, c)
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">Compare versions</h2>'
+  + versionTable(c)
+  +'  <p class="tiny" style="margin-top:8px">KJV and WEB are bundled (public domain). Add Luganda, Lumasaba, NKJV, NIV, NLT, ESV, AMPC or GNT from <b>About \u2192 Import a Bible version</b> once you have permission.</p>'
+  +'</div>'
+  + pulpitCard(c, u)
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">Notebook</h2>'
+  +'  <label>Verse to remember (e.g. '+esc(c.plain.ref)+')</label>'
+  +'  <input id="nRef" placeholder="'+esc(c.plain.ref)+'">'
+  +'  <label>What did you learn in this chapter or text?</label>'
+  +'  <textarea id="nText" placeholder="Write what God showed you..."></textarea>'
+  +'  <button class="btn" id="nSave" style="margin-top:8px">Save to notebook</button>'
+  +'</div>';
+}
+
+/* ----- Family Mode: a light for each deeper layer a grown-up unfolds ----- */
+function familyLights(c, u){
+  var keys = ["plain","words","thread","practice","watch"];
+  var lit = (u.layers[c.id]||[]).filter(function(k){ return keys.indexOf(k)>=0; });
+  var row = keys.map(function(k){
+    var on = lit.indexOf(k)>=0;
+    return '<span class="pill" style="'+(on?'background:#3a3218;color:#f0cf78;border-color:#6b5a20':'')+'">'
+      + (on?"\u2728":"\u00b7") + '</span>';
+  }).join(" ");
+  return '<div class="card" style="border-color:#6b5a20">'
+  +'  <h2 style="margin-top:0">\u2600 Family Mode</h2>'
+  +'  <p class="muted">You and a child are walking this chapter together. Each time you unfold a deeper layer, a light appears the child can see. They are watching you go deeper.</p>'
+  +'  <div style="font-size:1.4rem;letter-spacing:.2em">'+row+'</div>'
+  +'  <p class="tiny" style="margin-top:6px">'+lit.length+' of 5 lights. Let the child tap the <b>Little Lamp</b> below and answer the question.</p>'
+  +'</div>';
+}
+
+/* ----- Little Lamp: the child's layer (MAP \u00a77) ----- */
+function littleHTML(c, u){
+  var k = KID[c.id]; if(!k) return "";
+  var done = u.kid[c.id];
+  var quiz = k.quiz;
+  var body = '<p>'+esc(k.story)+'</p>'
+    +'<p><b>'+esc(k.truth)+'</b></p>'
+    +'<p class="tiny">Try this today: '+esc(k.do)+'</p>'
+    +'<p style="margin-top:10px"><b>'+esc(quiz.q)+'</b></p>'
+    +'<div class="chips" id="kquiz">'
+    + quiz.o.map(function(o,i){ return '<a href="#" data-kpick="'+i+'">'+esc(o)+'</a>'; }).join("")
+    +'</div>'
+    +'<p class="tiny" id="kmsg" style="min-height:1.2em;margin-top:8px"></p>';
+  return '<div class="layer kid '+(done?'done open':'')+'" data-kid="'+c.id+'">'
+    +'<div class="head"><b>\u2600 Little Lamp</b><span class="tiny">for children</span></div>'
+    +'<div class="body">'+body+'</div>'
+    +'</div>';
+}
+function wireLittle(u, c){
+  var k=KID[c.id]; if(!k) return;
+  var picks=document.querySelectorAll("[data-kpick]");
+  for(var i=0;i<picks.length;i++) picks[i].onclick=function(e){
+    e.preventDefault();
+    var i=+this.dataset.kpick, msg=document.getElementById("kmsg");
+    if(i===k.quiz.a){
+      msg.innerHTML='<span style="color:var(--green)">Well done! \u2713</span>';
+      if(!u.kid[c.id]){ u.kid[c.id]=true; u.marks+=4; save(); toast("+4 marks"); }
+    } else { msg.textContent="Try again \u2014 read the story once more."; }
+  };
+}
+
+/* ----- contact: the point of the whole thing ----- */
+function contactCard(u, c){
+  var who = DB.active || "a pilgrim";
+  var where = c ? ("chapter "+c.id+", "+c.title) : "the journey";
+  var m = CONTACT.msg(who, where);
+  return '<div class="card">'
+  +'  <h2 style="margin-top:0">Talk to someone</h2>'
+  +'  <p class="muted">You do not have to walk this road alone. Call, or send a message \u2014 someone will pray with you and answer your questions.</p>'
+  +'  <div class="chips big">'
+  +'    <a class="chip call" href="'+CONTACT.tel()+'">\u260E Call '+esc(CONTACT.show())+'</a>'
+  +'    <a class="chip wa" href="'+esc(CONTACT.wa(m))+'">WhatsApp</a>'
+  +'    <a class="chip tg" href="'+CONTACT.tg()+'">Telegram</a>'
+  +'  </div>'
+  +'</div>';
+}
+
+/* ----- the Pulpit: a sermon outline from the chapter's own exegesis ----- */
+function pulpitCard(c, u){
+  var outline = [
+    ["Text", c.plain.ref+" \u2014 \u201c"+firstWords(c.plain.kjv)+"\u2026\u201d"],
+    ["Words", c.words.map(function(w){ return w.t+" ("+w.lang+") = "+firstWords(w.m); }).join(" \u00b7 ")],
+    ["Thread", "OT: "+firstWords(c.thread.ot)+" \u2192 NT: "+firstWords(c.thread.nt)],
+    ["Practice", firstWords(c.practice)],
+    ["Watch", firstWords(c.watch)]
+  ];
+  var rows = outline.map(function(r){
+    return '<tr><th>'+esc(r[0])+'</th><td>'+esc(r[1])+'</td></tr>';
+  }).join("");
+  return '<div class="card">'
+  +'  <h2 style="margin-top:0">The Pulpit</h2>'
+  +'  <p class="muted">A sermon outline built from this chapter\u2019s own exegesis \u2014 not separate content.</p>'
+  +'  <table class="versions"><tbody>'+rows+'</tbody></table>'
+  +'  <div class="grid2" style="margin-top:10px">'
+  +'    <div><h3>Preacher mode</h3><p class="tiny">Preach the five lines above in order: Text \u2192 Words \u2192 Thread \u2192 Practice \u2192 Watch. Let the text set the length.</p></div>'
+  +'    <div><h3>Small-group mode</h3><p class="tiny">The group builds the outline together. Score it on <b>fidelity to the text</b>, not cleverness \u2014 tick each line only if the group can point to it in Scripture.</p>'
+  +'      <div id="fid">'
+  + outline.map(function(r,i){ return '<label class="tiny" style="display:flex;gap:8px;align-items:center;margin:4px 0"><input type="checkbox" data-fid="'+i+'" style="width:auto"> '+esc(r[0])+' is faithful to the text</label>'; }).join("")
+  +'      </div>'
+  +'      <p class="tiny" id="fidmsg" style="min-height:1.2em"></p>'
+  +'    </div>'
+  +'  </div>'
+  +'</div>';
+}
+function firstWords(s){
+  s=String(s||""); var m=s.match(/^[^.;\u2014]{0,90}/); return (m?m[0]:s).trim();
+}
+function layerHTML(c, L, done){
+  var isDone = done.indexOf(L.k)>=0;
+  var body = "";
+  if(L.k==="plain") body = '<p><b>'+esc(c.plain.ref)+'</b> \u2014 '+esc(c.plain.kjv)+'</p><p class="tiny">World English Bible: '+esc(c.plain.web||"\u2014")+'</p>';
+  if(L.k==="words") body = c.words.map(function(w){ return '<p><b>'+esc(w.t)+'</b> <span class="tiny">('+esc(w.lang)+')</span> \u2014 '+esc(w.m)+'</p>'; }).join("");
+  if(L.k==="thread") body = tagHTML(c.thread.tag)+'<p><b>In the Old Testament:</b> '+esc(c.thread.ot)+'</p><p><b>In the New Testament:</b> '+esc(c.thread.nt)+'</p><p class="tiny">'+esc(c.thread.note)+'</p>';
+  if(L.k==="practice") body = '<p>'+esc(c.practice)+'</p>';
+  if(L.k==="watch") body = '<p>'+esc(c.watch)+'</p>';
+  var action = isDone
+    ? '<span class="tiny" style="color:var(--green)">Unfolded \u2713</span>'
+    : '<button class="btn gold" data-unfold="'+L.k+'">Unfold this layer (+Marks)</button>';
+  return '<div class="layer '+(isDone?'done open':'')+'" data-layer="'+L.k+'" data-ch="'+c.id+'">'
+    +'<div class="head"><b>'+L.n+'</b><span class="tiny">'+L.sub+'</span></div>'
+    +'<div class="body">'+body+'<div style="margin-top:10px">'+action+'</div></div>'
+    +'</div>';
+}
+function extraHTML(c, x, i, done){
+  var key = "extra"+i;
+  var isDone = done.indexOf(key)>=0;
+  var action = isDone
+    ? '<span class="tiny" style="color:var(--green)">Unfolded \u2713</span>'
+    : '<button class="btn gold" data-unfold="'+key+'">Unfold this layer (+Marks)</button>';
+  return '<div class="layer '+(isDone?'done open':'')+'" data-layer="'+key+'" data-ch="'+c.id+'">'
+    +'<div class="head"><b>\u2727 '+esc(x.head)+'</b><span class="tiny">deeper</span></div>'
+    +'<div class="body">'+tagHTML(x.tag)+'<p>'+esc(x.body)+'</p><div style="margin-top:10px">'+action+'</div></div>'
+    +'</div>';
+}
+function versionTable(c){
+  var imports = DB.imports||{};
+  var rows = [];
+  rows.push(["KJV", c.plain.kjv]);
+  rows.push(["WEB", c.plain.web]);
+  Object.keys(imports).forEach(function(code){
+    var v = imports[code];
+    var txt = (v.verses||{})[c.plain.ref] || null;
+    rows.push([ (v.name||code).slice(0,14), txt ]);
+  });
+  rows.push(["Hebrew / Greek", "See the Words layer above for the original-language meaning."]);
+  return '<table class="versions">'+rows.map(function(r){
+    var k=r[0], v=r[1];
+    return '<tr><th>'+esc(k)+'</th><td>'+(v?esc(v):'<span class="missing">\u2014 not loaded \u2014</span>')+'</td></tr>';
+  }).join("")+'</table>';
+}
+function wireChapter(u, id){
+  var c=null; for(var i=0;i<CHAPTERS.length;i++) if(CHAPTERS[i].id===id) c=CHAPTERS[i];
+  var heads=document.querySelectorAll(".layer .head");
+  for(var i=0;i<heads.length;i++) heads[i].onclick=function(){ this.parentElement.classList.toggle("open"); };
+  wireLittle(u, c);
+  var fid=document.querySelectorAll("[data-fid]");
+  for(var f=0;f<fid.length;f++) fid[f].onchange=function(){
+    var all=document.querySelectorAll("[data-fid]"), n=0;
+    for(var q=0;q<all.length;q++) if(all[q].checked) n++;
+    var m=document.getElementById("fidmsg");
+    if(m) m.textContent = n+" of 5 lines are faithful to the text"+(n===5?" \u2014 a complete, text-anchored outline.":".");
+  };
+  var btns=document.querySelectorAll("[data-unfold]");
+  for(var j=0;j<btns.length;j++) btns[j].onclick=function(){
+    var key=this.dataset.unfold;
+    u.layers[c.id] = u.layers[c.id]||[];
+    if(u.layers[c.id].indexOf(key)>=0) return;
+    u.layers[c.id].push(key);
+    var gained = key.indexOf("extra")===0 ? 6 : 5;
+    u.marks += gained;
+    if(u.layers[c.id].length >= totalLayers(c)){
+      var nxt=c.id+1;
+      if(nxt<=CHAPTERS.length && u.unlocked.indexOf(nxt)<0){ u.unlocked.push(nxt); toast("Chapter "+nxt+" unlocked!"); }
+    }
+    save(); toast("+"+gained+" marks"); render();
+  };
+  var ns=document.getElementById("nSave");
+  if(ns) ns.onclick=function(){
+    var ref=(document.getElementById("nRef").value||c.plain.ref).trim();
+    var txt=(document.getElementById("nText").value||"").trim();
+    if(!txt) return toast("Write something first");
+    u.notes.unshift({ch:c.title, ref:ref, text:txt, at:new Date().toISOString().slice(0,10)});
+    save(); toast("Saved to notebook");
+    document.getElementById("nText").value="";
+  };
+}
+
+/* ----- manna ----- */
+function screenManna(u){
+  var today=dayKey();
+  var earned=u.manna[today];
+  return ''
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">Manna \u2014 today\u2019s portion</h2>'
+  +'  <p class="muted">One puzzle a day, the same for everyone. <b>It cannot be kept.</b> Yesterday\u2019s is gone \u2014 this is the lesson of Exodus 16:19-20, where the leftover \u201cbred worms.\u201d</p>'
+  +(earned?'<p style="color:var(--green)">You gathered today\u2019s manna. Come back tomorrow. \u2713</p>':'')
+  +'</div>'
+  +'<div class="card center">'
+  +(earned
+    ? '<div class="big">\u2713</div><p class="muted">Today\u2019s manna is gathered.</p>'
+    : '<p class="tiny">Guess today\u2019s Bible word \u2014 5 letters, 6 tries.</p>'
+      +'<div class="manna-grid" id="mgrid"></div>'
+      +'<input id="mguess" placeholder="5-letter word" maxlength="5" style="text-align:center;text-transform:uppercase;max-width:220px;margin:0 auto">'
+      +'<div style="margin-top:8px"><button class="btn" id="mgo">Guess</button></div>'
+      +'<p class="tiny" id="mmsg" style="min-height:1.2em"></p>')
+  +'</div>';
+}
+function wireManna(u){
+  var today=dayKey();
+  if(u.manna[today]) return;
+  var target=mannaWord(); var tries=[];
+  var grid=document.getElementById("mgrid"), msg=document.getElementById("mmsg"), inp=document.getElementById("mguess");
+  function draw(){
+    grid.innerHTML="";
+    for(var r=0;r<6;r++){
+      var row=document.createElement("div"); row.className="mguess";
+      var g=tries[r]||"";
+      for(var i=0;i<5;i++){
+        var d=document.createElement("div"); d.className="mcell";
+        var ch=g[i]||""; d.textContent=ch;
+        if(g){ if(target[i]===ch) d.classList.add("hit"); else if(target.indexOf(ch)>=0) d.classList.add("near"); else d.classList.add("miss"); }
+        row.appendChild(d);
+      }
+      grid.appendChild(row);
+    }
+  }
+  draw();
+  function submit(){
+    var g=(inp.value||"").trim().toUpperCase();
+    if(g.length!==5) return msg.textContent="Five letters.";
+    tries.push(g); inp.value=""; draw();
+    if(g===target){
+      u.marks+=10; u.manna[today]=true; save();
+      msg.innerHTML='<span style="color:var(--green)">Yes! \u201c'+target+'\u201d +10 marks.</span>';
+      setTimeout(render,900);
+    } else if(tries.length>=6){
+      msg.textContent='Out of tries \u2014 it was \u201c'+target+'.\u201d Come back tomorrow.';
+      u.manna[today]=true; save(); setTimeout(render,1200);
+    }
+  }
+  document.getElementById("mgo").onclick=submit;
+  inp.addEventListener("keydown", function(e){ if(e.key==="Enter") submit(); });
+}
+
+/* ----- notebook ----- */
+function screenNotebook(u){
+  if(!u.notes.length) return '<div class="card"><h2 style="margin-top:0">Notebook</h2><p class="muted">Nothing saved yet. Open a chapter and write what you learn \u2014 it will appear here.</p></div>';
+  return '<div class="card"><h2 style="margin-top:0">Notebook</h2><p class="tiny">'+u.notes.length+' note'+(u.notes.length>1?"s":"")+' saved.</p></div>'
+    + u.notes.map(function(n){
+      return '<div class="note"><div class="ref">'+esc(n.ref)+' <span class="tiny">\u00b7 '+esc(n.ch)+' \u00b7 '+esc(n.at)+'</span></div><div style="margin-top:4px">'+esc(n.text)+'</div></div>';
+    }).join("");
+}
+function wireNotebook(){}
+
+/* ----- community ----- */
+function screenCommunity(){
+  var links = COMMUNITY.filter(function(c){ return c.u; });
+  var chips = links.length
+    ? '<div class="chips">'+links.map(function(c){ return '<a href="'+esc(c.u)+'" target="_blank" rel="noopener">'+esc(c.n)+'</a>'; }).join("")+'</div>'
+    : '<p class="tiny">No group links set yet. Add your church\u2019s WhatsApp / Telegram / Facebook group in <b>COMMUNITY</b> at the top of the game file, and they appear here.</p>';
+  return ''
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">Walk together</h2>'
+  +'  <p class="muted">Faith grows in company. Ask questions, share what you found, and encourage one another.</p>'
+  + chips
+  +'</div>'
+  + contactCard(null, null)
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">This week\u2019s question</h2>'
+  +'  <p>\u201cWhere have you seen a shadow of Christ in the Old Testament this week?\u201d</p>'
+  +'  <p class="tiny">Take it to the group and compare answers.</p>'
+  +'</div>';
+}
+
+/* ----- about ----- */
+function screenAbout(){
+  var imports = DB.imports||{};
+  var loaded = Object.keys(imports).length
+    ? '<p class="tiny" style="margin-top:10px">Loaded: '+Object.keys(imports).map(function(k){ return esc(imports[k].name||k); }).join(", ")+'</p>'
+    : '';
+  return ''
+  +'<div class="card">'
+  +'  <h1 style="margin-top:0">About EMMAUS</h1>'
+  +'  <p class="muted">A Scripture-discovery journey. Ten chapters from the Garden to the City, each one unfolding a verse deeper \u2014 the words, the hidden type of Christ, the practice, and the prayer.</p>'
+  +'  <p class="tiny">\u201cAnd beginning with Moses and all the Prophets, he explained to them what was said in all the Scriptures concerning himself.\u201d \u2014 Luke 24:27</p>'
+  +'</div>'
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">Project contact</h2>'
+  +'  <p class="tiny">Offline single-file build. No server, no tracking, nothing leaves this device.</p>'
+  +'</div>'
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">Import a Bible version</h2>'
+  +'  <p class="tiny">KJV and WEB are bundled (public domain). Paste a licensed version as JSON to compare it side by side. Only import text you have permission to use.</p>'
+  +'  <label>Version code (e.g. lbr, lug, nkjv, niv, nlt, esv, ampc, gnt)</label>'
+  +'  <input id="impCode" placeholder="lbr">'
+  +'  <label>Version name</label>'
+  +'  <input id="impName" placeholder="Luganda Bible">'
+  +'  <label>JSON \u2014 { "John 6:35": "\u2026", "Exodus 16:15": "\u2026" }</label>'
+  +'  <textarea id="impJson" placeholder=\'{ "John 6:35": "..." }\'></textarea>'
+  +'  <button class="btn" id="impSave" style="margin-top:8px">Add version</button>'
+  +  loaded
+  +'</div>'
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">Truth tags</h2>'
+  + tagHTML("t-text")+'<p class="tiny">The Bible states this plainly, or the New Testament confirms it.</p>'
+  + tagHTML("t-trad")+'<p class="tiny">A sincere reading held by a Christian tradition, not stated outright.</p>'
+  + tagHTML("t-read")+'<p class="tiny">A devotional reading some see \u2014 beautiful, but not asserted by the text.</p>'
+  +'</div>'
+  +'<div class="card">'
+  +'  <h2 style="margin-top:0">Reset this device</h2>'
+  +'  <p class="tiny">Removes all pilgrims, marks, and notes from this browser.</p>'
+  +'  <button class="btn ghost" id="wipe">Erase everything</button>'
+  +'</div>';
+}
+function wireAbout(){
+  var s=document.getElementById("impSave");
+  if(s) s.onclick=function(){
+    var code=(document.getElementById("impCode").value||"").trim().toLowerCase();
+    var name=(document.getElementById("impName").value||"").trim()||code;
+    var data;
+    try{ data=JSON.parse(document.getElementById("impJson").value||"{}"); }catch(e){ return toast("That is not valid JSON"); }
+    if(!code) return toast("Enter a version code");
+    DB.imports=DB.imports||{}; DB.imports[code]={name:name, verses:data}; save();
+    toast("Version added"); render();
+  };
+  var w=document.getElementById("wipe");
+  if(w) w.onclick=function(){ if(confirm("Erase all data on this device?")){ DB={active:null,users:{}}; save(); go("profiles"); } };
+}
+
+/* ---------- helpers ---------- */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(m){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[m]; }); }
+function tagHTML(t){
+  if(t==="t-text") return '<span class="tag t-text">\uD83D\uDFE2 Text says</span>';
+  if(t==="t-trad") return '<span class="tag t-trad">\uD83D\uDFE1 Tradition holds</span>';
+  return '<span class="tag t-read">\uD83D\uDD35 A reading</span>';
+}
+var toastT;
+function toast(m){
+  var el=document.getElementById("toast"); el.textContent=m; el.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(function(){ el.classList.remove("show"); },1900);
+}
+
+go(DB.active?"journey":"profiles");
+</script>
+</body>
+</html>

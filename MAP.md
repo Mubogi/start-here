@@ -172,10 +172,12 @@ its Hebrew/Greek word underneath. Imported versions live in a JSON file the app 
 ## 12. Build order
 
 1. **MAP.md** (this document) — done.
-2. **VERSIONS.md** — import format + licensing contacts.
+2. **VERSIONS.md** — import format + licensing contacts. — done.
 3. **EMMAUS vertical slice** — Chapter 5 (The Wilderness): Manna mechanic, a type of Christ,
-   a word study, a practice, and the anti-stockpile theology in one small chapter.
-4. Clone the structure across all ten chapters.
+   a word study, a practice, and the anti-stockpile theology in one small chapter. — done.
+4. Clone the structure across all ten chapters. — done.
+5. **Two lamps + Family Mode** (§7), the full **Pulpit** (§8), and the **contact/community**
+   layer (§10). — done. Verified by `tools/test-emmaus.js`.
 
 ---
 

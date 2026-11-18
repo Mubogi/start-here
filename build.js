@@ -126,6 +126,22 @@ const cards = built
   })
   .join("\n");
 
+/* the EMMAUS discipleship game, published alongside the courses */
+const emmausSrc = path.join(ROOT, "emmaus", "index.html");
+let emmausCard = "";
+if (fs.existsSync(emmausSrc)) {
+  const dir = path.join(PAGES, "emmaus");
+  fs.mkdirSync(dir, { recursive: true });
+  fs.copyFileSync(emmausSrc, path.join(dir, "index.html"));
+  emmausCard = `  <a class="card" href="emmaus/index.html">
+    <div class="card-k">THE GAME</div>
+    <div class="card-t">EMMAUS — The Unfolding <span class="tag">Journey game</span></div>
+    <div class="card-d">A Scripture-discovery journey for people who already believe. Ten chapters from the Garden to the City. Unfold one verse deeper and deeper — the words, the hidden type of Christ, the practice, and the prayer. One puzzle a day. Works offline.</div>
+    <div class="card-go">Play &rarr;</div>
+  </a>`;
+  console.log("  emmaus/index.html  (the game, published to docs/)");
+}
+
 const tel = (contact.match(/phone:\s*"([^"]+)"/) || [])[1] || "";
 const wa = (contact.match(/whatsapp:\s*"([^"]+)"/) || [])[1] || "";
 
@@ -158,6 +174,7 @@ const landing = `<!DOCTYPE html>
 
   <div class="cards">
 ${cards}
+${emmausCard}
   </div>
 
   <div class="box talk" style="margin-top:26px">

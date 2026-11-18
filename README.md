@@ -5,6 +5,9 @@ Short courses that open someone's mind to the Word of God and walk them all the 
 no internet, no server, and no sign-up** — and every page has a button to call or message a real
 person for prayer.
 
+There is also a game: **EMMAUS — The Unfolding** (`emmaus/index.html`), a Scripture-discovery
+journey for people who already believe. See [MAP.md](MAP.md) for its design.
+
 > Built by an AI agent (OpenHands) on behalf of the project owner.
 
 ## What is here
