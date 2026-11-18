@@ -31,14 +31,14 @@ function makeDom() {
         contains(c){ return this._s.has(c); } },
       addEventListener(){}, removeEventListener(){}, onclick:null, onchange:null,
       appendChild(){}, remove(){}, setAttribute(){}, getAttribute(){ return null; },
-      querySelectorAll(){ return []; }, getContext(){ return ctx2d; },
+      querySelectorAll(){ return []; }, getContext(){ return ctx2d; }, toDataURL(){ return 'data:image/png;base64,MOCK'; },
       getBoundingClientRect(){ return { left:0, top:0, width:390, height:780 }; },
     };
     return nodes[id];
   }
   return { nodes, document: { getElementById: el, querySelectorAll: () => [],
     createElement: () => el("__t"+Math.random()), addEventListener(){} },
-    window: { devicePixelRatio:1, addEventListener(){}, AudioContext:null },
+    window: { devicePixelRatio:1, innerWidth:390, innerHeight:780, addEventListener(){}, AudioContext:null },
     localStorage: { getItem(){ return null; }, setItem(){} }, navigator: {}, confirm: () => false,
     performance: { now: () => 0 }, requestAnimationFrame: () => 0, cancelAnimationFrame: () => {},
     setTimeout: () => 0, clearTimeout: () => {} };
@@ -58,6 +58,8 @@ const api = new Function(
     + "studyHTML:studyHTML, chapterOf:chapterOf, levelColors:levelColors, mulberry:mulberry, seedFrom:seedFrom, "
     + "BACKS:BACKS, WORD_MEANING:WORD_MEANING, EXERCISE:EXERCISE, DEVOTION:DEVOTION, FRUIT:FRUIT, VARIANTS:VARIANTS, "
     + "variantOf:variantOf, goLevel:goLevel, showFruit:showFruit, showResults:showResults, EXERCISE_OF:function(ch){ return EXERCISE[CH_MODE[ch]]; }, "
+    + "TITLES:TITLES, CUTSCENES:CUTSCENES, LAMPS:LAMPS, lampState:lampState, newLamps:newLamps, cutArt:cutArt, "
+    + "openIntro:openIntro, showCutscene:showCutscene, maybeIntro:maybeIntro, onIntroDone:function(){ return onIntroDone; }, "
     + "getEl:function(id){ return document.getElementById(id); }, "
     + "startLevel:startLevel, ensure:ensure, getA:function(){return A;}, "
     + "setUser:function(n){ DB.active=n; ensure(n); return DB.users[n]; }, "
@@ -280,8 +282,42 @@ check(/Practice today/.test(fHtml), "fruit: a practice for today");
 api.showResults();
 check(/Level 1 complete|Endless/.test(api.getEl("resTitle").textContent + api.getEl("resBody").innerHTML), "results still render after the fruit");
 
-/* 16. the credits */
-console.log("16. Credits");
+/* 16. the cinematic intro, cutscenes and rewards */
+console.log("16. Intro, cutscenes and lamps");
+check(Array.isArray(api.TITLES) && api.TITLES.length >= 4, "intro has several titles");
+check(api.TITLES.every(t => t.t && t.p && t.word && t.gloss), "every title has a heading, a line, a rune and a gloss");
+check(api.TITLES[0].word === "EMMAUS", "the intro opens on EMMAUS");
+check(api.TITLES[api.TITLES.length-1].gloss.indexOf("Luke 24:32") >= 0, "the intro closes on the Emmaus verse");
+check(Object.keys(api.CUTSCENES).length === 10, "every chapter has a cutscene");
+let cutsOk = true;
+for (let ch = 1; ch <= 10; ch++) {
+  const c = api.CUTSCENES[ch];
+  if (!c || !c.title || !c.ref || !c.line || !c.art) cutsOk = false;
+}
+check(cutsOk, "each cutscene has a number, a title, a reference, a line and art");
+const arts = new Set(Object.values(api.CUTSCENES).map(c => c.art));
+check(arts.size === 10, "each chapter's cutscene art is its own picture");
+check(api.CUTSCENES[1].art === "image" && api.CUTSCENES[10].art === "come", "the cutscenes run from IMAGE to COME");
+const art = api.cutArt("image", "The Garden");
+check(typeof art === "string" && art.indexOf("data:image/png") === 0, "cutscene art renders to a PNG");
+check(api.LAMPS.length >= 5, "there are several unlockable lamps");
+check(api.LAMPS.every(l => l.id && l.ic && l.name && l.say && l.at > 0), "every lamp has an icon, a name and a word");
+check(api.LAMPS[0].at === 1, "the first lamp is lit on the first level");
+check(api.LAMPS[api.LAMPS.length-1].at === 210, "the last lamp needs every level of every chapter");
+const lu = api.blankUser();
+check(api.lampState(lu).length === 0, "a new pilgrim has no lamps");
+lu.stars["1-1"] = 1;
+check(api.lampState(lu).length === 1 && api.lampState(lu)[0].id === "first", "the first level lights the first lamp");
+for (let l = 2; l <= 5; l++) lu.stars["1-" + l] = 1;
+check(api.lampState(lu).some(l => l.id === "five"), "five levels light the second lamp");
+const before = api.lampState(lu);
+for (let l = 6; l <= 20; l++) lu.stars["1-" + l] = 1;
+const lit = api.newLamps(lu, before);
+check(lit.some(l => l.id === "chap"), "finishing a chapter reports a new lamp");
+check(api.newLamps(lu, api.lampState(lu)).length === 0, "no lamp is reported twice");
+
+/* 17. the credits */
+console.log("17. Credits");
 check(/JD Hub/.test(html) && /jdhu tech/.test(html), "About credits JD Hub (jdhu tech)");
 
 console.log(`\n10 chapters, 10 modes, ${Object.keys(MODES).length} games, ${api.LEVELS_PER_CH} levels each.`);

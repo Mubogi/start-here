@@ -191,7 +191,15 @@ its Hebrew/Greek word underneath. Imported versions live in a JSON file the app 
    Prayer); Candy-Crush level variety (ten trials plus a boss, changing hearts, time, speed and
    goals); letters gathered **in order** to spell a meaningful word; a procedural animated
    biblical backdrop per chapter; and biblical-modern scroll cards with credits to JD Hub
-   (jdhu tech). — done. Verified by `tools/test-emmaus.js` (16 sections).
+   (jdhu tech). — done. Verified by `tools/test-emmaus.js` (17 sections).
+9. **Presentation and reward** — a cinematic title sequence (`TITLES`, `openIntro`) with a
+   canvas starfield, cross and flame; a per-chapter cutscene (`CUTSCENES`, `showCutscene`,
+   `cutArt`) with its own generated picture, shown the first time a chapter is entered; and
+   unlockable lamps (`LAMPS`, `lampState`, `newLamps`) shown on the results sheet and collected
+   in the Notebook. — done. Verified by `tools/test-emmaus.js` section 16.
+10. **An installable Android app** — `android/` (a WebView shell) and `tools/build-apk.sh`
+    build and sign `dist/EMMAUS.apk`, published on the Releases page. No INTERNET permission;
+    the game is bundled. — done. Verified by inspecting the APK and the release download.
 
 ---
 

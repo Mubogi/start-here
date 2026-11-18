@@ -146,6 +146,20 @@ advance the word. Completing it shows the meaning and a treasure card.
 frame — Eden, the fall, the flood, the altar, the desert, the temple, the veil,
 the tomb, the upper room, the city — with sky, ground, glow, and moving light.
 
+**A cinematic opening and chapter cutscenes.** `TITLES` drives `openIntro()` — a
+canvas title sequence (starfield, glowing cross, flame, embers) with rune words
+and captions, reachable from the menu ("The story so far") and played once on a
+pilgrim's first PLAY via `maybeIntro(cb)`. The first time a chapter is entered,
+`showCutscene(ch,next)` shows that chapter's title, reference, line and a
+generated picture from `cutArt(kind)` (a canvas drawing per chapter), then calls
+`next()` to start the level. Both are marked seen in the pilgrim record
+(`intro`, `cuts`) so they do not repeat.
+
+**Unlockable lamps (rewards).** `LAMPS` are milestones by levels cleared;
+`lampState(u)` returns those earned and `newLamps(u,before)` those newly earned.
+`startLevel` snapshots `lampsBefore`, and `showResults` renders any new ones into
+`#resReward`. The Notebook shows the whole collection.
+
 Each chapter has `LEVELS_PER_CH` (21) levels: 20 + an **endless** mode. Three
 stars a level by hearts kept; eight stars of a chapter open the next. Progress
 is per pilgrim in localStorage under `emmaus_v3` (add `daily`, `streak`).
@@ -157,6 +171,13 @@ delayed steps — **never** `setTimeout` inside a mode.
 
 Credits live in the About screen: **JD Hub (jdhu tech)**, built with the
 OpenHands AI agent. Every screen keeps Call / WhatsApp / Telegram to the owner.
+
+**The Android app.** `android/` is a WebView shell around the same file, and
+`tools/build-apk.sh` builds and signs `dist/EMMAUS.apk` (aapt2 + javac + d8 +
+apksigner). The APK carries no INTERNET permission and loads only
+`assets/index.html`. Copy the built game into the app with
+`cp emmaus/index.html android/assets/index.html` before building (the build
+script does this), then publish the APK as a GitHub Release asset.
 
 Verify with `node tools/test-emmaus.js`: it runs the real code against a minimal
 DOM, checks the MAP rules, plays all ten modes through the actual
