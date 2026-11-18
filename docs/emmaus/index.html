@@ -2,154 +2,327 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>EMMAUS — The Unfolding</title>
 <style>
   :root{
     color-scheme: dark;
-    --bg:#0e1018; --panel:#171a26; --panel2:#1e2231; --line:#2a3044;
+    --bg:#0b0e1a; --panel:#141828; --panel2:#1b2136; --line:#2a3049;
     --ink:#eef1f8; --dim:#98a0b8; --gold:#e8b84b; --gold2:#ffd98a;
-    --green:#5bd67a; --blue:#6f9dff; --violet:#a98bff;
+    --green:#5bd67a; --blue:#6f9dff; --violet:#a98bff; --rose:#ff7a90;
   }
-  *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#1b2036 0%,var(--bg) 60%);
-    color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
-  .app{max-width:880px;margin:0 auto;padding:18px 16px 90px}
-  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-  .brand{display:flex;align-items:baseline;gap:10px}
-  .brand b{font-size:1.25rem;letter-spacing:.14em;color:var(--gold2)}
-  .brand span{font-size:.72rem;color:var(--dim);letter-spacing:.22em;text-transform:uppercase}
-  .who{font-size:.78rem;color:var(--dim);text-align:right;line-height:1.25}
-  .who b{color:var(--gold);display:block;font-size:.9rem}
-  nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 18px}
-  nav.tabs button{background:var(--panel);border:1px solid var(--line);color:var(--dim);
-    padding:.45rem .8rem;border-radius:999px;font:inherit;font-size:.82rem;cursor:pointer}
-  nav.tabs button.on{background:linear-gradient(180deg,#2b3350,#232941);color:var(--ink);border-color:#3d4a70}
-  h1{font-size:1.3rem;margin:.2rem 0 .1rem}
-  h2{font-size:1.02rem;margin:1.1rem 0 .4rem;color:var(--gold2)}
-  h3{font-size:.9rem;margin:.8rem 0 .3rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
-  p{margin:.4rem 0}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0}
-  .muted{color:var(--dim);font-size:.86rem}
-  .tiny{font-size:.76rem;color:var(--dim)}
-  button.btn{background:linear-gradient(180deg,#4a73e8,#3a5bc4);border:0;border-radius:10px;
-    color:#fff;font:inherit;font-weight:600;padding:.55rem 1rem;cursor:pointer}
-  button.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
-  button.btn.gold{background:linear-gradient(180deg,#e8b84b,#c9962c);color:#241c05}
-  button.btn:disabled{opacity:.45;cursor:not-allowed}
-  input,textarea,select{background:#12141f;border:1px solid var(--line);color:var(--ink);
-    border-radius:9px;padding:.55rem .7rem;font:inherit;width:100%}
-  textarea{min-height:90px;resize:vertical}
-  label{display:block;font-size:.78rem;color:var(--dim);margin:.5rem 0 .2rem}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{background:var(--bg);color:var(--ink);
+    font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    touch-action:manipulation; overscroll-behavior:none}
+  .serif{font-family:Georgia,"Times New Roman",serif}
 
-  .journey{position:relative;padding-left:34px}
-  .journey:before{content:"";position:absolute;left:13px;top:6px;bottom:6px;width:3px;
-    background:linear-gradient(180deg,var(--green),var(--gold),var(--violet));border-radius:3px;opacity:.5}
-  .node{position:relative;margin:0 0 12px;background:var(--panel);border:1px solid var(--line);
-    border-radius:14px;padding:12px 14px;cursor:pointer;transition:transform .12s,border-color .12s}
-  .node:hover{transform:translateX(3px);border-color:#3d4a70}
-  .node .dot{position:absolute;left:-27px;top:16px;width:19px;height:19px;border-radius:50%;
-    background:var(--panel2);border:3px solid var(--line)}
-  .node.done .dot{background:var(--green);border-color:#2c6b3d;box-shadow:0 0 12px #5bd67a88}
-  .node.open .dot{background:var(--gold);border-color:#8a6a1c;box-shadow:0 0 12px #e8b84b88}
-  .node.locked{opacity:.55;cursor:not-allowed}
-  .node h3{margin:0 0 .15rem;color:var(--ink);text-transform:none;letter-spacing:0;font-size:1rem}
-  .node .life{font-size:.8rem;color:var(--gold2)}
-  .node .bar{height:6px;background:#12141f;border-radius:6px;margin-top:8px;overflow:hidden}
-  .node .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--gold));width:0}
-  .pill{display:inline-block;font-size:.68rem;padding:.12rem .5rem;border-radius:999px;
-    border:1px solid var(--line);color:var(--dim);margin-left:6px;vertical-align:middle}
+  #stage{position:fixed;inset:0}
+  canvas#game{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 
-  .tag{display:inline-block;font-size:.68rem;font-weight:700;padding:.14rem .5rem;border-radius:6px;margin-bottom:.4rem}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column}
+  .screen.on{display:flex}
+  .scroller{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 96px}
+  .wrap{max-width:720px;margin:0 auto;width:100%}
+
+  /* ---------- menu ---------- */
+  #menu{align-items:center;justify-content:center;text-align:center;
+    background:radial-gradient(900px 620px at 50% 8%,#1d2540 0%,#0b0e1a 62%)}
+  #menu .glow{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(340px 340px at 50% 34%,rgba(232,184,75,.16),transparent 70%)}
+  .logo{position:relative;font-weight:800;letter-spacing:.22em;font-size:clamp(2.2rem,11vw,4rem);
+    background:linear-gradient(180deg,#fff3d0,#e8b84b 55%,#a8791f);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 8px 30px rgba(232,184,75,.25); animation:breathe 4.5s ease-in-out infinite}
+  .logo small{display:block;font-size:clamp(.6rem,2.6vw, .8rem);letter-spacing:.5em;
+    font-weight:600;color:var(--dim);margin-top:.5rem;-webkit-text-fill-color:var(--dim)}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+  .verse-open{max-width:34ch;margin:1.4rem auto 0;color:var(--dim);font-size:.95rem;line-height:1.65}
+  .verse-open b{color:var(--gold2);font-weight:600}
+  .btn{appearance:none;border:0;border-radius:14px;font:inherit;font-weight:700;
+    padding:.9rem 1.5rem;cursor:pointer;color:#fff;
+    background:linear-gradient(180deg,#4a73e8,#3450b0);box-shadow:0 8px 22px rgba(52,80,176,.35)}
+  .btn.gold{background:linear-gradient(180deg,#f0c75c,#c9962c);color:#241c05;
+    box-shadow:0 10px 26px rgba(232,184,75,.35)}
+  .btn.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);box-shadow:none}
+  .btn.big{font-size:1.15rem;padding:1.05rem 2.4rem;border-radius:999px}
+  .btn:active{transform:translateY(1px)}
+  .pulse{animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+  .tiny{font-size:.78rem;color:var(--dim)}
+  .muted{color:var(--dim)}
+
+  /* ---------- top bar ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top))}
+  .topbar .brand{font-weight:800;letter-spacing:.16em;color:var(--gold2)}
+  .chips{display:flex;gap:8px;align-items:center}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    padding:.4rem .8rem;font-size:.82rem;color:var(--ink);text-decoration:none;cursor:pointer}
+  .chip.gold{color:var(--gold2);border-color:#6b5a20}
+
+  /* ---------- journey map ---------- */
+  #mapwrap{position:relative;flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 0 110px}
+  #mappath{position:relative;width:100%;max-width:560px;margin:0 auto}
+  #mapsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .mnode{position:absolute;width:92px;transform:translate(-50%,-50%);text-align:center;cursor:pointer;
+    transition:transform .15s}
+  .mnode:active{transform:translate(-50%,-50%) scale(.95)}
+  .mnode .disc{width:74px;height:74px;margin:0 auto;border-radius:50%;display:grid;place-items:center;
+    font-size:1.5rem;font-weight:800;color:#241c05;position:relative;
+    background:linear-gradient(180deg,#ffd98a,#d9a531);box-shadow:0 10px 24px rgba(0,0,0,.5),inset 0 -4px 0 rgba(0,0,0,.18)}
+  .mnode.done .disc{background:linear-gradient(180deg,#8ff0ac,#3fae63);color:#08210f}
+  .mnode.locked .disc{background:linear-gradient(180deg,#2b3350,#212741);color:#67708c;box-shadow:none}
+  .mnode .disc .ring{position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,217,138,.5);
+    animation:ring 2.6s ease-out infinite}
+  @keyframes ring{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+  .mnode .cap{margin-top:6px;font-size:.78rem;color:var(--ink);font-weight:600}
+  .mnode.locked .cap{color:#67708c}
+  .mnode .stars{font-size:.72rem;letter-spacing:2px;color:var(--gold);height:1em}
+  .mnode.locked .stars{visibility:hidden}
+  .mnode .lock{position:absolute;top:26px;left:0;right:0;font-size:1.4rem}
+
+  /* ---------- HUD ---------- */
+  #hud{position:absolute;inset:0;pointer-events:none;padding:10px 12px;
+    padding-top:max(10px,env(safe-area-inset-top));display:none}
+  #hud.on{display:block}
+  .hud-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .hud-box{background:rgba(11,14,26,.55);backdrop-filter:blur(6px);border:1px solid var(--line);
+    border-radius:12px;padding:.35rem .7rem;font-weight:700;font-size:.9rem}
+  .hearts{letter-spacing:2px;font-size:1.05rem}
+  .combo{position:absolute;left:50%;top:64px;transform:translateX(-50%);font-weight:800;
+    font-size:1.6rem;color:var(--gold2);opacity:0;transition:opacity .2s}
+  .combo.show{opacity:1}
+  #unfold{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:min(420px,84vw)}
+  #unfold .lab{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2);
+    text-align:center;margin-bottom:4px;text-shadow:0 2px 8px #000}
+  #unfold .bar{height:12px;border-radius:99px;background:rgba(11,14,26,.6);border:1px solid var(--line);overflow:hidden}
+  #unfold .bar i{display:block;height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,#5bd67a,#e8b84b,#a98bff);transition:width .18s}
+  #pauseBtn{pointer-events:auto}
+
+  /* ---------- overlays ---------- */
+  .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    padding:20px;background:rgba(6,8,16,.78);backdrop-filter:blur(4px);z-index:20}
+  .overlay.on{display:flex}
+  .sheet{background:linear-gradient(180deg,#1a2036,#12162a);border:1px solid var(--line);
+    border-radius:22px;padding:22px;max-width:460px;width:100%;text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.6);animation:pop .28s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+  .sheet h2{margin:.2rem 0 .4rem;font-size:1.4rem}
+  .stars-big{font-size:2.4rem;letter-spacing:6px;color:var(--gold);margin:.3rem 0}
+  .star-off{color:#39405c}
+
+  /* ---------- reveal ---------- */
+  #reveal{background:radial-gradient(700px 500px at 50% 30%,#20263f,#080a12)}
+  #reveal .rwrap{max-width:640px;text-align:center;padding:24px}
+  #reveal .rtag{font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold2)}
+  #reveal .rref{font-size:1.1rem;color:var(--gold);font-weight:700;margin:.5rem 0}
+  #reveal .rtext{font-family:Georgia,serif;font-size:clamp(1.05rem,4.4vw,1.5rem);line-height:1.7;color:#f6f2e6}
+  .rword{opacity:0;display:inline-block;animation:rise .5s forwards}
+  @keyframes rise{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+  #reveal .thread{margin-top:1.4rem;border-top:1px solid var(--line);padding-top:1rem;color:var(--dim);
+    font-size:.92rem;opacity:0;animation:rise .6s .9s forwards}
+
+  /* ---------- study (the scroll) ---------- */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+  .card h2{margin:.1rem 0 .5rem;font-size:1.1rem;color:var(--gold2)}
+  .card h3{margin:.7rem 0 .3rem;font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .layer{border:1px solid var(--line);border-radius:14px;margin:10px 0;overflow:hidden}
+  .layer>.head{display:flex;justify-content:space-between;gap:8px;align-items:center;
+    padding:.8rem 1rem;background:var(--panel2);cursor:pointer;font-weight:600}
+  .layer>.body{padding:.2rem 1rem 1rem;display:none;background:var(--panel)}
+  .layer.open>.body{display:block}
+  .layer.done>.head{color:var(--green)}
+  .tag{display:inline-block;font-size:.68rem;font-weight:700;padding:.16rem .55rem;border-radius:7px;margin:.2rem 0 .5rem}
   .tag.t-text{background:#1d3a25;color:#7ee39a;border:1px solid #2c6b3d}
   .tag.t-trad{background:#3a3218;color:#f0cf78;border:1px solid #6b5a20}
   .tag.t-read{background:#1c2a44;color:#9dc0ff;border:1px solid #2f4a7a}
-
-  .layer{border:1px solid var(--line);border-radius:12px;margin:8px 0;overflow:hidden}
-  .layer>.head{display:flex;justify-content:space-between;align-items:center;gap:8px;
-    padding:.6rem .8rem;background:var(--panel2);cursor:pointer}
-  .layer>.head b{font-size:.92rem}
-  .layer>.body{padding:.2rem .9rem .9rem;display:none;background:var(--panel)}
-  .layer.open>.body{display:block}
-  .layer.done>.head b:after{content:" ✓";color:var(--green)}
-
-  table.versions{width:100%;border-collapse:collapse;font-size:.88rem}
-  table.versions th,table.versions td{text-align:left;vertical-align:top;padding:.5rem .6rem;
-    border-bottom:1px solid var(--line)}
-  table.versions th{color:var(--gold2);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;width:110px}
+  table.v{width:100%;border-collapse:collapse;font-size:.86rem}
+  table.v th,table.v td{text-align:left;vertical-align:top;padding:.5rem .6rem;border-bottom:1px solid var(--line)}
+  table.v th{color:var(--gold2);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;width:96px}
   .missing{color:#67708c;font-style:italic}
-
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
-
+  .links{display:flex;flex-wrap:wrap;gap:8px}
+  .links a,.links .lk{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);
+    border:1px solid var(--line);padding:.6rem .95rem;border-radius:12px;color:var(--ink);
+    text-decoration:none;font-size:.88rem;cursor:pointer}
+  .links a.call{background:#1d3a25;border-color:#2c6b3d;color:#9df0b6}
+  .links a.wa{background:#12351f;border-color:#1f5c34;color:#8fe0ab}
+  .links a.tg{background:#152a44;border-color:#274a78;color:#9dc0ff}
+  input,textarea,select{background:#0e1120;border:1px solid var(--line);color:var(--ink);
+    border-radius:11px;padding:.65rem .8rem;font:inherit;width:100%}
+  textarea{min-height:92px;resize:vertical}
+  label{display:block;font-size:.78rem;color:var(--dim);margin:.6rem 0 .2rem}
   .note{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:var(--panel2)}
   .note .ref{color:var(--gold2);font-weight:600}
-  a.link{color:var(--blue);text-decoration:none}
-  .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chips a{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);
-    padding:.5rem .8rem;border-radius:10px;color:var(--ink);text-decoration:none;font-size:.85rem}
-  .chips a:hover{border-color:#3d4a70}
-  .hidden{display:none}
-  .center{text-align:center}
-  .big{font-size:2rem;color:var(--gold2);font-weight:700}
-  .markline{display:flex;align-items:center;gap:10px;margin:.3rem 0}
-  .markline .b{flex:1;height:9px;background:#12141f;border-radius:9px;overflow:hidden}
-  .markline .b i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--gold))}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.grid2{grid-template-columns:1fr}}
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#232941;
-    border:1px solid var(--line);border-radius:10px;padding:.6rem 1rem;font-size:.86rem;opacity:0;
-    pointer-events:none;transition:opacity .3s;z-index:50}
+    border:1px solid var(--line);border-radius:12px;padding:.6rem 1rem;font-size:.86rem;opacity:0;
+    pointer-events:none;transition:opacity .3s;z-index:60}
   .toast.show{opacity:1}
-  .manna-grid{display:flex;flex-direction:column;gap:6px;align-items:center;margin:12px 0}
-  .mguess{display:flex;gap:5px}
-  .mcell{width:38px;height:38px;display:grid;place-items:center;border-radius:7px;font-weight:700;
-    text-transform:uppercase;background:#12141f;border:1px solid var(--line)}
-  .mcell.hit{background:#2c6b3d;border-color:#3d8a52}
-  .mcell.near{background:#6b5a20;border-color:#8a7429}
-  .mcell.miss{background:#2a3044;border-color:#333a52}
-
-  .layer.kid>.head{background:linear-gradient(180deg,#2a2410,#241f0e)}
-  .layer.kid>.head b{color:var(--gold2)}
-  .chips.big a{font-size:.92rem;padding:.6rem .95rem}
-  .chips a.call{background:#1d3a25;border-color:#2c6b3d;color:#9df0b6}
-  .chips a.wa{background:#12351f;border-color:#1f5c34;color:#8fe0ab}
-  .chips a.tg{background:#152a44;border-color:#274a78;color:#9dc0ff}
-  .fabs{position:fixed;right:14px;bottom:16px;display:flex;flex-direction:column;gap:10px;z-index:60}
-  .fabs a{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:1.35rem;
-    text-decoration:none;color:#fff;box-shadow:0 6px 18px #0008;border:0}
-  .fabs a.call{background:linear-gradient(180deg,#4a73e8,#3a5bc4)}
-  .fabs a.wa{background:linear-gradient(180deg,#2fae5a,#1f8a45)}
-  .switch{display:inline-flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);
-    border-radius:999px;padding:.35rem .75rem;font-size:.8rem;cursor:pointer;color:var(--ink)}
-  .switch input{width:auto;margin:0}
+  .hidden{display:none!important}
+  .fab{position:fixed;right:14px;bottom:16px;display:flex;flex-direction:column;gap:10px;z-index:40}
+  .fab a{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:1.3rem;
+    color:#fff;text-decoration:none;box-shadow:0 8px 20px #0008}
+  .fab a.call{background:linear-gradient(180deg,#4a73e8,#3450b0)}
+  .fab a.wa{background:linear-gradient(180deg,#2fae5a,#1f8a45)}
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="top">
-    <div class="brand"><b>EMMAUS</b><span>The Unfolding</span></div>
-    <div class="who hidden" id="whoBox"><span>Pilgrim</span><b id="whoName">—</b></div>
-  </header>
-  <nav class="tabs hidden" id="tabs">
-    <button data-go="journey">Journey</button>
-    <button data-go="manna">Manna</button>
-    <button data-go="notebook">Notebook</button>
-    <button data-go="community">Community</button>
-    <button data-go="about">About</button>
-    <button data-go="profiles">Switch user</button>
-  </nav>
-  <main id="view"></main>
-</div>
-<div class="fabs" id="fabs">
-  <a class="call" id="fabCall" href="#" aria-label="Call">&#9742;</a>
-  <a class="wa" id="fabWa" href="#" aria-label="WhatsApp" target="_blank" rel="noopener">&#128172;</a>
+<div id="stage">
+  <canvas id="game"></canvas>
+
+  <!-- MENU -->
+  <section class="screen on" id="menu">
+    <div class="glow"></div>
+    <div style="position:relative;z-index:1">
+      <div class="logo">EMMAUS<small>THE UNFOLDING</small></div>
+      <p class="verse-open serif">“And beginning with Moses and all the Prophets, he explained to them
+      what was said in <b>all the Scriptures</b> concerning himself.”<br><span class="tiny">— Luke 24:27</span></p>
+      <div class="row" style="margin-top:1.8rem">
+        <button class="btn gold big pulse" id="playBtn">▶  PLAY</button>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <span class="chip" id="bestChip">★ Best 0</span>
+        <span class="chip" id="whoChip">Pilgrim</span>
+      </div>
+      <p class="tiny" style="margin-top:1.4rem;max-width:32ch">Catch the manna. Unfold the verse.
+      Ten chapters, from the Garden to the City.</p>
+    </div>
+  </section>
+
+  <!-- JOURNEY MAP -->
+  <section class="screen" id="map">
+    <div class="topbar">
+      <span class="brand">EMMAUS</span>
+      <div class="chips">
+        <span class="chip gold" id="mapMarks">0 ✦</span>
+        <span class="chip" data-go="notebook">Notebook</span>
+        <span class="chip" data-go="community">Together</span>
+        <span class="chip" data-go="about">About</span>
+      </div>
+    </div>
+    <div id="mapwrap"><div id="mappath"><svg id="mapsvg"></svg></div></div>
+  </section>
+
+  <!-- PLAY HUD -->
+  <div id="hud">
+    <div class="hud-row">
+      <div class="hud-box" id="hudScore">0</div>
+      <div class="hud-box hearts" id="hudLives">❤❤❤</div>
+      <button class="hud-box" id="pauseBtn" style="pointer-events:auto;border:1px solid var(--line);color:var(--ink)">❚❚</button>
+    </div>
+    <div class="combo" id="combo"></div>
+    <div id="unfold">
+      <div class="lab" id="unfoldLab">Unfolding…</div>
+      <div class="bar"><i id="unfoldBar"></i></div>
+    </div>
+  </div>
+
+  <!-- REVEAL -->
+  <section class="screen" id="reveal">
+    <div class="scroller" style="display:flex;align-items:center">
+      <div class="rwrap wrap" style="margin:auto">
+        <div class="rtag">Chapter unfolded</div>
+        <div class="rref" id="rRef"></div>
+        <div class="rtext serif" id="rText"></div>
+        <div class="thread" id="rThread"></div>
+        <div class="row" style="margin-top:1.8rem">
+          <button class="btn gold" id="goDeeper">Go deeper  ↓</button>
+          <button class="btn ghost" id="rNext">Next chapter</button>
+          <button class="btn ghost" id="rMap">Journey map</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STUDY -->
+  <section class="screen" id="study">
+    <div class="topbar">
+      <button class="chip" id="backMap">← Journey</button>
+      <span class="brand" id="studyTitle">Chapter</span>
+      <span class="chip gold" id="studyStars">★★★</span>
+    </div>
+    <div class="scroller"><div class="wrap" id="studyBody"></div></div>
+  </section>
+
+  <!-- NOTEBOOK -->
+  <section class="screen" id="notebook">
+    <div class="topbar"><button class="chip" data-go="map">← Journey</button><span class="brand">Notebook</span><span></span></div>
+    <div class="scroller"><div class="wrap" id="noteBody"></div></div>
+  </section>
+
+  <!-- COMMUNITY -->
+  <section class="screen" id="community">
+    <div class="topbar"><button class="chip" data-go="map">← Journey</button><span class="brand">Walk together</span><span></span></div>
+    <div class="scroller"><div class="wrap" id="commBody"></div></div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="screen" id="about">
+    <div class="topbar"><button class="chip" data-go="map">← Journey</button><span class="brand">About</span><span></span></div>
+    <div class="scroller"><div class="wrap" id="aboutBody"></div></div>
+  </section>
+
+  <!-- OVERLAYS -->
+  <div class="overlay" id="ovPause"><div class="sheet">
+    <h2>Paused</h2>
+    <p class="muted tiny">Take a breath.</p>
+    <div class="row" style="margin-top:12px">
+      <button class="btn gold" id="resumeBtn">Resume</button>
+      <button class="btn ghost" id="quitBtn">Leave level</button>
+    </div>
+  </div></div>
+
+  <div class="overlay" id="ovWin"><div class="sheet">
+    <div class="stars-big" id="winStars">★★★</div>
+    <h2 id="winTitle">Chapter unfolded!</h2>
+    <p class="muted" id="winSub"></p>
+    <div class="row" style="margin-top:14px">
+      <button class="btn gold" id="winNext">Unfold the verse  →</button>
+      <button class="btn ghost" id="winReplay">Play again</button>
+    </div>
+  </div></div>
+
+  <div class="overlay" id="ovLose"><div class="sheet">
+    <h2>Not yet…</h2>
+    <p class="muted">The darkness won this round. The manna comes again — rise and try once more.</p>
+    <div class="row" style="margin-top:14px">
+      <button class="btn gold" id="loseRetry">Try again</button>
+      <button class="btn ghost" id="loseMap">Journey map</button>
+    </div>
+  </div></div>
+
+  <div class="overlay" id="ovProfiles"><div class="sheet">
+    <h2>Who is walking today?</h2>
+    <div id="profList" style="margin:12px 0"></div>
+    <label>Add a pilgrim</label>
+    <div style="display:flex;gap:8px">
+      <input id="profName" placeholder="Name" autocomplete="off">
+      <button class="btn" id="profAdd" style="white-space:nowrap">Add</button>
+    </div>
+    <p class="tiny" style="margin-top:10px">Several people can share this device. Each keeps their own journey, stars, and notebook.</p>
+  </div></div>
+
+  <div class="fab">
+    <a class="call" id="fabCall" href="#" aria-label="Call">☎</a>
+    <a class="wa" id="fabWa" href="#" target="_blank" rel="noopener" aria-label="WhatsApp">💬</a>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
 /* ============================================================
-   EMMAUS - offline single-file game. No server, no external requests.
+   EMMAUS — The Unfolding.  One offline file: no server, no network.
+   A real arcade game (canvas, physics, particles, sound) wrapped
+   around the ten-chapter Scripture journey.
    ============================================================ */
-
 /* ---------- CONTENT: the ten chapters ---------- */
 var CHAPTERS = [
  {
@@ -305,27 +478,6 @@ var CHAPTERS = [
  }
 ];
 
-/* ---------- CONTACT: how a pilgrim reaches a real person ---------- */
-var CONTACT = {
-  name: "",
-  phone: "+256754687597",
-  whatsapp: "256754687597",
-  telegram: "256754687597"
-};
-CONTACT.tel = function(){ return "tel:"+CONTACT.phone; };
-CONTACT.wa = function(msg){ return "https://wa.me/"+CONTACT.whatsapp+(msg?"?text="+encodeURIComponent(msg):""); };
-CONTACT.tg = function(){ return "https://t.me/+"+CONTACT.telegram; };
-CONTACT.show = function(){ return CONTACT.name||CONTACT.phone; };
-CONTACT.msg = function(what, where){
-  return "My name is "+what+". I am playing EMMAUS ("+where+") and I would like to talk, or have someone pray with me.";
-};
-
-/* ---------- COMMUNITY: group links. Put your own group URLs here. ---------- */
-var COMMUNITY = [
-  {n:"WhatsApp group", u:"", hint:"your church WhatsApp group invite link"},
-  {n:"Telegram group", u:"", hint:"your Telegram group link"},
-  {n:"Facebook group", u:"", hint:"your Facebook group link"}
-];
 
 /* ---------- LITTLE LAMP: the child's layer for each chapter (MAP \u00a77) ---------- */
 var KID = {
@@ -371,515 +523,721 @@ var KID = {
     quiz:{q:"What will God do one day?", o:["Make everything new","Leave us alone"], a:0}}
 };
 
-/* ---------- MANNA: daily, unstockpilable ---------- */
-var MANNA_WORDS = ["MANNA","GRACE","FAITH","ALTAR","LAMB","VEIL","MERCY","GLORY","ROCK","BREAD","PSALM","HOLY","CROSS","LIGHT","PRAYER","TEMPLE","SPIRIT","HOPE","LOVE","CITY"];
-function dayKey(d){ d=d||new Date(); return d.toISOString().slice(0,10); }
-function mannaWord(){ var k=dayKey(), h=0; for(var i=0;i<k.length;i++) h=(h*31+k.charCodeAt(i))>>>0; return MANNA_WORDS[h%MANNA_WORDS.length]; }
 
-/* ---------- STATE ---------- */
-var LS_KEY = "emmaus_v1";
+/* ---------- CONTACT: how a pilgrim reaches a real person ---------- */
+var CONTACT = {
+  name: "",
+  phone: "+256754687597",
+  whatsapp: "256754687597",
+  telegram: "256754687597"
+};
+CONTACT.tel = function(){ return "tel:"+CONTACT.phone; };
+CONTACT.wa = function(msg){ return "https://wa.me/"+CONTACT.whatsapp+(msg?"?text="+encodeURIComponent(msg):""); };
+CONTACT.tg = function(){ return "https://t.me/+"+CONTACT.telegram; };
+CONTACT.show = function(){ return CONTACT.name||CONTACT.phone; };
+CONTACT.msg = function(who, where){
+  return "My name is "+who+". I am playing EMMAUS ("+where+") and I would like to talk, or have someone pray with me.";
+};
+
+/* ---------- COMMUNITY: put your own group links here ---------- */
+var COMMUNITY = [
+  {n:"WhatsApp group", u:"", hint:"your church WhatsApp group invite link"},
+  {n:"Telegram group", u:"", hint:"your Telegram group link"},
+  {n:"Facebook group", u:"", hint:"your Facebook group link"}
+];
+
+/* ---------- the word you gather in each chapter ---------- */
+var WORDS = {1:"IMAGE",2:"COVER",3:"REFUGE",4:"BLOOD",5:"MANNA",6:"DWELL",7:"ACCESS",8:"RISEN",9:"SPIRIT",10:"COME"};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+var LS_KEY = "emmaus_v2";
 var DB = load();
 
-function blankUser(){ return {marks:0, unlocked:[1], layers:{}, notes:[], manna:{}, kid:{}, family:false, lights:{}}; }
+function blankUser(){ return {marks:0, best:0, stars:{}, notes:[], sound:true, plays:0}; }
 function load(){
-  try{ var r=localStorage.getItem(LS_KEY); if(r){ var d=JSON.parse(r); normalize(d); return d; } }catch(e){}
+  try{ var r=localStorage.getItem(LS_KEY); if(r){ var d=JSON.parse(r); norm(d); return d; } }catch(e){}
   return {active:null, users:{}};
 }
-function normalize(d){
+function norm(d){
   if(!d.users) d.users={};
   Object.keys(d.users).forEach(function(n){
     var u=d.users[n], b=blankUser();
     Object.keys(b).forEach(function(k){ if(u[k]===undefined) u[k]=b[k]; });
+    if(!u.stars) u.stars={};
   });
 }
 function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e){} }
 function me(){ return DB.active ? DB.users[DB.active] : null; }
-function ensure(u){ if(!DB.users[u]) DB.users[u]=blankUser(); else normalize(DB); return DB.users[u]; }
-
-/* ---------- ROUTER ---------- */
-var view = document.getElementById("view");
-var route = {screen:"profiles"};
-
-function go(screen, arg){
-  route = {screen:screen, arg:arg};
-  var btns=document.querySelectorAll("#tabs button");
-  for(var i=0;i<btns.length;i++) btns[i].classList.toggle("on", btns[i].dataset.go===screen);
-  render();
+function ensure(n){ if(!DB.users[n]) DB.users[n]=blankUser(); else norm(DB); return DB.users[n]; }
+function totalStars(u){ var t=0; Object.keys(u.stars||{}).forEach(function(k){ t+=u.stars[k]; }); return t; }
+function unlocked(u){
+  var max=1;
+  for(var i=1;i<=CHAPTERS.length;i++){ if((u.stars[i]||0)>0 && i+1<=CHAPTERS.length) max=Math.max(max,i+1); }
+  return max;
 }
-document.getElementById("tabs").addEventListener("click", function(e){
-  var b=e.target.closest("button"); if(!b) return; go(b.dataset.go);
+
+/* ============================================================
+   AUDIO — a tiny synth. No files, works offline.
+   ============================================================ */
+var AC=null;
+function actx(){
+  if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  if(AC && AC.state==="suspended"){ try{ AC.resume(); }catch(e){} }
+  return AC;
+}
+function tone(freq, dur, type, vol, delay){
+  if(!DB.active || !me() || !me().sound) return;
+  var a=actx(); if(!a) return;
+  var o=a.createOscillator(), g=a.createGain();
+  o.type=type||"sine"; o.frequency.value=freq;
+  var t=a.currentTime+(delay||0);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(vol||.07, t+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+dur+0.02);
+}
+var SFX = {
+  catch_: function(combo){ var f=520+Math.min(combo,8)*60; tone(f,.12,"triangle",.08); tone(f*1.5,.14,"sine",.05,.04); },
+  letter: function(){ tone(880,.14,"sine",.07); tone(1320,.18,"sine",.05,.06); },
+  word:   function(){ [523,659,784,1047].forEach(function(f,i){ tone(f,.22,"triangle",.07,i*0.08); }); },
+  hit:    function(){ tone(150,.28,"sawtooth",.09); tone(90,.32,"square",.06,.02); },
+  win:    function(){ [523,659,784,1047,1319].forEach(function(f,i){ tone(f,.4,"triangle",.08,i*0.11); }); },
+  lose:   function(){ [400,320,240,160].forEach(function(f,i){ tone(f,.3,"sawtooth",.08,i*0.13); }); },
+  tap:    function(){ tone(660,.06,"sine",.05); }
+};
+
+/* ============================================================
+   CANVAS + draw helpers
+   ============================================================ */
+var cv=document.getElementById("game"), ctx=cv.getContext("2d");
+var W=0,H=0,DPR=1;
+function resize(){
+  DPR=Math.min(window.devicePixelRatio||1, 2);
+  W=cv.clientWidth; H=cv.clientHeight;
+  cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  buildStars();
+}
+window.addEventListener("resize", resize);
+window.addEventListener("orientationchange", function(){ setTimeout(resize,200); });
+
+var stars=[];
+function buildStars(){
+  stars=[]; var n=Math.round(W*H/9000);
+  for(var i=0;i<n;i++) stars.push({x:Math.random()*W, y:Math.random()*H*0.8, r:Math.random()*1.5+.3,
+    p:Math.random()*Math.PI*2, s:.6+Math.random()*1.6});
+}
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function glow(x,y,r,color,a){
+  var g=ctx.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,"rgba("+color+","+(a)+")"); g.addColorStop(1,"rgba("+color+",0)");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill();
+}
+
+/* ============================================================
+   PARTICLES
+   ============================================================ */
+var parts=[];
+function burst(x,y,color,n,spd){
+  n=n||12; spd=spd||180;
+  for(var i=0;i<n;i++){
+    var a=Math.random()*Math.PI*2, v=spd*(0.4+Math.random()*0.9);
+    parts.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:1,
+      max:0.6+Math.random()*0.5, r:1.6+Math.random()*3.2, c:color});
+  }
+  if(parts.length>420) parts.splice(0, parts.length-420);
+}
+function updParts(dt){
+  for(var i=parts.length-1;i>=0;i--){
+    var p=parts[i]; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=380*dt; p.vx*=0.98; p.life-=dt/p.max;
+    if(p.life<=0) parts.splice(i,1);
+  }
+}
+function drawParts(){
+  for(var i=0;i<parts.length;i++){ var p=parts[i];
+    ctx.globalAlpha=Math.max(p.life,0); ctx.fillStyle=p.c;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r*p.life,0,7); ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ============================================================
+   THE GAME
+   ============================================================ */
+var G=null, raf=null, last=0;
+var screenEl=document.getElementById("stage");
+function el(id){ return document.getElementById(id); }
+function show(id){
+  ["menu","map","reveal","study","notebook","community","about"].forEach(function(s){
+    var e=el(s); if(e) e.classList.toggle("on", s===id);
+  });
+  el("hud").classList.toggle("on", id==="play");
+  if(id!=="play" && id!=="map"){ /* canvas stays as backdrop */ }
+  document.querySelectorAll(".fab").forEach(function(f){ f.style.display = (id==="play")?"none":""; });
+}
+function chapterOf(id){ for(var i=0;i<CHAPTERS.length;i++) if(CHAPTERS[i].id===id) return CHAPTERS[i]; return null; }
+
+function startLevel(id){
+  var u=me(); if(!u) return openProfiles();
+  var c=chapterOf(id); if(!c) return;
+  var lv=(id-1);
+  var diff=1+lv*0.16;
+  G={
+    ch:id, word:WORDS[id]||"MANNA", wordGot:"",
+    score:0, lives:3, progress:0, combo:0, comboBest:0,
+    items:[], t:0, spawn:0.6, spawnEvery: Math.max(0.62, 1.25-lv*0.055),
+    speed: 118*diff, shadowChance: Math.min(0.42, 0.14+lv*0.03),
+    letterChance: 0.12,
+    player:{x:W/2, tx:W/2, w:74, h:26, inv:0},
+    shake:0, flash:0, over:false, won:false, paused:false,
+    bg: levelColors(id)
+  };
+  el("hudScore").textContent="0";
+  drawHearts();
+  el("unfoldBar").style.width="0%";
+  el("unfoldLab").textContent="Unfolding the chapter…";
+  show("play");
+  resize();
+  G.player.x=W/2; G.player.tx=W/2;
+  if(!raf){ last=performance.now(); raf=requestAnimationFrame(loop); }
+}
+
+function levelColors(id){
+  var pal=[
+    ["#1d3a25","#5bd67a"], // Garden green
+    ["#2a2410","#e8b84b"], // Fall gold
+    ["#12314a","#6f9dff"], // Ark blue
+    ["#3a1420","#ff7a90"], // Lamb crimson
+    ["#3a3218","#ffd98a"], // Wilderness
+    ["#241a3a","#a98bff"], // Temple violet
+    ["#2a1440","#c9a3ff"], // Veil
+    ["#101c2a","#8fe0ab"], // Tomb
+    ["#3a1420","#ff9a6f"], // Upper Room fire
+    ["#1a1440","#ffd98a"]  // City
+  ];
+  var p=pal[(id-1)%pal.length];
+  return {sky:p[0], accent:p[1]};
+}
+
+function spawn(){
+  var r=Math.random();
+  var type = r < G.shadowChance ? "shadow" : (r < G.shadowChance+G.letterChance ? "letter" : "manna");
+  var it={type:type, x:40+Math.random()*(W-80), y:-30, r:type==="manna"?17:(type==="shadow"?19:18),
+    vy:G.speed*(0.85+Math.random()*0.4), vx:(Math.random()-0.5)*30, spin:Math.random()*6, sp:(Math.random()-0.5)*3};
+  if(type==="letter"){
+    var need=[];
+    for(var i=0;i<G.word.length;i++) if(G.wordGot.indexOf(G.word[i])<0) need.push(G.word[i]);
+    it.ch = need.length ? need[Math.floor(Math.random()*need.length)] : G.word[0];
+  }
+  G.items.push(it);
+}
+
+function loop(now){
+  var dt=Math.min(0.033, (now-last)/1000); last=now;
+  if(G && !G.paused && !G.over) update(dt);
+  draw(dt);
+  raf=requestAnimationFrame(loop);
+}
+
+function update(dt){
+  G.t+=dt;
+  if(G.shake>0) G.shake=Math.max(0,G.shake-dt*3.2);
+  if(G.flash>0) G.flash=Math.max(0,G.flash-dt*3);
+  if(G.player.inv>0) G.player.inv=Math.max(0,G.player.inv-dt);
+
+  // player follows pointer, with easing
+  G.player.x += (G.player.tx-G.player.x)*Math.min(1, dt*16);
+
+  // spawn
+  G.spawn-=dt;
+  if(G.spawn<=0){ spawn(); G.spawn=G.spawnEvery*(0.72+Math.random()*0.6); }
+
+  // items
+  var py=H-70, px=G.player.x, pw=G.player.w/2;
+  for(var i=G.items.length-1;i>=0;i--){
+    var it=G.items[i];
+    it.y+=it.vy*dt; it.x+=it.vx*dt; it.spin+=it.sp*dt;
+    if(it.x<20||it.x>W-20) it.vx*=-1;
+    // catch?
+    if(it.y> py-24 && it.y< py+34 && Math.abs(it.x-px)< pw+it.r){
+      G.items.splice(i,1);
+      if(it.type==="shadow"){
+        if(G.player.inv<=0){
+          G.lives--; G.combo=0; G.shake=1; G.flash=.7; G.player.inv=1.1;
+          burst(it.x,it.y,"255,120,140",22,260); SFX.hit(); drawHearts();
+          if(G.lives<=0){ return lose(); }
+        }
+      } else if(it.type==="manna"){
+        G.combo++; G.comboBest=Math.max(G.comboBest,G.combo);
+        var gain=10*Math.max(1,G.combo); G.score+=gain;
+        G.progress=Math.min(100, G.progress+6);
+        burst(it.x,it.y,"255,217,138",10,180); SFX.catch_(G.combo);
+        showCombo(); el("hudScore").textContent=G.score;
+      } else if(it.type==="letter"){
+        G.combo++; G.comboBest=Math.max(G.combo,G.comboBest);
+        G.wordGot+=it.ch; G.score+=25; G.progress=Math.min(100,G.progress+10);
+        burst(it.x,it.y,"150,220,255",12,200); SFX.letter();
+        el("hudScore").textContent=G.score; showCombo();
+        if(G.wordGot.length>=G.word.length){
+          G.score+=120; G.progress=Math.min(100,G.progress+18);
+          burst(px,py-30,"255,217,138",40,320); SFX.word();
+          toast("Word complete: "+G.word+"  +120");
+          el("unfoldLab").textContent="Word complete: "+G.word;
+          G.wordGot=""; G.letterChance=0;
+          setTimeout(function(){ if(G) G.letterChance=0.12; }, 3000);
+        }
+      }
+      el("unfoldBar").style.width=G.progress+"%";
+      if(G.progress>=100) return win();
+      continue;
+    }
+    if(it.y>H+40) G.items.splice(i,1);
+  }
+  updParts(dt);
+}
+
+function showCombo(){
+  if(G.combo>=3){
+    var c=el("combo"); c.textContent="×"+G.combo+" COMBO"; c.classList.add("show");
+    clearTimeout(c._t); c._t=setTimeout(function(){ c.classList.remove("show"); }, 900);
+  }
+}
+function drawHearts(){
+  var s=""; for(var i=0;i<3;i++) s+= i<G.lives?"❤":"<span style='opacity:.25'>❤</span>";
+  el("hudLives").innerHTML=s;
+}
+
+function win(){
+  G.over=true; G.won=true; SFX.win();
+  burst(W/2,H-120,"255,217,138",60,340);
+  var stars = G.lives===3?3:(G.lives===2?2:1);
+  var u=me();
+  u.stars[G.ch]=Math.max(u.stars[G.ch]||0, stars);
+  u.marks+=Math.round(G.score/10); u.best=Math.max(u.best,G.score);
+  save();
+  setTimeout(function(){
+    el("winStars").innerHTML = starsHTML(stars);
+    el("winTitle").textContent = "Chapter "+G.ch+" unfolded!";
+    el("winSub").textContent = "Score "+G.score+"  ·  best combo ×"+G.comboBest+"  ·  +"+Math.round(G.score/10)+" marks";
+    el("ovWin").classList.add("on");
+  }, 520);
+}
+function starsHTML(n){
+  var s=""; for(var i=0;i<3;i++) s+= i<n?"★":'<span class="star-off">★</span>'; return s;
+}
+function lose(){
+  G.over=true; SFX.lose();
+  setTimeout(function(){ el("ovLose").classList.add("on"); }, 420);
+}
+
+function draw(dt){
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  var sx=0, sy=0;
+  if(G && G.shake>0){ sx=(Math.random()-0.5)*14*G.shake; sy=(Math.random()-0.5)*14*G.shake; }
+  ctx.save(); ctx.translate(sx,sy);
+
+  // sky
+  var sky = G? G.bg.sky : "#141828";
+  var grd=ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,"#080a12"); grd.addColorStop(0.55,sky); grd.addColorStop(1,"#05070d");
+  ctx.fillStyle=grd; ctx.fillRect(-20,-20,W+40,H+40);
+
+  // stars
+  for(var i=0;i<stars.length;i++){ var s=stars[i];
+    var tw=0.5+0.5*Math.sin((G?G.t:0)*s.s+s.p);
+    ctx.globalAlpha=0.35+0.55*tw; ctx.fillStyle="#dfe6ff";
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // horizon glow
+  if(G){ glow(W/2,H+30, Math.max(W,H)*0.7, hexA(G.bg.accent), 0.16); }
+
+  // ground
+  ctx.fillStyle="#0a0d18"; ctx.fillRect(-20,H-40,W+40,60);
+  ctx.strokeStyle="rgba(255,255,255,.06)"; ctx.beginPath(); ctx.moveTo(0,H-40); ctx.lineTo(W,H-40); ctx.stroke();
+
+  if(G){
+    // items
+    for(var k=0;k<G.items.length;k++) drawItem(G.items[k]);
+    // player
+    drawPlayer();
+    drawParts();
+    // word progress
+    drawWord();
+  }
+  ctx.restore();
+
+  if(G && G.flash>0){ ctx.fillStyle="rgba(255,80,110,"+(G.flash*0.35)+")"; ctx.fillRect(0,0,W,H); }
+}
+function hexA(hex){ // "#rrggbb" -> "r,g,b"
+  hex=hex.replace("#",""); return parseInt(hex.substr(0,2),16)+","+parseInt(hex.substr(2,2),16)+","+parseInt(hex.substr(4,2),16);
+}
+function drawItem(it){
+  ctx.save(); ctx.translate(it.x,it.y);
+  if(it.type==="manna"){
+    glow(0,0,it.r*2.6,"255,217,138",0.5);
+    var g=ctx.createRadialGradient(-it.r*0.3,-it.r*0.3,1,0,0,it.r);
+    g.addColorStop(0,"#fff7dd"); g.addColorStop(.5,"#ffd98a"); g.addColorStop(1,"#c9962c");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,it.r,0,7); ctx.fill();
+    ctx.rotate(it.spin);
+    ctx.strokeStyle="rgba(255,255,255,.75)"; ctx.lineWidth=2;
+    for(var a=0;a<4;a++){ ctx.beginPath(); ctx.moveTo(0,-it.r*1.5); ctx.lineTo(0,-it.r*1.05); ctx.stroke(); ctx.rotate(Math.PI/2); }
+  } else if(it.type==="shadow"){
+    glow(0,0,it.r*2.2,"255,80,110",0.32);
+    ctx.rotate(it.spin);
+    ctx.fillStyle="#1a0f1c"; ctx.beginPath();
+    for(var s2=0;s2<10;s2++){ var ang=s2/10*Math.PI*2, rad=it.r*(s2%2?0.72:1.05);
+      ctx.lineTo(Math.cos(ang)*rad, Math.sin(ang)*rad); }
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle="#ff5a74"; ctx.beginPath(); ctx.arc(0,0,it.r*0.34,0,7); ctx.fill();
+    glow(0,0,it.r*0.9,"255,90,116",0.6);
+  } else if(it.type==="letter"){
+    glow(0,0,it.r*2.4,"150,220,255",0.42);
+    ctx.rotate(it.spin*0.3);
+    ctx.fillStyle="rgba(18,28,50,.95)"; ctx.strokeStyle="#9ddcff"; ctx.lineWidth=2;
+    rr(-it.r,-it.r,it.r*2,it.r*2,6); ctx.fill(); ctx.stroke();
+    ctx.fillStyle="#eaf6ff"; ctx.font="700 "+Math.round(it.r*1.5)+"px system-ui,sans-serif";
+    ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(it.ch,0,1);
+  }
+  ctx.restore();
+}
+function drawPlayer(){
+  var p=G.player, x=p.x, y=H-70;
+  if(p.inv>0 && Math.floor(G.t*14)%2===0) return; // blink when hit
+  // light pool
+  glow(x,y+16,120,"255,217,138",0.22);
+  ctx.save(); ctx.translate(x,y);
+  // basket
+  ctx.fillStyle="#7a5326";
+  ctx.beginPath(); ctx.moveTo(-p.w/2,0); ctx.lineTo(p.w/2,0);
+  ctx.lineTo(p.w/2-8,p.h); ctx.lineTo(-p.w/2+8,p.h); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle="rgba(0,0,0,.35)"; ctx.lineWidth=2;
+  for(var i=-1;i<=1;i++){ ctx.beginPath(); ctx.moveTo(i*p.w/5,2); ctx.lineTo(i*(p.w/5-2),p.h-2); ctx.stroke(); }
+  ctx.fillStyle="#c9962c"; rr(-p.w/2, -4, p.w, 7, 3); ctx.fill();
+  // little flame above
+  var fl=1+0.25*Math.sin(G.t*9);
+  glow(0,-14,26*fl,"255,217,138",0.55);
+  ctx.fillStyle="#ffe9a8"; ctx.beginPath(); ctx.ellipse(0,-14,5,9*fl,0,0,7); ctx.fill();
+  ctx.fillStyle="#fff6d8"; ctx.beginPath(); ctx.ellipse(0,-12,2.4,4.5*fl,0,0,7); ctx.fill();
+  ctx.restore();
+}
+function drawWord(){
+  var y=96, x=W/2;
+  ctx.save(); ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.font="700 15px system-ui,sans-serif";
+  var w=G.word, total=w.length, cw=26, startX=x-(total*cw)/2+cw/2;
+  for(var i=0;i<total;i++){
+    var got = G.wordGot.indexOf(w[i])>=0 || (w.indexOf(w[i])<i); // letters repeat-safe
+    // determine "got" by count of matches so far
+    var cnt=0; for(var j=0;j<G.wordGot.length;j++) if(G.wordGot[j]===w[i]) cnt++;
+    var seen=0; for(var k2=0;k2<i;k2++) if(w[k2]===w[i]) seen++;
+    got = cnt>seen;
+    var cx=startX+i*cw;
+    ctx.fillStyle = got? "rgba(255,217,138,.95)" : "rgba(255,255,255,.22)";
+    ctx.fillText(w[i], cx, y);
+    if(!got){ ctx.fillStyle="rgba(255,255,255,.12)"; ctx.fillRect(cx-8, y+11, 16, 2); }
+  }
+  ctx.restore();
+}
+
+/* pointer + keyboard control */
+function pointX(e){
+  var r=cv.getBoundingClientRect();
+  var cx = (e.touches&&e.touches[0]) ? e.touches[0].clientX : e.clientX;
+  return cx - r.left;
+}
+cv.addEventListener("pointerdown", function(e){ if(G){ G.player.tx=pointX(e); } });
+cv.addEventListener("pointermove", function(e){ if(G && e.buttons){ G.player.tx=pointX(e); } });
+cv.addEventListener("touchmove", function(e){ if(G){ G.player.tx=pointX(e); e.preventDefault(); } }, {passive:false});
+window.addEventListener("keydown", function(e){
+  if(!G) return;
+  if(e.key==="ArrowLeft"||e.key==="a") G.player.tx=Math.max(30,G.player.tx-60);
+  if(e.key==="ArrowRight"||e.key==="d") G.player.tx=Math.min(W-30,G.player.tx+60);
 });
 
-/* ---------- RENDER ---------- */
-function render(){
-  document.getElementById("tabs").classList.toggle("hidden", !DB.active);
-  document.getElementById("whoBox").classList.toggle("hidden", !DB.active);
-  if(DB.active) document.getElementById("whoName").textContent = DB.active;
-  var u = me();
-  wireFabs(u);
-  if(!u || route.screen==="profiles"){ view.innerHTML = screenProfiles(); wireProfiles(); return; }
-  if(route.screen==="journey"){ view.innerHTML = screenJourney(u); wireJourney(u); return; }
-  if(route.screen==="chapter"){ view.innerHTML = screenChapter(u, route.arg); wireChapter(u, route.arg); return; }
-  if(route.screen==="manna"){ view.innerHTML = screenManna(u); wireManna(u); return; }
-  if(route.screen==="notebook"){ view.innerHTML = screenNotebook(u); wireNotebook(u); return; }
-  if(route.screen==="community"){ view.innerHTML = screenCommunity(); return; }
-  if(route.screen==="about"){ view.innerHTML = screenAbout(); wireAbout(); return; }
-}
+/* pause */
+el("pauseBtn").onclick=function(){ if(G && !G.over){ G.paused=true; el("ovPause").classList.add("on"); } };
+el("resumeBtn").onclick=function(){ el("ovPause").classList.remove("on"); if(G) G.paused=false; last=performance.now(); };
+el("quitBtn").onclick=function(){ el("ovPause").classList.remove("on"); stopGame(); gotoMap(); };
+el("winReplay").onclick=function(){ el("ovWin").classList.remove("on"); startLevel(G.ch); };
+el("winNext").onclick=function(){ el("ovWin").classList.remove("on"); revealChapter(G.ch); };
+el("loseRetry").onclick=function(){ el("ovLose").classList.remove("on"); startLevel(G.ch); };
+el("loseMap").onclick=function(){ el("ovLose").classList.remove("on"); stopGame(); gotoMap(); };
+function stopGame(){ if(raf){ cancelAnimationFrame(raf); raf=null; } G=null; }
 
-/* the two floating buttons: always one tap from a real person */
-function wireFabs(u){
-  var msg = u ? CONTACT.msg(DB.active||"a pilgrim", "the journey") : "";
-  var c=document.getElementById("fabCall"), w=document.getElementById("fabWa");
-  if(c) c.href = CONTACT.tel();
-  if(w) w.href = CONTACT.wa(msg);
-}
-
-/* ----- profiles ----- */
-function screenProfiles(){
-  var names = Object.keys(DB.users);
-  var list = names.length
-    ? '<div class="chips" style="margin:8px 0">'+names.map(function(n){
-        return '<a href="#" data-user="'+esc(n)+'">\uD83D\uDE42 '+esc(n)+' <span class="tiny">\u00b7 '+DB.users[n].marks+' marks</span></a>';
-      }).join("")+'</div>'
-    : '<p class="muted">No pilgrims yet. Add one below.</p>';
-  return ''
-  +'<div class="card center">'
-  +'  <h1>Welcome, pilgrim</h1>'
-  +'  <p class="muted">\u201cBeginning with Moses and all the Prophets, he explained to them what was said in all the Scriptures concerning himself.\u201d \u2014 Luke 24:27</p>'
-  +'</div>'
-  +'<div class="card">'
-  +'  <h2>Who is walking today?</h2>'
-  +  list
-  +'  <label>Add a new pilgrim</label>'
-  +'  <div style="display:flex;gap:8px">'
-  +'    <input id="newName" placeholder="Name" autocomplete="off">'
-  +'    <button class="btn" id="addUser" style="white-space:nowrap">Add</button>'
-  +'  </div>'
-  +'  <p class="tiny" style="margin-top:10px">Several people can share this device. Each keeps their own journey, marks, and notebook.</p>'
-  +'</div>';
-}
-function wireProfiles(){
-  var add=document.getElementById("addUser");
-  var inp=document.getElementById("newName");
-  if(add) add.onclick=function(){
-    var n=(inp.value||"").trim(); if(!n) return toast("Enter a name");
-    ensure(n); DB.active=n; save(); go("journey");
-  };
-  var as=document.querySelectorAll("[data-user]");
-  for(var i=0;i<as.length;i++) as[i].onclick=function(e){
-    e.preventDefault(); DB.active=this.dataset.user; save(); go("journey");
-  };
-}
-
-/* ----- journey ----- */
-function totalLayers(c){ return 5 + ((c.extra||[]).length); }
-function doneLayers(u,c){ return ((u.layers[c.id]||[]).length); }
-function screenJourney(u){
-  var nodes = CHAPTERS.map(function(c){
-    var open = u.unlocked.indexOf(c.id)>=0;
-    var done = doneLayers(u,c) >= totalLayers(c);
-    var cls = done?"done":(open?"open":"locked");
-    var pct = Math.round(100*doneLayers(u,c)/totalLayers(c));
-    return '<div class="node '+cls+'" data-ch="'+c.id+'">'
-      +'<span class="dot"></span>'
-      +'<h3>'+c.id+'. '+c.title+(done?' <span class="pill">complete</span>':'')+(!open?' <span class="pill">locked</span>':'')+'</h3>'
-      +'<div class="life">'+c.life+'</div>'
-      +'<div class="bar"><i style="width:'+pct+'%"></i></div>'
-      +'<div class="tiny" style="margin-top:5px">'+doneLayers(u,c)+' / '+totalLayers(c)+' layers unfolded</div>'
-      +'</div>';
-  }).join("");
-  return ''
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">Your journey \u2014 the Garden to the City</h2>'
-  +'  <div class="markline"><span class="tiny">Marks</span><div class="b"><i style="width:'+Math.min(100,u.marks)+'%"></i></div><b>'+u.marks+'</b></div>'
-  +'  <p class="tiny">Marks rise with depth, not repetition. Complete a chapter\u2019s layers to make it glow and unlock the next.</p>'
-  +'  <label class="switch" style="margin-top:8px"><input type="checkbox" id="famMode"'+(u.family?" checked":"")+'> Family Mode \u2014 play this chapter with a child</label>'
-  +'  <p class="tiny" style="margin-top:6px">When a grown-up unfolds a deeper layer, a light appears that a child can see. Faith passes down by watching.</p>'
-  +'</div>'
-  +'<div class="journey">'+nodes+'</div>'
-  +'<p class="tiny center">Locked chapters open as your Marks grow. Manna gives Marks daily.</p>';
-}
-function wireJourney(u){
-  var fam=document.getElementById("famMode");
-  if(fam) fam.onchange=function(){ u.family=this.checked; save(); toast(this.checked?"Family Mode on":"Family Mode off"); };
-  var ns=document.querySelectorAll(".node");
-  for(var i=0;i<ns.length;i++) ns[i].onclick=function(){
-    var id=+this.dataset.ch; var u=me();
-    if(u.unlocked.indexOf(id)<0) return toast("Keep unfolding \u2014 this chapter opens as your Marks grow");
-    go("chapter", id);
-  };
-}
-
-/* ----- chapter ----- */
-function screenChapter(u, id){
-  var c=null; for(var i=0;i<CHAPTERS.length;i++) if(CHAPTERS[i].id===id) c=CHAPTERS[i];
-  if(!c) return '<div class="card">Chapter not found.</div>';
-  var done = u.layers[c.id]||[];
-  var layers = [
-    {k:"plain", n:"1 \u00b7 The Plain", sub:"What it says"},
-    {k:"words", n:"2 \u00b7 The Words", sub:"Hebrew / Greek meaning"},
-    {k:"thread", n:"3 \u00b7 The Thread", sub:"The hidden type of Christ \u2192 the New Testament"},
-    {k:"practice", n:"4 \u00b7 The Practice", sub:"A real situation and the biblical way through it"},
-    {k:"watch", n:"5 \u00b7 The Watch", sub:"How to pray it"}
-  ];
-  return ''
-  +'<button class="btn ghost" onclick="go(\'journey\')">\u2190 Journey</button>'
-  +'<div class="card">'
-  +'  <h1 style="margin-bottom:0">'+c.id+'. '+c.title+'</h1>'
-  +'  <div class="life">'+c.life+'</div>'
-  +'  <div class="tiny" style="margin-top:6px">Unfold the lens to go deeper. Each layer gives Marks.</div>'
-  +'</div>'
-  + (u.family ? familyLights(c, u) : "")
-  + layers.map(function(L){ return layerHTML(c,L,done); }).join("")
-  + (c.extra||[]).map(function(x,i){ return extraHTML(c,x,i,done); }).join("")
-  + littleHTML(c, u)
-  + contactCard(u, c)
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">Compare versions</h2>'
-  + versionTable(c)
-  +'  <p class="tiny" style="margin-top:8px">KJV and WEB are bundled (public domain). Add Luganda, Lumasaba, NKJV, NIV, NLT, ESV, AMPC or GNT from <b>About \u2192 Import a Bible version</b> once you have permission.</p>'
-  +'</div>'
-  + pulpitCard(c, u)
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">Notebook</h2>'
-  +'  <label>Verse to remember (e.g. '+esc(c.plain.ref)+')</label>'
-  +'  <input id="nRef" placeholder="'+esc(c.plain.ref)+'">'
-  +'  <label>What did you learn in this chapter or text?</label>'
-  +'  <textarea id="nText" placeholder="Write what God showed you..."></textarea>'
-  +'  <button class="btn" id="nSave" style="margin-top:8px">Save to notebook</button>'
-  +'</div>';
-}
-
-/* ----- Family Mode: a light for each deeper layer a grown-up unfolds ----- */
-function familyLights(c, u){
-  var keys = ["plain","words","thread","practice","watch"];
-  var lit = (u.layers[c.id]||[]).filter(function(k){ return keys.indexOf(k)>=0; });
-  var row = keys.map(function(k){
-    var on = lit.indexOf(k)>=0;
-    return '<span class="pill" style="'+(on?'background:#3a3218;color:#f0cf78;border-color:#6b5a20':'')+'">'
-      + (on?"\u2728":"\u00b7") + '</span>';
+/* ============================================================
+   REVEAL — the verse, word by word
+   ============================================================ */
+function revealChapter(id){
+  var c=chapterOf(id); if(!c) return;
+  show("reveal");
+  el("rRef").textContent=c.plain.ref;
+  el("rThread").innerHTML="<b>The Thread:</b> "+esc(c.thread.ot)+" <span style='color:var(--gold2)'>→</span> "+esc(c.thread.nt);
+  var words=c.plain.kjv.split(/\s+/);
+  el("rText").innerHTML = words.map(function(w,i){
+    return '<span class="rword" style="animation-delay:'+(i*0.045)+'s">'+esc(w)+'</span>';
   }).join(" ");
-  return '<div class="card" style="border-color:#6b5a20">'
-  +'  <h2 style="margin-top:0">\u2600 Family Mode</h2>'
-  +'  <p class="muted">You and a child are walking this chapter together. Each time you unfold a deeper layer, a light appears the child can see. They are watching you go deeper.</p>'
-  +'  <div style="font-size:1.4rem;letter-spacing:.2em">'+row+'</div>'
-  +'  <p class="tiny" style="margin-top:6px">'+lit.length+' of 5 lights. Let the child tap the <b>Little Lamp</b> below and answer the question.</p>'
-  +'</div>';
+  tone(660,.3,"sine",.05);
+  el("goDeeper").onclick=function(){ openStudy(id); };
+  el("rNext").onclick=function(){ var nx=id+1; if(nx>CHAPTERS.length){ gotoMap(); return; } startLevel(nx); };
+  el("rMap").onclick=gotoMap;
 }
 
-/* ----- Little Lamp: the child's layer (MAP \u00a77) ----- */
-function littleHTML(c, u){
-  var k = KID[c.id]; if(!k) return "";
-  var done = u.kid[c.id];
-  var quiz = k.quiz;
-  var body = '<p>'+esc(k.story)+'</p>'
-    +'<p><b>'+esc(k.truth)+'</b></p>'
-    +'<p class="tiny">Try this today: '+esc(k.do)+'</p>'
-    +'<p style="margin-top:10px"><b>'+esc(quiz.q)+'</b></p>'
-    +'<div class="chips" id="kquiz">'
-    + quiz.o.map(function(o,i){ return '<a href="#" data-kpick="'+i+'">'+esc(o)+'</a>'; }).join("")
-    +'</div>'
-    +'<p class="tiny" id="kmsg" style="min-height:1.2em;margin-top:8px"></p>';
-  return '<div class="layer kid '+(done?'done open':'')+'" data-kid="'+c.id+'">'
-    +'<div class="head"><b>\u2600 Little Lamp</b><span class="tiny">for children</span></div>'
-    +'<div class="body">'+body+'</div>'
-    +'</div>';
+/* ============================================================
+   STUDY — the full chapter (layers, words, thread, pulpit, notebook)
+   ============================================================ */
+function openStudy(id){
+  var c=chapterOf(id); if(!c) return;
+  var u=me();
+  show("study");
+  el("studyTitle").textContent=c.id+". "+c.title;
+  el("studyStars").innerHTML=starsHTML(u.stars[id]||0);
+  el("studyBody").innerHTML = studyHTML(c, u);
+  wireStudy(c, u);
+  el("backMap").onclick=gotoMap;
 }
-function wireLittle(u, c){
-  var k=KID[c.id]; if(!k) return;
-  var picks=document.querySelectorAll("[data-kpick]");
-  for(var i=0;i<picks.length;i++) picks[i].onclick=function(e){
-    e.preventDefault();
-    var i=+this.dataset.kpick, msg=document.getElementById("kmsg");
-    if(i===k.quiz.a){
-      msg.innerHTML='<span style="color:var(--green)">Well done! \u2713</span>';
-      if(!u.kid[c.id]){ u.kid[c.id]=true; u.marks+=4; save(); toast("+4 marks"); }
-    } else { msg.textContent="Try again \u2014 read the story once more."; }
-  };
-}
-
-/* ----- contact: the point of the whole thing ----- */
-function contactCard(u, c){
-  var who = DB.active || "a pilgrim";
-  var where = c ? ("chapter "+c.id+", "+c.title) : "the journey";
-  var m = CONTACT.msg(who, where);
-  return '<div class="card">'
-  +'  <h2 style="margin-top:0">Talk to someone</h2>'
-  +'  <p class="muted">You do not have to walk this road alone. Call, or send a message \u2014 someone will pray with you and answer your questions.</p>'
-  +'  <div class="chips big">'
-  +'    <a class="chip call" href="'+CONTACT.tel()+'">\u260E Call '+esc(CONTACT.show())+'</a>'
-  +'    <a class="chip wa" href="'+esc(CONTACT.wa(m))+'">WhatsApp</a>'
-  +'    <a class="chip tg" href="'+CONTACT.tg()+'">Telegram</a>'
-  +'  </div>'
-  +'</div>';
-}
-
-/* ----- the Pulpit: a sermon outline from the chapter's own exegesis ----- */
-function pulpitCard(c, u){
-  var outline = [
-    ["Text", c.plain.ref+" \u2014 \u201c"+firstWords(c.plain.kjv)+"\u2026\u201d"],
-    ["Words", c.words.map(function(w){ return w.t+" ("+w.lang+") = "+firstWords(w.m); }).join(" \u00b7 ")],
-    ["Thread", "OT: "+firstWords(c.thread.ot)+" \u2192 NT: "+firstWords(c.thread.nt)],
-    ["Practice", firstWords(c.practice)],
-    ["Watch", firstWords(c.watch)]
+function studyHTML(c, u){
+  var layers=[
+    {k:"plain", n:"1 · The Plain", sub:"What it says"},
+    {k:"words", n:"2 · The Words", sub:"Hebrew / Greek meaning"},
+    {k:"thread", n:"3 · The Thread", sub:"The hidden type of Christ → the New Testament"},
+    {k:"practice", n:"4 · The Practice", sub:"A real situation and the biblical way through it"},
+    {k:"watch", n:"5 · The Watch", sub:"How to pray it"}
   ];
-  var rows = outline.map(function(r){
-    return '<tr><th>'+esc(r[0])+'</th><td>'+esc(r[1])+'</td></tr>';
-  }).join("");
-  return '<div class="card">'
-  +'  <h2 style="margin-top:0">The Pulpit</h2>'
-  +'  <p class="muted">A sermon outline built from this chapter\u2019s own exegesis \u2014 not separate content.</p>'
-  +'  <table class="versions"><tbody>'+rows+'</tbody></table>'
-  +'  <div class="grid2" style="margin-top:10px">'
-  +'    <div><h3>Preacher mode</h3><p class="tiny">Preach the five lines above in order: Text \u2192 Words \u2192 Thread \u2192 Practice \u2192 Watch. Let the text set the length.</p></div>'
-  +'    <div><h3>Small-group mode</h3><p class="tiny">The group builds the outline together. Score it on <b>fidelity to the text</b>, not cleverness \u2014 tick each line only if the group can point to it in Scripture.</p>'
-  +'      <div id="fid">'
-  + outline.map(function(r,i){ return '<label class="tiny" style="display:flex;gap:8px;align-items:center;margin:4px 0"><input type="checkbox" data-fid="'+i+'" style="width:auto"> '+esc(r[0])+' is faithful to the text</label>'; }).join("")
-  +'      </div>'
-  +'      <p class="tiny" id="fidmsg" style="min-height:1.2em"></p>'
-  +'    </div>'
-  +'  </div>'
-  +'</div>';
+  var kid=KID[c.id];
+  return ''
+  +'<div class="card">'
+  +'  <h2 style="margin:0">'+esc(c.title)+'</h2>'
+  +'  <div class="tiny">'+esc(c.life)+'</div>'
+  +'  <p class="tiny" style="margin-top:8px">Tap a layer to unfold it. This is the same verse, deeper each time.</p>'
+  +'</div>'
+  + layers.map(function(L){ return layerHTML(c,L); }).join("")
+  + (c.extra||[]).map(function(x){ return extraHTML(x); }).join("")
+  + littleHTML(c, kid)
+  + contactCard(c)
+  +'<div class="card"><h2>Compare versions</h2>'+versionTable(c)
+  +'<p class="tiny" style="margin-top:8px">KJV and WEB are bundled (public domain). Add Luganda, Lumasaba, NKJV, NIV, NLT, ESV, AMPC or GNT in About once you have permission.</p></div>'
+  + pulpitCard(c)
+  +'<div class="card"><h2>Notebook</h2>'
+  +'<label>Verse to remember</label><input id="nRef" placeholder="'+esc(c.plain.ref)+'">'
+  +'<label>What did you learn in this chapter?</label><textarea id="nText" placeholder="Write what God showed you..."></textarea>'
+  +'<button class="btn" id="nSave" style="margin-top:8px">Save to notebook</button></div>';
 }
-function firstWords(s){
-  s=String(s||""); var m=s.match(/^[^.;\u2014]{0,90}/); return (m?m[0]:s).trim();
+function layerHTML(c,L){
+  var body="";
+  if(L.k==="plain") body='<p><b>'+esc(c.plain.ref)+'</b> — '+esc(c.plain.kjv)+'</p><p class="tiny">World English Bible: '+esc(c.plain.web||"—")+'</p>';
+  if(L.k==="words") body=c.words.map(function(w){ return '<p><b>'+esc(w.t)+'</b> <span class="tiny">('+esc(w.lang)+')</span> — '+esc(w.m)+'</p>'; }).join("");
+  if(L.k==="thread") body=tagHTML(c.thread.tag)+'<p><b>In the Old Testament:</b> '+esc(c.thread.ot)+'</p><p><b>In the New Testament:</b> '+esc(c.thread.nt)+'</p><p class="tiny">'+esc(c.thread.note)+'</p>';
+  if(L.k==="practice") body='<p>'+esc(c.practice)+'</p>';
+  if(L.k==="watch") body='<p>'+esc(c.watch)+'</p>';
+  return '<div class="layer"><div class="head"><b>'+L.n+'</b><span class="tiny">'+L.sub+'</span></div><div class="body">'+body+'</div></div>';
 }
-function layerHTML(c, L, done){
-  var isDone = done.indexOf(L.k)>=0;
-  var body = "";
-  if(L.k==="plain") body = '<p><b>'+esc(c.plain.ref)+'</b> \u2014 '+esc(c.plain.kjv)+'</p><p class="tiny">World English Bible: '+esc(c.plain.web||"\u2014")+'</p>';
-  if(L.k==="words") body = c.words.map(function(w){ return '<p><b>'+esc(w.t)+'</b> <span class="tiny">('+esc(w.lang)+')</span> \u2014 '+esc(w.m)+'</p>'; }).join("");
-  if(L.k==="thread") body = tagHTML(c.thread.tag)+'<p><b>In the Old Testament:</b> '+esc(c.thread.ot)+'</p><p><b>In the New Testament:</b> '+esc(c.thread.nt)+'</p><p class="tiny">'+esc(c.thread.note)+'</p>';
-  if(L.k==="practice") body = '<p>'+esc(c.practice)+'</p>';
-  if(L.k==="watch") body = '<p>'+esc(c.watch)+'</p>';
-  var action = isDone
-    ? '<span class="tiny" style="color:var(--green)">Unfolded \u2713</span>'
-    : '<button class="btn gold" data-unfold="'+L.k+'">Unfold this layer (+Marks)</button>';
-  return '<div class="layer '+(isDone?'done open':'')+'" data-layer="'+L.k+'" data-ch="'+c.id+'">'
-    +'<div class="head"><b>'+L.n+'</b><span class="tiny">'+L.sub+'</span></div>'
-    +'<div class="body">'+body+'<div style="margin-top:10px">'+action+'</div></div>'
-    +'</div>';
+function extraHTML(x){
+  return '<div class="layer"><div class="head"><b>✦ '+esc(x.head)+'</b><span class="tiny">deeper</span></div><div class="body">'+tagHTML(x.tag)+'<p>'+esc(x.body)+'</p></div></div>';
 }
-function extraHTML(c, x, i, done){
-  var key = "extra"+i;
-  var isDone = done.indexOf(key)>=0;
-  var action = isDone
-    ? '<span class="tiny" style="color:var(--green)">Unfolded \u2713</span>'
-    : '<button class="btn gold" data-unfold="'+key+'">Unfold this layer (+Marks)</button>';
-  return '<div class="layer '+(isDone?'done open':'')+'" data-layer="'+key+'" data-ch="'+c.id+'">'
-    +'<div class="head"><b>\u2727 '+esc(x.head)+'</b><span class="tiny">deeper</span></div>'
-    +'<div class="body">'+tagHTML(x.tag)+'<p>'+esc(x.body)+'</p><div style="margin-top:10px">'+action+'</div></div>'
-    +'</div>';
+function littleHTML(c, k){
+  if(!k) return "";
+  return '<div class="layer" style="border-color:#6b5a20"><div class="head" style="background:linear-gradient(180deg,#2a2410,#241f0e);color:var(--gold2)"><b>☀ Little Lamp</b><span class="tiny">for children</span></div>'
+  +'<div class="body"><p>'+esc(k.story)+'</p><p><b>'+esc(k.truth)+'</b></p><p class="tiny">Try this today: '+esc(k.do)+'</p>'
+  +'<p style="margin-top:10px"><b>'+esc(k.quiz.q)+'</b></p><div class="links">'
+  + k.quiz.o.map(function(o,i){ return '<span class="lk" data-kpick="'+i+'">'+esc(o)+'</span>'; }).join("")
+  +'</div><p class="tiny" id="kmsg" style="min-height:1.2em"></p></div></div>';
 }
 function versionTable(c){
-  var imports = DB.imports||{};
-  var rows = [];
-  rows.push(["KJV", c.plain.kjv]);
-  rows.push(["WEB", c.plain.web]);
-  Object.keys(imports).forEach(function(code){
-    var v = imports[code];
-    var txt = (v.verses||{})[c.plain.ref] || null;
-    rows.push([ (v.name||code).slice(0,14), txt ]);
-  });
-  rows.push(["Hebrew / Greek", "See the Words layer above for the original-language meaning."]);
-  return '<table class="versions">'+rows.map(function(r){
-    var k=r[0], v=r[1];
-    return '<tr><th>'+esc(k)+'</th><td>'+(v?esc(v):'<span class="missing">\u2014 not loaded \u2014</span>')+'</td></tr>';
-  }).join("")+'</table>';
+  var imports=DB.imports||{}, rows=[["KJV",c.plain.kjv],["WEB",c.plain.web]];
+  Object.keys(imports).forEach(function(code){ rows.push([(imports[code].name||code).slice(0,12), (imports[code].verses||{})[c.plain.ref]||null]); });
+  rows.push(["Hebrew / Greek","See the Words layer above."]);
+  return '<table class="v">'+rows.map(function(r){ return '<tr><th>'+esc(r[0])+'</th><td>'+(r[1]?esc(r[1]):'<span class="missing">— not loaded —</span>')+'</td></tr>'; }).join("")+'</table>';
 }
-function wireChapter(u, id){
-  var c=null; for(var i=0;i<CHAPTERS.length;i++) if(CHAPTERS[i].id===id) c=CHAPTERS[i];
-  var heads=document.querySelectorAll(".layer .head");
+function firstWords(s){ s=String(s||""); var m=s.match(/^[^.;\u2014]{0,90}/); return (m?m[0]:s).trim(); }
+function pulpitCard(c){
+  var o=[["Text",c.plain.ref+' — "'+firstWords(c.plain.kjv)+'…"'],
+    ["Words",c.words.map(function(w){ return w.t+" ("+w.lang+")"; }).join(" · ")],
+    ["Thread","OT → NT: "+firstWords(c.thread.nt)],
+    ["Practice",firstWords(c.practice)],
+    ["Watch",firstWords(c.watch)]];
+  return '<div class="card"><h2>The Pulpit</h2><p class="tiny">A sermon outline from this chapter\'s own exegesis.</p>'
+  +'<table class="v">'+o.map(function(r){ return '<tr><th>'+r[0]+'</th><td>'+esc(r[1])+'</td></tr>'; }).join("")+'</table></div>';
+}
+function contactCard(c){
+  var who=DB.active||"a pilgrim", where=c?("chapter "+c.id+", "+c.title):"the journey";
+  var m=CONTACT.msg(who,where);
+  return '<div class="card"><h2>Talk to someone</h2>'
+  +'<p class="tiny">You do not have to walk this alone. Call or message — someone will pray with you.</p>'
+  +'<div class="links"><a class="call" href="'+CONTACT.tel()+'">☎ Call '+esc(CONTACT.show())+'</a>'
+  +'<a class="wa" href="'+esc(CONTACT.wa(m))+'">WhatsApp</a><a class="tg" href="'+CONTACT.tg()+'">Telegram</a></div></div>';
+}
+function wireStudy(c,u){
+  var heads=document.querySelectorAll("#studyBody .layer .head");
   for(var i=0;i<heads.length;i++) heads[i].onclick=function(){ this.parentElement.classList.toggle("open"); };
-  wireLittle(u, c);
-  var fid=document.querySelectorAll("[data-fid]");
-  for(var f=0;f<fid.length;f++) fid[f].onchange=function(){
-    var all=document.querySelectorAll("[data-fid]"), n=0;
-    for(var q=0;q<all.length;q++) if(all[q].checked) n++;
-    var m=document.getElementById("fidmsg");
-    if(m) m.textContent = n+" of 5 lines are faithful to the text"+(n===5?" \u2014 a complete, text-anchored outline.":".");
+  var k=KID[c.id];
+  var picks=document.querySelectorAll("[data-kpick]");
+  for(var j=0;j<picks.length;j++) picks[j].onclick=function(){
+    if(+this.dataset.kpick===k.quiz.a){ el("kmsg").innerHTML='<span style="color:var(--green)">Well done! ✓</span>'; SFX.word(); }
+    else { el("kmsg").textContent="Try again — read the story once more."; }
   };
-  var btns=document.querySelectorAll("[data-unfold]");
-  for(var j=0;j<btns.length;j++) btns[j].onclick=function(){
-    var key=this.dataset.unfold;
-    u.layers[c.id] = u.layers[c.id]||[];
-    if(u.layers[c.id].indexOf(key)>=0) return;
-    u.layers[c.id].push(key);
-    var gained = key.indexOf("extra")===0 ? 6 : 5;
-    u.marks += gained;
-    if(u.layers[c.id].length >= totalLayers(c)){
-      var nxt=c.id+1;
-      if(nxt<=CHAPTERS.length && u.unlocked.indexOf(nxt)<0){ u.unlocked.push(nxt); toast("Chapter "+nxt+" unlocked!"); }
-    }
-    save(); toast("+"+gained+" marks"); render();
-  };
-  var ns=document.getElementById("nSave");
-  if(ns) ns.onclick=function(){
-    var ref=(document.getElementById("nRef").value||c.plain.ref).trim();
-    var txt=(document.getElementById("nText").value||"").trim();
+  el("nSave").onclick=function(){
+    var ref=(el("nRef").value||c.plain.ref).trim(), txt=(el("nText").value||"").trim();
     if(!txt) return toast("Write something first");
     u.notes.unshift({ch:c.title, ref:ref, text:txt, at:new Date().toISOString().slice(0,10)});
-    save(); toast("Saved to notebook");
-    document.getElementById("nText").value="";
+    save(); toast("Saved to notebook"); el("nText").value="";
   };
 }
 
-/* ----- manna ----- */
-function screenManna(u){
-  var today=dayKey();
-  var earned=u.manna[today];
-  return ''
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">Manna \u2014 today\u2019s portion</h2>'
-  +'  <p class="muted">One puzzle a day, the same for everyone. <b>It cannot be kept.</b> Yesterday\u2019s is gone \u2014 this is the lesson of Exodus 16:19-20, where the leftover \u201cbred worms.\u201d</p>'
-  +(earned?'<p style="color:var(--green)">You gathered today\u2019s manna. Come back tomorrow. \u2713</p>':'')
-  +'</div>'
-  +'<div class="card center">'
-  +(earned
-    ? '<div class="big">\u2713</div><p class="muted">Today\u2019s manna is gathered.</p>'
-    : '<p class="tiny">Guess today\u2019s Bible word \u2014 5 letters, 6 tries.</p>'
-      +'<div class="manna-grid" id="mgrid"></div>'
-      +'<input id="mguess" placeholder="5-letter word" maxlength="5" style="text-align:center;text-transform:uppercase;max-width:220px;margin:0 auto">'
-      +'<div style="margin-top:8px"><button class="btn" id="mgo">Guess</button></div>'
-      +'<p class="tiny" id="mmsg" style="min-height:1.2em"></p>')
-  +'</div>';
-}
-function wireManna(u){
-  var today=dayKey();
-  if(u.manna[today]) return;
-  var target=mannaWord(); var tries=[];
-  var grid=document.getElementById("mgrid"), msg=document.getElementById("mmsg"), inp=document.getElementById("mguess");
-  function draw(){
-    grid.innerHTML="";
-    for(var r=0;r<6;r++){
-      var row=document.createElement("div"); row.className="mguess";
-      var g=tries[r]||"";
-      for(var i=0;i<5;i++){
-        var d=document.createElement("div"); d.className="mcell";
-        var ch=g[i]||""; d.textContent=ch;
-        if(g){ if(target[i]===ch) d.classList.add("hit"); else if(target.indexOf(ch)>=0) d.classList.add("near"); else d.classList.add("miss"); }
-        row.appendChild(d);
-      }
-      grid.appendChild(row);
-    }
+/* ============================================================
+   JOURNEY MAP
+   ============================================================ */
+function gotoMap(){
+  stopGame();
+  var u=me(); if(!u) return openProfiles();
+  show("map");
+  el("mapMarks").textContent=u.marks+" ✦";
+  var path=el("mappath"), svg=el("mapsvg");
+  var maxId=unlocked(u);
+  var Wp=Math.min(560, path.clientWidth||360);
+  var top=80, gap=118;
+  var h=top+ (CHAPTERS.length-1)*gap + 90;
+  path.style.height=h+"px";
+  svg.setAttribute("viewBox","0 0 "+Wp+" "+h);
+  svg.setAttribute("preserveAspectRatio","none");
+  // node positions
+  var pts=CHAPTERS.map(function(c,i){
+    var x=Wp/2 + Math.sin(i*1.05)* (Wp*0.26);
+    var y=top + i*gap;
+    return {x:x,y:y,c:c};
+  });
+  // path line
+  var d="M "+pts[0].x+" "+pts[0].y;
+  for(var i=1;i<pts.length;i++){
+    var p0=pts[i-1], p1=pts[i];
+    var my=(p0.y+p1.y)/2;
+    d+=" C "+p0.x+" "+my+" "+p1.x+" "+my+" "+p1.x+" "+p1.y;
   }
-  draw();
-  function submit(){
-    var g=(inp.value||"").trim().toUpperCase();
-    if(g.length!==5) return msg.textContent="Five letters.";
-    tries.push(g); inp.value=""; draw();
-    if(g===target){
-      u.marks+=10; u.manna[today]=true; save();
-      msg.innerHTML='<span style="color:var(--green)">Yes! \u201c'+target+'\u201d +10 marks.</span>';
-      setTimeout(render,900);
-    } else if(tries.length>=6){
-      msg.textContent='Out of tries \u2014 it was \u201c'+target+'.\u201d Come back tomorrow.';
-      u.manna[today]=true; save(); setTimeout(render,1200);
-    }
-  }
-  document.getElementById("mgo").onclick=submit;
-  inp.addEventListener("keydown", function(e){ if(e.key==="Enter") submit(); });
+  svg.innerHTML='<path d="'+d+'" fill="none" stroke="url(#pg)" stroke-width="6" stroke-linecap="round" stroke-dasharray="1 14"/>'
+   +'<defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5bd67a"/><stop offset="0.5" stop-color="#e8b84b"/><stop offset="1" stop-color="#a98bff"/></linearGradient></defs>';
+  // remove old nodes
+  path.querySelectorAll(".mnode").forEach(function(n){ n.remove(); });
+  pts.forEach(function(p){
+    var c=p.c, st=u.stars[c.id]||0, open=c.id<=maxId;
+    var div=document.createElement("div");
+    div.className="mnode "+(st>0?"done":(open?"open":"locked"));
+    div.style.left=p.x+"px"; div.style.top=p.y+"px";
+    div.innerHTML='<div class="disc">'+(open?(st>0?"✓":c.id):'<span class="lock">🔒</span>')
+      + (open&&st===0?'<span class="ring"></span>':'') +'</div>'
+      +'<div class="stars">'+(open?starsHTML(st):"")+'</div>'
+      +'<div class="cap">'+c.id+'. '+esc(c.title)+'</div>';
+    div.onclick=function(){
+      if(!open){ SFX.tap(); return toast("Unfold the chapters before this one first"); }
+      SFX.tap(); startLevel(c.id);
+    };
+    path.appendChild(div);
+  });
 }
 
-/* ----- notebook ----- */
-function screenNotebook(u){
-  if(!u.notes.length) return '<div class="card"><h2 style="margin-top:0">Notebook</h2><p class="muted">Nothing saved yet. Open a chapter and write what you learn \u2014 it will appear here.</p></div>';
-  return '<div class="card"><h2 style="margin-top:0">Notebook</h2><p class="tiny">'+u.notes.length+' note'+(u.notes.length>1?"s":"")+' saved.</p></div>'
-    + u.notes.map(function(n){
-      return '<div class="note"><div class="ref">'+esc(n.ref)+' <span class="tiny">\u00b7 '+esc(n.ch)+' \u00b7 '+esc(n.at)+'</span></div><div style="margin-top:4px">'+esc(n.text)+'</div></div>';
-    }).join("");
+/* ============================================================
+   NOTEBOOK / COMMUNITY / ABOUT
+   ============================================================ */
+function openNotebook(){
+  var u=me(); show("notebook");
+  if(!u.notes.length){ el("noteBody").innerHTML='<div class="card"><h2>Notebook</h2><p class="muted">Nothing saved yet. Unfold a chapter and write what you learn — it will appear here.</p></div>'; return; }
+  el("noteBody").innerHTML='<div class="card"><h2>Notebook</h2><p class="tiny">'+u.notes.length+' note(s)</p></div>'
+  + u.notes.map(function(n){ return '<div class="note"><div class="ref">'+esc(n.ref)+' <span class="tiny">· '+esc(n.ch)+' · '+esc(n.at)+'</span></div><div style="margin-top:4px">'+esc(n.text)+'</div></div>'; }).join("");
 }
-function wireNotebook(){}
-
-/* ----- community ----- */
-function screenCommunity(){
-  var links = COMMUNITY.filter(function(c){ return c.u; });
-  var chips = links.length
-    ? '<div class="chips">'+links.map(function(c){ return '<a href="'+esc(c.u)+'" target="_blank" rel="noopener">'+esc(c.n)+'</a>'; }).join("")+'</div>'
-    : '<p class="tiny">No group links set yet. Add your church\u2019s WhatsApp / Telegram / Facebook group in <b>COMMUNITY</b> at the top of the game file, and they appear here.</p>';
-  return ''
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">Walk together</h2>'
-  +'  <p class="muted">Faith grows in company. Ask questions, share what you found, and encourage one another.</p>'
-  + chips
-  +'</div>'
-  + contactCard(null, null)
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">This week\u2019s question</h2>'
-  +'  <p>\u201cWhere have you seen a shadow of Christ in the Old Testament this week?\u201d</p>'
-  +'  <p class="tiny">Take it to the group and compare answers.</p>'
-  +'</div>';
+function openCommunity(){
+  show("community");
+  var links=COMMUNITY.filter(function(c){ return c.u; });
+  var chips = links.length? '<div class="links">'+links.map(function(c){ return '<a href="'+esc(c.u)+'" target="_blank" rel="noopener">'+esc(c.n)+'</a>'; }).join("")+'</div>'
+    : '<p class="tiny">No group links set yet. Add your church\'s WhatsApp / Telegram / Facebook group in the COMMUNITY list at the top of the game file.</p>';
+  el("commBody").innerHTML='<div class="card"><h2>Walk together</h2><p class="muted">Faith grows in company. Ask questions, share what you found, encourage one another.</p>'+chips+'</div>'
+   + contactCard(null)
+   +'<div class="card"><h2>This week\'s question</h2><p>"Where have you seen a shadow of Christ in the Old Testament this week?"</p><p class="tiny">Take it to the group.</p></div>';
 }
-
-/* ----- about ----- */
-function screenAbout(){
-  var imports = DB.imports||{};
-  var loaded = Object.keys(imports).length
-    ? '<p class="tiny" style="margin-top:10px">Loaded: '+Object.keys(imports).map(function(k){ return esc(imports[k].name||k); }).join(", ")+'</p>'
-    : '';
-  return ''
-  +'<div class="card">'
-  +'  <h1 style="margin-top:0">About EMMAUS</h1>'
-  +'  <p class="muted">A Scripture-discovery journey. Ten chapters from the Garden to the City, each one unfolding a verse deeper \u2014 the words, the hidden type of Christ, the practice, and the prayer.</p>'
-  +'  <p class="tiny">\u201cAnd beginning with Moses and all the Prophets, he explained to them what was said in all the Scriptures concerning himself.\u201d \u2014 Luke 24:27</p>'
-  +'</div>'
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">Project contact</h2>'
-  +'  <p class="tiny">Offline single-file build. No server, no tracking, nothing leaves this device.</p>'
-  +'</div>'
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">Import a Bible version</h2>'
-  +'  <p class="tiny">KJV and WEB are bundled (public domain). Paste a licensed version as JSON to compare it side by side. Only import text you have permission to use.</p>'
-  +'  <label>Version code (e.g. lbr, lug, nkjv, niv, nlt, esv, ampc, gnt)</label>'
-  +'  <input id="impCode" placeholder="lbr">'
-  +'  <label>Version name</label>'
-  +'  <input id="impName" placeholder="Luganda Bible">'
-  +'  <label>JSON \u2014 { "John 6:35": "\u2026", "Exodus 16:15": "\u2026" }</label>'
-  +'  <textarea id="impJson" placeholder=\'{ "John 6:35": "..." }\'></textarea>'
-  +'  <button class="btn" id="impSave" style="margin-top:8px">Add version</button>'
-  +  loaded
-  +'</div>'
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">Truth tags</h2>'
+function openAbout(){
+  show("about");
+  var u=me();
+  el("aboutBody").innerHTML='<div class="card"><h2>EMMAUS — The Unfolding</h2>'
+  +'<p class="muted">A Scripture-discovery journey. Ten chapters from the Garden to the City. Catch the manna, unfold the verse — the words, the hidden type of Christ, the practice, and the prayer.</p>'
+  +'<p class="tiny">"And beginning with Moses and all the Prophets, he explained to them what was said in all the Scriptures concerning himself." — Luke 24:27</p></div>'
+  +'<div class="card"><h2>Settings</h2>'
+  +'<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="snd" style="width:auto"'+(u&&u.sound?" checked":"")+'> Sound on</label>'
+  +'<button class="btn ghost" id="switchUser" style="margin-top:10px">Switch user</button></div>'
+  +'<div class="card"><h2>Truth tags</h2>'
   + tagHTML("t-text")+'<p class="tiny">The Bible states this plainly, or the New Testament confirms it.</p>'
   + tagHTML("t-trad")+'<p class="tiny">A sincere reading held by a Christian tradition, not stated outright.</p>'
-  + tagHTML("t-read")+'<p class="tiny">A devotional reading some see \u2014 beautiful, but not asserted by the text.</p>'
-  +'</div>'
-  +'<div class="card">'
-  +'  <h2 style="margin-top:0">Reset this device</h2>'
-  +'  <p class="tiny">Removes all pilgrims, marks, and notes from this browser.</p>'
-  +'  <button class="btn ghost" id="wipe">Erase everything</button>'
-  +'</div>';
-}
-function wireAbout(){
-  var s=document.getElementById("impSave");
-  if(s) s.onclick=function(){
-    var code=(document.getElementById("impCode").value||"").trim().toLowerCase();
-    var name=(document.getElementById("impName").value||"").trim()||code;
-    var data;
-    try{ data=JSON.parse(document.getElementById("impJson").value||"{}"); }catch(e){ return toast("That is not valid JSON"); }
+  + tagHTML("t-read")+'<p class="tiny">A devotional reading some see — beautiful, but not asserted by the text.</p></div>'
+  +'<div class="card"><h2>Import a Bible version</h2><p class="tiny">Paste a licensed version as JSON (only with permission).</p>'
+  +'<label>Code</label><input id="impCode" placeholder="lbr"><label>Name</label><input id="impName" placeholder="Luganda Bible">'
+  +'<label>JSON { "Genesis 1:26": "..." }</label><textarea id="impJson" placeholder=\'{ "Genesis 1:26": "..." }\'></textarea>'
+  +'<button class="btn" id="impSave" style="margin-top:8px">Add version</button></div>'
+  +'<div class="card"><h2>Reset</h2><p class="tiny">Removes all pilgrims, stars and notes from this browser.</p><button class="btn ghost" id="wipe">Erase everything</button></div>';
+  el("snd").onchange=function(){ if(u){ u.sound=this.checked; save(); } };
+  el("switchUser").onclick=openProfiles;
+  el("impSave").onclick=function(){
+    var code=(el("impCode").value||"").trim().toLowerCase(), name=(el("impName").value||"").trim()||code, data;
+    try{ data=JSON.parse(el("impJson").value||"{}"); }catch(e){ return toast("That is not valid JSON"); }
     if(!code) return toast("Enter a version code");
-    DB.imports=DB.imports||{}; DB.imports[code]={name:name, verses:data}; save();
-    toast("Version added"); render();
+    DB.imports=DB.imports||{}; DB.imports[code]={name:name, verses:data}; save(); toast("Version added");
   };
-  var w=document.getElementById("wipe");
-  if(w) w.onclick=function(){ if(confirm("Erase all data on this device?")){ DB={active:null,users:{}}; save(); go("profiles"); } };
+  el("wipe").onclick=function(){ if(confirm("Erase all data on this device?")){ DB={active:null,users:{}}; save(); openProfiles(); } };
 }
 
-/* ---------- helpers ---------- */
-function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(m){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[m]; }); }
+/* ============================================================
+   PROFILES
+   ============================================================ */
+function openProfiles(){
+  el("ovProfiles").classList.add("on");
+  var names=Object.keys(DB.users);
+  el("profList").innerHTML = names.length? '<div class="links" style="justify-content:center">'+names.map(function(n){
+      return '<span class="lk" data-user="'+esc(n)+'">'+esc(n)+' <span class="tiny">· '+totalStars(DB.users[n])+'★</span></span>';
+    }).join("")+'</div>' : '<p class="tiny">No pilgrims yet. Add one below.</p>';
+  document.querySelectorAll("[data-user]").forEach(function(a){ a.onclick=function(){ DB.active=this.dataset.user; save(); el("ovProfiles").classList.remove("on"); el("whoChip").textContent=DB.active; gotoMap(); }; });
+  el("profAdd").onclick=function(){
+    var n=(el("profName").value||"").trim(); if(!n) return toast("Enter a name");
+    ensure(n); DB.active=n; save(); el("profName").value=""; el("whoChip").textContent=n;
+    el("ovProfiles").classList.remove("on"); gotoMap();
+  };
+}
+
+/* ============================================================
+   helpers + nav + init
+   ============================================================ */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(m){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[m]; }); }
 function tagHTML(t){
-  if(t==="t-text") return '<span class="tag t-text">\uD83D\uDFE2 Text says</span>';
-  if(t==="t-trad") return '<span class="tag t-trad">\uD83D\uDFE1 Tradition holds</span>';
-  return '<span class="tag t-read">\uD83D\uDD35 A reading</span>';
+  if(t==="t-text") return '<span class="tag t-text">🟢 Text says</span>';
+  if(t==="t-trad") return '<span class="tag t-trad">🟡 Tradition holds</span>';
+  return '<span class="tag t-read">🔵 A reading</span>';
 }
 var toastT;
-function toast(m){
-  var el=document.getElementById("toast"); el.textContent=m; el.classList.add("show");
-  clearTimeout(toastT); toastT=setTimeout(function(){ el.classList.remove("show"); },1900);
+function toast(m){ var e=el("toast"); e.textContent=m; e.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){ e.classList.remove("show"); },1900); }
+function wireFabs(){
+  var u=me(); var msg=u?CONTACT.msg(DB.active||"a pilgrim","the journey"):"";
+  el("fabCall").href=CONTACT.tel(); el("fabWa").href=CONTACT.wa(msg);
 }
+document.querySelectorAll("[data-go]").forEach(function(b){ b.onclick=function(){
+  var g=this.dataset.go; SFX.tap();
+  if(g==="notebook") openNotebook(); else if(g==="community") openCommunity();
+  else if(g==="about") openAbout(); else if(g==="map") gotoMap();
+}; });
 
-go(DB.active?"journey":"profiles");
+el("playBtn").onclick=function(){ actx(); SFX.tap(); if(!DB.active) return openProfiles(); gotoMap(); };
+el("whoChip").onclick=openProfiles;
+el("bestChip").onclick=openProfiles;
+
+function init(){
+  resize();
+  var u=me();
+  el("whoChip").textContent = DB.active || "Pilgrim";
+  if(u) el("bestChip").textContent="★ Best "+u.best;
+  wireFabs();
+  show("menu");
+  if(!raf){ last=performance.now(); raf=requestAnimationFrame(loop); }
+}
+init();
+
 </script>
 </body>
 </html>

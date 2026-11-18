@@ -101,15 +101,27 @@ verse resolves, every art key exists, no required field is missing.
 
 ## EMMAUS game (`emmaus/index.html`)
 
-One offline file. All content lives at the top of the file: `CHAPTERS` (10), `KID`
-(the Little Lamp child layer, one per chapter), `CONTACT`, `COMMUNITY`. Per-user state
-(marks, unlocked chapters, unfolded layers, notebook, manna, child quiz, Family Mode,
-lights) is in localStorage under `emmaus_v1`; `normalize()` back-fills new fields on
-load, so old saves keep working when you add features.
+One offline file. It is a **real arcade game**, not a study page: a canvas
+(2D) renders every frame through a `requestAnimationFrame` loop with its own
+update/draw, physics, particle bursts, screen shake, and a small Web Audio
+synth (no sound files). The player moves a basket left/right to catch falling
+**manna**; golden **letters** spell the chapter's word for a bonus; red
+**shadows** cost one of three lives. Catching fills the **Unfold** bar; when it
+fills, the chapter opens.
 
-Each chapter renders, in order: the five Unfolding layers (Plain, Words, Thread,
-Practice, Watch), any `extra` deeper notes (Chapter 9 has four), the Little Lamp,
-the contact box, the version table, the Pulpit, and the notebook.
+Structure:
+- `CHAPTERS` (10) and `KID` (the Little Lamp child layer, one per chapter) hold
+  all the Scripture content; `WORDS` gives each chapter its gatherable word.
+- `CONTACT` and `COMMUNITY` hold the reach-out details.
+- Screens are `<section>` elements toggled by `show()`; the canvas is always the
+  backdrop. Screens: menu, map (the journey path), play (HUD over canvas),
+  reveal (the verse, word by word), study (the full chapter), notebook,
+  community, about.
+- Per-user state (marks, best, stars, notes, sound) is in localStorage under
+  `emmaus_v2`. Three stars per chapter; a star opens the next chapter.
+- `levelColors(id)` gives each chapter its own palette.
 
-Verify with `node tools/test-emmaus.js` (10 chapters, five layers, truth tags, Manna
-determinism, Little Lamp, contact, self-containment).
+Verify with `node tools/test-emmaus.js`. It runs the real code against a
+minimal DOM, checks the MAP rules, and then plays a level through the actual
+`update()` loop — catching manna to a win, gathering the word, and losing to
+three shadows — so the mechanics are tested, not just the content.

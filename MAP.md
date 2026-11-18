@@ -177,7 +177,11 @@ its Hebrew/Greek word underneath. Imported versions live in a JSON file the app 
    a word study, a practice, and the anti-stockpile theology in one small chapter. — done.
 4. Clone the structure across all ten chapters. — done.
 5. **Two lamps + Family Mode** (§7), the full **Pulpit** (§8), and the **contact/community**
-   layer (§10). — done. Verified by `tools/test-emmaus.js`.
+   layer (§10). — done.
+6. **Rebuilt as a real arcade game** — canvas rendering, a play loop with physics, particles
+   and sound, catch-the-manna play, stars, and a journey map; the chapter opens when you play
+   it, then unfolds word by word into the study scroll. — done. Verified by
+   `tools/test-emmaus.js`, which plays a level through the real loop.
 
 ---
 
