@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>START HERE — Knowing God</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#171a23; --card2:#1d212c; --line:#2a3040;
+    --ink:#f2f4f9; --dim:#a3abbf; --gold:#e9bf63; --gold2:#ffd98a;
+    --green:#5fd07f; --blue:#7ba7ff;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{font-size:18px}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.7;-webkit-font-smoothing:antialiased}
+  .shell{max-width:760px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:0 20px}
+
+  /* top bar */
+  .bar{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0f1117 70%,rgba(15,17,23,0));
+    padding:14px 0 10px}
+  .bar .row{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:.82rem;color:var(--dim)}
+  .bar .name{color:var(--gold);font-weight:600}
+  .track{height:5px;background:#232838;border-radius:5px;margin-top:10px;overflow:hidden}
+  .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--gold));
+    transition:width .35s ease}
+
+  /* page */
+  main{flex:1;padding:8px 0 120px}
+  .page{animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .kicker{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
+    font-family:var(--sans);font-weight:700;margin:14px 0 4px}
+  h1{font-family:var(--serif);font-weight:700;font-size:2rem;line-height:1.2;margin:.1rem 0 .6rem;letter-spacing:-.01em}
+  h2{font-family:var(--serif);font-weight:700;font-size:1.4rem;margin:1.3rem 0 .4rem}
+  p{margin:.7rem 0}
+  .lead{font-size:1.12rem;color:#dfe4ef}
+  .muted{color:var(--dim)}
+  .small{font-size:.85rem}
+
+  .verse{background:linear-gradient(180deg,#1c2130,#171b26);border:1px solid var(--line);
+    border-left:4px solid var(--gold);border-radius:12px;padding:16px 18px;margin:18px 0}
+  .verse .ref{font-family:var(--sans);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--gold);font-weight:700;margin-bottom:6px}
+  .verse .text{font-family:var(--serif);font-size:1.18rem;line-height:1.65}
+
+  .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:16px 0}
+  .box h3{margin:0 0 .4rem;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-family:var(--sans)}
+  .box.think h3{color:var(--gold2)}
+  .box.do h3{color:var(--green)}
+  .box.deeper h3{color:#c9a6ff}
+
+  .big{font-family:var(--serif);font-size:1.25rem;line-height:1.6}
+  .center{text-align:center}
+  .hero{padding:40px 0 10px}
+  .hero .t{font-family:var(--serif);font-size:2.6rem;line-height:1.1;letter-spacing:-.02em}
+  .hero .s{color:var(--dim);margin-top:12px;font-size:1.05rem}
+
+  /* nav */
+  .nav{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(0deg,#0f1117 60%,rgba(15,17,23,.85));
+    padding:14px 20px 18px;backdrop-filter:blur(6px)}
+  .nav .in{max-width:760px;margin:0 auto;display:flex;gap:10px;align-items:center}
+  button.btn{background:linear-gradient(180deg,#4a73e8,#3a5bc4);border:0;border-radius:11px;color:#fff;
+    font:inherit;font-weight:700;padding:.75rem 1.3rem;cursor:pointer;flex:1}
+  button.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:600;flex:0 0 auto}
+  button.btn.gold{background:linear-gradient(180deg,#e9bf63,#c99a33);color:#241c05}
+  button.btn:disabled{opacity:.35;cursor:not-allowed}
+  input,textarea{background:#12141c;border:1px solid var(--line);color:var(--ink);border-radius:10px;
+    padding:.7rem .8rem;font:inherit;width:100%}
+  textarea{min-height:96px;resize:vertical;font-family:var(--serif);font-size:1.02rem;line-height:1.6}
+  label{display:block;font-size:.8rem;color:var(--dim);margin:.7rem 0 .3rem}
+  .dots{display:flex;gap:5px;justify-content:center;margin-top:12px}
+  .dots b{width:7px;height:7px;border-radius:50%;background:#2c3348}
+  .dots b.on{background:var(--gold)}
+  .dots b.seen{background:#4a5470}
+  .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#232941;border:1px solid var(--line);
+    border-radius:10px;padding:.55rem 1rem;font-size:.85rem;opacity:0;transition:opacity .3s;pointer-events:none}
+  .toast.show{opacity:1}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chips a{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:.5rem .8rem;
+    color:var(--ink);text-decoration:none;font-size:.85rem}
+  ul{margin:.5rem 0;padding-left:1.2rem}
+  li{margin:.35rem 0}
+  .prayer{background:linear-gradient(180deg,#20283a,#1a1f2c);border:1px solid #33405c;border-radius:12px;
+    padding:16px 18px;font-family:var(--serif);font-size:1.1rem;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="bar">
+    <div class="row">
+      <span>START HERE · Knowing God</span>
+      <span class="name" id="whoName"></span>
+    </div>
+    <div class="track"><i id="prog"></i></div>
+  </div>
+  <main id="view"></main>
+</div>
+<div class="nav"><div class="in" id="navIn"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= SCRIPTURE (public domain, KJV) ================= */
+var VERSES = {
+  "1 corinthians 10:12-13": "Wherefore let him that thinketh he standeth take heed lest he fall. There hath no temptation taken you but such as is common to man: but God is faithful, who will not suffer you to be tempted above that ye are able; but will with the temptation also make a way to escape, that ye may be able to bear it.",
+  "1 corinthians 10:31": "Whether therefore ye eat, or drink, or whatsoever ye do, do all to the glory of God.",
+  "1 corinthians 15:33": "Be not deceived: evil communications corrupt good manners.",
+  "1 corinthians 6:19-20": "What? know ye not that your body is the temple of the Holy Ghost which is in you, which ye have of God, and ye are not your own? For ye are bought with a price: therefore glorify God in your body, and in your spirit, which are God’s.",
+  "1 john 5:11-13": "And this is the record, that God hath given to us eternal life, and this life is in his Son. He that hath the Son hath life; and he that hath not the Son of God hath not life. These things have I written unto you that believe on the name of the Son of God; that ye may know that ye have eternal life, and that ye may believe on the name of the Son of God.",
+  "1 john 5:14-15": "And this is the confidence that we have in him, that, if we ask any thing according to his will, he heareth us: And if we know that he hear us, whatsoever we ask, we know that we have the petitions that we desired of him.",
+  "1 peter 3:15": "But sanctify the Lord God in your hearts: and be ready always to give an answer to every man that asketh you a reason of the hope that is in you with meekness and fear:",
+  "1 peter 5:8-9": "Be sober, be vigilant; because your adversary the devil, as a roaring lion, walketh about, seeking whom he may devour: Whom resist stedfast in the faith, knowing that the same afflictions are accomplished in your brethren that are in the world.",
+  "2 corinthians 1:20": "For all the promises of God in him are yea, and in him Amen, unto the glory of God by us.",
+  "2 corinthians 5:17": "Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new.",
+  "2 timothy 3:16-17": "All scripture is given by inspiration of God, and is  profitable for doctrine, for reproof, for correction, for instruction in righteousness: That the man of God may be perfect, throughly furnished unto all good works.",
+  "2 timothy 4:2": "Preach the word; be instant in season, out of season; reprove, rebuke, exhort with all longsuffering and doctrine.",
+  "acts 1:8": "But ye shall receive power, after that the Holy Ghost is come upon you: and ye shall be witnesses unto me both in Jerusalem, and in all Judaea, and in Samaria, and unto the uttermost part of the earth.",
+  "acts 2:41-42": "Then they that gladly received his word were baptized: and the same day there were added unto them about three thousand souls. And they continued stedfastly in the apostles’ doctrine and fellowship, and in breaking of bread, and in prayers.",
+  "acts 4:12": "Neither is there salvation in any other: for there is none other name under heaven given among men, whereby we must be saved.",
+  "colossians 3:23": "And whatsoever ye do, do it heartily, as to the Lord, and not unto men;",
+  "ephesians 1:13-14": "In whom ye also trusted, after that ye heard the word of truth, the gospel of your salvation: in whom also after that ye believed, ye were sealed with that holy Spirit of promise, Which is the earnest of our inheritance until the redemption of the purchased possession, unto the praise of his glory.",
+  "ephesians 2:10": "For we are his workmanship, created in Christ Jesus unto good works, which God hath before ordained that we should walk in them.",
+  "ephesians 2:8-9": "For by grace are ye saved through faith; and that not of yourselves: it is the gift of God: Not of works, lest any man should boast.",
+  "galatians 5:22-23": "But the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith, Meekness, temperance: against such there is no law.",
+  "galatians 6:9": "And let us not be weary in well doing: for in due season we shall reap, if we faint not.",
+  "genesis 1:1": "In the beginning God created the heaven and the earth.",
+  "genesis 1:27": "So God created man in his own image, in the image of God created he him; male and female created he them.",
+  "hebrews 10:24-25": "And let us consider one another to provoke unto love and to good works: Not forsaking the assembling of ourselves together, as the manner of some is; but exhorting one another: and so much the more, as ye see the day approaching.",
+  "hebrews 13:5": "Let your conversation be without covetousness; and be content with such things as ye have: for he hath said, I will never leave thee, nor forsake thee.",
+  "hebrews 4:12": "For the word of God is quick, and powerful, and sharper than any twoedged sword, piercing even to the dividing asunder of soul and spirit, and of the joints and marrow, and is a discerner of the thoughts and intents of the heart.",
+  "isaiah 41:10": "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.",
+  "isaiah 53:5-6": "But he was wounded for our transgressions, he was  bruised for our iniquities: the chastisement of our peace was  upon him; and with his stripes we are healed. All we like sheep have gone astray; we have turned every one to his own way; and the LORD hath laid on him the iniquity of us all.",
+  "isaiah 55:8-9": "For my thoughts are not your thoughts, neither are  your ways my ways, saith the LORD. For as the heavens are higher than the earth, so are my ways higher than your ways, and my thoughts than your thoughts.",
+  "james 4:7": "Submit yourselves therefore to God. Resist the devil, and he will flee from you.",
+  "james 5:16": "Confess your faults one to another, and pray one for another, that ye may be healed. The effectual fervent prayer of a righteous man availeth much.",
+  "jeremiah 1:5": "Before I formed thee in the belly I knew thee; and before thou camest forth out of the womb I sanctified thee, and I ordained thee a prophet unto the nations.",
+  "jeremiah 29:11": "For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end.",
+  "john 10:28-29": "And I give unto them eternal life; and they shall never perish, neither shall any man pluck them out of my hand. My Father, which gave them me, is greater than all; and no man is able to pluck them out of my Father’s hand.",
+  "john 14:16-17": "And I will pray the Father, and he shall give you another Comforter, that he may abide with you for ever; Even the Spirit of truth; whom the world cannot receive, because it seeth him not, neither knoweth him: but ye know him; for he dwelleth with you, and shall be in you.",
+  "john 14:6": "Jesus saith unto him, I am the way, the truth, and the life: no man cometh unto the Father, but by me.",
+  "john 16:13": "Howbeit when he, the Spirit of truth, is come, he will guide you into all truth: for he shall not speak of himself; but whatsoever he shall hear, that shall he speak: and he will shew you things to come.",
+  "john 1:12": "But as many as received him, to them gave he power to become the sons of God, even to them that believe on his name:",
+  "john 3:16": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+  "john 4:24": "God is a Spirit: and they that worship him must worship him in spirit and in truth.",
+  "joshua 1:8": "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.",
+  "luke 15:20": "And he arose, and came to his father. But when he was yet a great way off, his father saw him, and had compassion, and ran, and fell on his neck, and kissed him.",
+  "mark 16:15": "And he said unto them, Go ye into all the world, and preach the gospel to every creature.",
+  "matthew 28:18-20": "And Jesus came and spake unto them, saying, All power is given unto me in heaven and in earth. Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost: Teaching them to observe all things whatsoever I have commanded you: and, lo, I am with you alway, even unto the end of the world. Amen.",
+  "matthew 4:4": "But he answered and said, It is written, Man shall not live by bread alone, but by every word that proceedeth out of the mouth of God.",
+  "matthew 5:16": "Let your light so shine before men, that they may see your good works, and glorify your Father which is in heaven.",
+  "matthew 6:33": "But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.",
+  "matthew 6:9-13": "After this manner therefore pray ye: Our Father which art in heaven, Hallowed be thy name. Thy kingdom come. Thy will be done in earth, as it is  in heaven. Give us this day our daily bread. And forgive us our debts, as we forgive our debtors. And lead us not into temptation, but deliver us from evil: For thine is the kingdom, and the power, and the glory, for ever. Amen.",
+  "philippians 1:6": "Being confident of this very thing, that he which hath begun a good work in you will perform it until the day of Jesus Christ:",
+  "philippians 4:19": "But my God shall supply all your need according to his riches in glory by Christ Jesus.",
+  "philippians 4:6-7": "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.",
+  "proverbs 3:5-6": "Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.",
+  "proverbs 4:23": "Keep thy heart with all diligence; for out of it are the issues of life.",
+  "psalm 119:105": "Thy word is a lamp unto my feet, and a light unto my path.",
+  "psalm 139:1-4": "O LORD, thou hast searched me, and known me. Thou knowest my downsitting and mine uprising, thou understandest my thought afar off. Thou compassest my path and my lying down, and art acquainted with  all my ways. For there is not a word in my tongue, but, lo, O LORD, thou knowest it altogether.",
+  "psalm 139:13-14": "For thou hast possessed my reins: thou hast covered me in my mother’s womb. I will praise thee; for I am fearfully and wonderfully made: marvellous are thy works; and that my soul knoweth right well.",
+  "psalm 19:1": "The heavens declare the glory of God; and the firmament sheweth his handywork.",
+  "psalm 1:1-3": "Blessed is the man that walketh not in the counsel of the ungodly, nor standeth in the way of sinners, nor sitteth in the seat of the scornful. But his delight is in the law of the LORD; and in his law doth he meditate day and night. And he shall be like a tree planted by the rivers of water, that bringeth forth his fruit in his season; his leaf also shall not wither; and whatsoever he doeth shall prosper.",
+  "psalm 23:1": "The LORD is my shepherd; I shall not want.",
+  "revelation 3:20": "Behold, I stand at the door, and knock: if any man hear my voice, and open the door, I will come in to him, and will sup with him, and he with me.",
+  "romans 10:14-15": "How then shall they call on him in whom they have not believed? and how shall they believe in him of whom they have not heard? and how shall they hear without a preacher? And how shall they preach, except they be sent? as it is written, How beautiful are the feet of them that preach the gospel of peace, and bring glad tidings of good things!",
+  "romans 10:9-10": "That if thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart that God hath raised him from the dead, thou shalt be saved. For with the heart man believeth unto righteousness; and with the mouth confession is made unto salvation.",
+  "romans 12:2": "And be not conformed to this world: but be ye transformed by the renewing of your mind, that ye may prove what is that good, and acceptable, and perfect, will of God.",
+  "romans 1:16": "For I am not ashamed of the gospel of Christ: for it is the power of God unto salvation to every one that believeth; to the Jew first, and also to the Greek.",
+  "romans 3:23": "For all have sinned, and come short of the glory of God;",
+  "romans 5:8": "But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us.",
+  "romans 6:23": "For the wages of sin is death; but the gift of God is  eternal life through Jesus Christ our Lord.",
+  "romans 8:1": "There is therefore now no condemnation to them which are in Christ Jesus, who walk not after the flesh, but after the Spirit.",
+  "romans 8:16-17": "The Spirit itself beareth witness with our spirit, that we are the children of God: And if children, then heirs; heirs of God, and joint-heirs with Christ; if so be that we suffer with him, that we may be also glorified together.",
+  "romans 8:26": "Likewise the Spirit also helpeth our infirmities: for we know not what we should pray for as we ought: but the Spirit itself maketh intercession for us with groanings which cannot be uttered.",
+  "romans 8:28": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+  "titus 2:11-12": "For the grace of God that bringeth salvation hath appeared to all men, Teaching us that, denying ungodliness and worldly lusts, we should live soberly, righteously, and godly, in this present world;",
+};
+
+/* ================= THE COURSE ================= */
+var LESSONS = [
+{
+ kicker:"Lesson 1 · The beginning",
+ title:"Is there really a God?",
+ lead:"Before we talk about anything else, let us start where the Bible starts. Not with rules, and not with religion — but with a question almost everyone asks quietly: is there really someone there?",
+ verse:"psalm 19:1",
+ meaning:"Look up tonight. The sky does not need a preacher. Creation itself speaks. The Bible says the heavens are telling the glory of God — and they never stop. Paul later wrote that what can be known about God is plain, because He has shown it. You are not asked to believe in nothing. You are surrounded by evidence.",
+ verses2:["genesis 1:1"],
+ think:"If the world had a maker, what would that mean for how you treat your own life?",
+ action:"Tonight, step outside and look at the sky for two minutes. Say out loud: \u201cIf you made this, you made me too.\u201d Nothing more. Just that."
+},
+{
+ kicker:"Lesson 2 · Who He is",
+ title:"What is God like?",
+ lead:"Many people carry a picture of God that is not from the Bible — a harsh judge, a distant force, or a lucky charm. Let us meet the real One.",
+ verse:"john 4:24",
+ meaning:"God is Spirit. He is not a statue, not a star, not an energy you control. He is a Person who is everywhere and who sees everything — and He invites you to know Him, not merely to use Him.",
+ verses2:["isaiah 55:8-9","psalm 139:1-4"],
+ think:"Has your picture of God been shaped more by other people than by the Bible?",
+ action:"Write down one thing you believed about God that you now suspect is wrong. Bring it to Him honestly."
+},
+{
+ kicker:"Lesson 3 · You",
+ title:"Who am I?",
+ lead:"Here is something the world rarely tells you: you were not an accident.",
+ verse:"genesis 1:27",
+ meaning:"You are made in the image of God. That is why you matter — not because of your grades, your money, your looks, or what people say about you. Your worth was settled before you were born, before you did anything at all.",
+ verses2:["psalm 139:13-14","jeremiah 1:5"],
+ think:"Where have you been looking for your value — in people, in achievements, in how you look?",
+ action:"Write one sentence: \u201cI am made in the image of God, therefore ___.\u201d Keep it somewhere you will see it."
+},
+{
+ kicker:"Lesson 4 · The problem",
+ title:"Why is the world so broken?",
+ lead:"We all feel it. Something is wrong — in the world, and in us. The Bible names it honestly.",
+ verse:"romans 3:23",
+ meaning:"Sin simply means \u201cmissing the mark\u201d — like an arrow that falls short. Every one of us has missed God\u2019s mark, not just the obviously bad people. This is not to condemn you; it is to tell you the truth so you can be healed.",
+ verses2:["romans 6:23"],
+ think:"Is it easier for you to admit a small fault, or a big one? Why?",
+ action:"Ask God to show you one honest thing you have done wrong this week. Do not hide it — He already knows, and He is not shocked."
+},
+{
+ kicker:"Lesson 5 · His love",
+ title:"Does God love me?",
+ lead:"This is the question underneath every other question. And the Bible\u2019s answer is astonishing.",
+ verse:"romans 5:8",
+ meaning:"God did not wait for you to become good. While you were still far from Him, He acted. He did not send a lecture; He sent His Son. The cross is not God\u2019s anger at you — it is God\u2019s love carrying your penalty so you would not have to.",
+ verses2:["john 3:16","isaiah 53:5-6"],
+ think:"Have you ever believed God was angry with you? How does this verse speak to that?",
+ action:"Read John 3:16 slowly, and put your own name in it: \u201cFor God so loved ___, that He gave...\u201d"
+},
+{
+ kicker:"Lesson 6 · The turning point",
+ title:"How can I be saved?",
+ lead:"This is the most important page in this course. Read it slowly.",
+ verse:"romans 10:9-10",
+ meaning:"Salvation is not earned — it is received. You confess with your mouth that Jesus is Lord, and you believe in your heart that God raised Him from the dead. That is it. Not perfect behaviour, not church attendance, not a family name. A hand reaching out to take a gift.",
+ verses2:["john 1:12","revelation 3:20"],
+ prayer:"Lord Jesus, I believe You died for me and rose again. I turn from my sin. I receive You now as my Lord and my Saviour. Come into my life. Thank You for forgiving me and making me Your own. Amen.",
+ think:"What are you holding back from God right now — a sin, a fear, or a question?",
+ action:"If you prayed that and meant it, tell someone today. Say it out loud — salvation is not a secret."
+},
+{
+ kicker:"Lesson 7 · Assurance",
+ title:"Am I really forgiven?",
+ lead:"A new believer\u2019s mind often whispers: \u201cBut I will fail again.\u201d Let us settle this with God\u2019s own words.",
+ verse:"1 john 5:11-13",
+ meaning:"Notice the word \u201cknow.\u201d God wants you certain, not guessing. When you received Christ, you were made new, you were forgiven, and you were sealed with His Spirit. Your salvation rests on what Jesus did, not on how well you do tomorrow.",
+ verses2:["2 corinthians 5:17","romans 8:1","john 10:28-29","philippians 1:6"],
+ think:"What makes you feel most unsure about your faith — feelings, or facts?",
+ action:"Write these references on a card: 1 John 5:11-13, Romans 8:1, John 10:28-29. Read them whenever doubt speaks."
+},
+{
+ kicker:"Lesson 8 · Promises",
+ title:"The promises of God",
+ lead:"God has made promises you can stand on for the rest of your life. Not wishes — promises.",
+ verse:"2 corinthians 1:20",
+ meaning:"Every promise of God finds its Yes in Christ. That means when God says He will never leave you, or supply your need, or work all things for good, He means it. Your job is not to earn them, but to trust and to wait.",
+ verses2:["hebrews 13:5","isaiah 41:10","philippians 4:19","psalm 23:1","jeremiah 29:11","romans 8:28"],
+ think:"Which of these promises do you most need to believe right now?",
+ action:"Choose one promise above and memorise it this week. Say it aloud when you wake."
+},
+{
+ kicker:"Lesson 9 · Purpose",
+ title:"Why am I here?",
+ lead:"You are not here by accident, and you are not here just to survive until you die.",
+ verse:"ephesians 2:10",
+ meaning:"You are God\u2019s workmanship, created for good works He prepared beforehand. Your life has a shape and a purpose. You are made to know God, to reflect Him, and to do something good with the days you are given.",
+ verses2:["matthew 5:16","colossians 3:23","1 corinthians 10:31","matthew 6:33"],
+ think:"If your life were aimed at God\u2019s kingdom first, what would change this week?",
+ action:"Name one ordinary thing you do daily — work, study, chores. Do it today as if for the Lord."
+},
+{
+ kicker:"Lesson 10 · The Word",
+ title:"How to read the Bible",
+ lead:"This book is not like other books. It is how God speaks to you directly.",
+ verse:"2 timothy 3:16-17",
+ meaning:"All Scripture is God-breathed — and it is useful. It teaches, corrects, and trains you so you can be complete and equipped. It is not a textbook to finish, but bread to eat daily.",
+ verses2:["joshua 1:8","psalm 119:105","hebrews 4:12","matthew 4:4"],
+ think:"What has stopped you from reading the Bible before — time, confusion, or interest?",
+ action:"Start small and steady: read one short passage each day. Try the Gospel of John, one chapter a day. Pray before you read: \u201cSpeak, Lord.\u201d"
+},
+{
+ kicker:"Lesson 11 · Prayer",
+ title:"How to pray",
+ lead:"Prayer is not a performance. It is a conversation with a Father who is glad to hear you.",
+ verse:"matthew 6:9-13",
+ meaning:"Jesus gave a simple pattern: worship God, ask for His will, ask for your daily needs, ask forgiveness, ask for protection. That is all prayer is. You can also pray anywhere, any time, in your own words.",
+ verses2:["philippians 4:6-7","1 john 5:14-15","james 5:16"],
+ think:"Do you find it easier to ask God for things, or simply to thank Him?",
+ action:"Pray the Lord\u2019s Prayer slowly today, one line at a time, and add your own words to each line."
+},
+{
+ kicker:"Lesson 12 · The Helper",
+ title:"The Holy Spirit",
+ lead:"You were never meant to live the Christian life in your own strength.",
+ verse:"john 14:16-17",
+ meaning:"Jesus promised a Helper — the Holy Spirit — who lives in every believer. He teaches you truth, helps you pray when you have no words, and grows good fruit in your life: love, joy, peace, patience.",
+ verses2:["john 16:13","romans 8:26","galatians 5:22-23","acts 1:8"],
+ think:"Which fruit of the Spirit is God most growing in you right now?",
+ action:"Each morning this week, pray one sentence: \u201cHoly Spirit, fill me and lead me today.\u201d"
+},
+{
+ kicker:"Lesson 13 · Standing strong",
+ title:"So you will not fall away",
+ lead:"Here is the honest truth: the world, the flesh, and the enemy will all pull at you. But you can stand. God has given you a way.",
+ verse:"1 corinthians 10:12-13",
+ meaning:"No temptation is unique to you, and God always provides a way out. But you must watch and pray. Most people do not fall in one big moment — they drift, slowly, through small choices and wrong company.",
+ verses2:["1 peter 5:8-9","james 4:7","romans 12:2","1 corinthians 15:33","psalm 1:1-3","proverbs 4:23","galatians 6:9"],
+ think:"Which is pulling at you most: wrong friends, media, desires, or discouragement?",
+ action:"Choose one practical guard this week — a person to be accountable to, a site to block, or a time to pray. Guard your heart; it is the wellspring of your life."
+},
+{
+ kicker:"Lesson 14 · The mission",
+ title:"The work of God — and the Great Commission",
+ lead:"You have received something too good to keep. Now you become part of God\u2019s work in the world.",
+ verse:"matthew 28:18-20",
+ meaning:"Jesus\u2019 last command to His followers was simple: go, and make disciples. This is not only for pastors. Every believer is sent — to family, friends, classmates, neighbours. You do not need to be clever or perfect. You only need to tell what Jesus did for you.",
+ verses2:["mark 16:15","romans 10:14-15","1 peter 3:15","romans 1:16"],
+ think:"Who is one person near you who needs to hear what you have found?",
+ action:"Pray for that person by name this week — and when the moment comes, tell them your story simply: what your life was like, what Jesus did, and what changed."
+},
+{
+ kicker:"Lesson 15 · Together",
+ title:"You are not alone",
+ lead:"Following Jesus was never meant to be a solo journey.",
+ verse:"hebrews 10:24-25",
+ meaning:"God\u2019s plan is a family — the church. Believers gather to worship, learn, pray, and encourage each other. Isolation is where faith starves; community is where it grows.",
+ verses2:["acts 2:41-42"],
+ think:"Do you have anyone who will help you follow Jesus? If not, what is stopping you?",
+ action:"This week, join a Bible-believing church or a small group. Do not wait until you feel ready — you grow by going."
+}
+];
+
+/* ================= STATE ================= */
+var KEY="starthere_v1";
+var DB=load();
+var idx=0, showingWelcome=true;
+function load(){ try{var r=localStorage.getItem(KEY); if(r) return JSON.parse(r);}catch(e){} return {name:"", done:{}, notes:{}}; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(m){return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[m];}); }
+
+/* ================= RENDER ================= */
+var view=document.getElementById("view");
+var navIn=document.getElementById("navIn");
+
+function verseBlock(ref){
+  var t=VERSES[ref];
+  if(!t) return "";
+  return '<div class="verse"><div class="ref">'+esc(ref.toUpperCase())+'</div><div class="text">'+esc(t)+'</div></div>';
+}
+
+function totalPages(){ return LESSONS.length+2; } // welcome + lessons + closing
+function currentPage(){ return showingWelcome?0:idx+1; }
+
+function render(){
+  document.getElementById("whoName").textContent = DB.name?DB.name:"";
+  document.getElementById("prog").style.width = Math.round(100*currentPage()/(totalPages()-1))+"%";
+  if(showingWelcome){ view.innerHTML=welcome(); wireWelcome(); }
+  else if(idx<LESSONS.length){ view.innerHTML=lessonPage(LESSONS[idx]); wireLesson(); }
+  else { view.innerHTML=closing(); wireClosing(); }
+  window.scrollTo(0,0);
+}
+
+function welcome(){
+  return '<div class="page hero">'
+  +'<div class="kicker">Start here</div>'
+  +'<div class="t">Do you want to know God?</div>'
+  +'<div class="s">A short journey in 15 steps. No pressure, no jargon, no church background needed. '
+  +'Just you, an open Bible, and the truth.</div>'
+  +'</div>'
+  +'<div class="box">'
+  +'<h3>Before you begin</h3>'
+  +'<p class="small">Take this at your own pace — one page at a time. Read the verse slowly. '
+  +'Think about the question. Do the one small thing at the end. That is all.</p>'
+  +'<label>Your name (so we can keep your progress)</label>'
+  +'<input id="nm" placeholder="Type your name" value="'+esc(DB.name)+'" autocomplete="off">'
+  +'</div>'
+  +'<div class="box think"><h3>A prayer before we start</h3>'
+  +'<p class="big">\u201cGod, I do not know everything. But I am willing to look. Show me who You are. Amen.\u201d</p></div>';
+}
+function wireWelcome(){
+  var i=document.getElementById("nm");
+  i.addEventListener("input",function(){ DB.name=i.value.trim(); save(); document.getElementById("whoName").textContent=DB.name; });
+}
+
+function lessonPage(L){
+  var n=LESSONS.indexOf(L)+1;
+  var dots=LESSONS.map(function(_,i){ return '<b class="'+(i<idx?"seen":(i===idx?"on":""))+'"></b>'; }).join("");
+  return '<div class="page">'
+  +'<div class="kicker">'+esc(L.kicker)+'</div>'
+  +'<h1>'+esc(L.title)+'</h1>'
+  +'<p class="lead">'+esc(L.lead)+'</p>'
+  + verseBlock(L.verse)
+  +'<div class="box"><h3>What this means</h3><p>'+esc(L.meaning)+'</p></div>'
+  + (L.verses2&&L.verses2.length?'<div class="box"><h3>Read also</h3>'+L.verses2.map(verseBlock).join("")+'</div>':'')
+  + (L.prayer?'<div class="box do"><h3>Pray this</h3><div class="prayer">'+esc(L.prayer)+'</div></div>':'')
+  +'<div class="box think"><h3>Think about it</h3><p>'+esc(L.think)+'</p></div>'
+  +'<div class="box do"><h3>Do this today</h3><p>'+esc(L.action)+'</p></div>'
+  +'<div class="box"><h3>Your notes</h3>'
+  +'<label>Write what God is showing you on this page</label>'
+  +'<textarea id="note" placeholder="My thoughts...">'+esc(DB.notes[n]||"")+'</textarea>'
+  +'<button class="btn gold" id="saveNote" style="margin-top:10px">Save my note</button></div>'
+  +'<div class="dots">'+dots+'</div>'
+  +'</div>';
+}
+function wireLesson(){
+  var t=document.getElementById("note");
+  if(t) t.addEventListener("input",function(){ DB.notes[LESSONS.indexOf(LESSONS[idx])+1]=t.value; save(); });
+  var b=document.getElementById("saveNote");
+  if(b) b.onclick=function(){ DB.notes[idx+1]=document.getElementById("note").value; DB.done[idx]=true; save(); toast("Saved. Keep going."); };
+}
+
+function closing(){
+  return '<div class="page">'
+  +'<div class="kicker">You made it</div>'
+  +'<h1>Where to go from here</h1>'
+  +'<p class="lead">You have walked through the whole story: God made you, sin broke us, Jesus saved us, '
+  +'and now you are sent. Here is how to keep going — so your faith grows strong and does not fade.</p>'
+  +'<div class="box"><h3>Four habits that keep you standing</h3><ul>'
+  +'<li><b>Read</b> — one chapter a day. Start with the Gospel of John.</li>'
+  +'<li><b>Pray</b> — talk to God like a Father, every day, in your own words.</li>'
+  +'<li><b>Gather</b> — join a Bible-believing church and a small group this week.</li>'
+  +'<li><b>Tell</b> — share your story with one person who needs to hear it.</li>'
+  +'</ul></div>'
+  +'<div class="box do"><h3>If you prayed the prayer in Lesson 6</h3>'
+  +'<p>Welcome to the family of God. Nothing can separate you from His love. When you fail — and you will — '
+  +'you are not disqualified. You are a child being taught to walk. Get up, and keep walking with Him.</p></div>'
+  +'<div class="box"><h3>Walk with others</h3>'
+  +'<p class="small">Faith grows in company. Ask your questions, share what you are learning, and encourage one another.</p>'
+  +'<div class="chips">'
+  +'<a href="https://chat.whatsapp.com/" target="_blank" rel="noopener">WhatsApp group</a>'
+  +'<a href="https://t.me/" target="_blank" rel="noopener">Telegram group</a>'
+  +'<a href="https://www.facebook.com/groups/" target="_blank" rel="noopener">Facebook group</a>'
+  +'<a href="https://www.youtube.com/" target="_blank" rel="noopener">Watch teaching</a>'
+  +'</div><p class="small muted" style="margin-top:8px">Set your church\u2019s own links in the file (see COMMUNITY).</p></div>'
+  +'<div class="box"><h3>Your notes so far</h3>'
+  +(Object.keys(DB.notes).filter(function(k){return DB.notes[k];}).length
+    ? Object.keys(DB.notes).filter(function(k){return DB.notes[k];}).sort(function(a,b){return a-b;}).map(function(k){
+        return '<p class="small"><b>Lesson '+esc(k)+':</b> '+esc(DB.notes[k])+'</p>';
+      }).join("")
+    : '<p class="small muted">No notes yet — go back and write as you read.</p>')
+  +'</div>'
+  +'<div class="box center"><h3>About</h3><p class="small">START HERE · Knowing God — a short course for those seeking God.</p>'
+  +'<p class="small">GitHub: <a href="https://github.com/MAYI12333" target="_blank" rel="noopener" style="color:var(--blue)">github.com/MAYI12333</a></p>'
+  +'<p class="small muted">Offline single file. No server. Nothing leaves your device.</p></div>'
+  +'</div>';
+}
+function wireClosing(){}
+
+/* ================= NAV ================= */
+function drawNav(){
+  if(showingWelcome){
+    navIn.innerHTML='<button class="btn gold" id="startBtn">Begin the journey \u2192</button>';
+    document.getElementById("startBtn").onclick=function(){ showingWelcome=false; idx=0; render(); drawNav(); };
+    return;
+  }
+  var back='<button class="btn ghost" id="backBtn">\u2190 Back</button>';
+  var next;
+  if(idx<LESSONS.length-1) next='<button class="btn" id="nextBtn">Next \u2192</button>';
+  else if(idx===LESSONS.length-1) next='<button class="btn" id="nextBtn">Finish \u2192</button>';
+  else next='<button class="btn ghost" id="backBtn2">\u2190 Back to lessons</button>';
+  navIn.innerHTML=back+next;
+  var b=document.getElementById("backBtn");
+  if(b) b.onclick=function(){ if(idx===0){ showingWelcome=true; } else { idx--; } render(); drawNav(); };
+  var n=document.getElementById("nextBtn");
+  if(n) n.onclick=function(){ DB.done[idx]=true; save(); idx++; render(); drawNav(); };
+  var b2=document.getElementById("backBtn2");
+  if(b2) b2.onclick=function(){ idx=LESSONS.length-1; render(); drawNav(); };
+}
+
+var toastT;
+function toast(m){ var el=document.getElementById("toast"); el.textContent=m; el.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(function(){el.classList.remove("show");},1700); }
+
+render(); drawNav();
+</script>
+</body>
+</html>
