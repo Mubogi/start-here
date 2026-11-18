@@ -92,4 +92,9 @@ verse resolves, every art key exists, no required field is missing.
 ## GitHub
 
 - Remote: `github.com/Mubogi/start-here` (Pages served from `docs/` on `master`).
+- **Pushing:** the default git credential helper authenticates as the wrong account
+  (`MAYI12333`, read-only) and gets a 403. Use the `GH_PAT` env var, which is the
+  `Mubogi` owner token with `repo` + `workflow` scopes:
+  `git push "https://${GH_PAT}@github.com/Mubogi/start-here.git" master`
+- Live site: https://mubogi.github.io/start-here/ (Pages rebuilds a few minutes after push).
 - APK: `.github/workflows/android.yml` builds a debug APK in the cloud (Actions -> Run workflow).
