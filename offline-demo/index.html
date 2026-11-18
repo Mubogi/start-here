@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Block Drop — offline demo</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    background: #12141c; color: #e8eaf2;
+    font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+  .wrap { width: min(92vw, 420px); text-align: center; }
+  h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: .02em; margin: 0 0 .25rem; }
+  .sub { font-size: .8rem; opacity: .6; margin-bottom: 1rem; }
+  .hud { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: .6rem; }
+  #board {
+    width: 100%; aspect-ratio: 1; display: grid;
+    grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+    gap: 3px; background: #1c1f2b; padding: 6px; border-radius: 12px;
+  }
+  .cell { border-radius: 5px; background: #262a38; }
+  .cell.on { background: var(--c); }
+  #tray { display: flex; justify-content: center; gap: 10px; margin-top: 14px; min-height: 62px; }
+  .piece {
+    display: grid; gap: 3px; padding: 6px; border-radius: 10px;
+    background: #1c1f2b; cursor: grab; touch-action: none;
+  }
+  .piece:active { transform: scale(.94); }
+  .pcell { width: 20px; height: 20px; border-radius: 4px; background: var(--c); }
+  #over { margin-top: 12px; font-size: .9rem; min-height: 1.2em; color: #ffd166; }
+  button {
+    margin-top: 12px; padding: .6rem 1.1rem; border: 0; border-radius: 8px;
+    background: #4a73e8; color: #fff; font: inherit; font-weight: 600; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Block Drop</h1>
+  <div class="sub">Single file · no server · works offline</div>
+  <div class="hud"><span>Score: <b id="score">0</b></span><span>Best: <b id="best">0</b></span></div>
+  <div id="board"></div>
+  <div id="tray"></div>
+  <div id="over"></div>
+  <button id="reset">New game</button>
+</div>
+
+<script>
+const N = 8, SHAPES = [
+  [[1]], [[1,1]], [[1],[1]], [[1,1,1]], [[1],[1],[1]],
+  [[1,1],[1,1]], [[1,1,1],[1,1,1]],
+  [[1,0],[1,1]], [[0,1],[1,1]], [[1,1],[1,0]], [[1,1],[0,1]],
+  [[1,1,1],[0,1,0]], [[0,1,0],[1,1,1]],
+];
+const COLORS = ['#ff6b6b','#ffd166','#4ecdc4','#7c8cff','#b47cff','#5bd67a'];
+const boardEl = document.getElementById('board');
+const trayEl = document.getElementById('tray');
+const scoreEl = document.getElementById('score');
+const bestEl = document.getElementById('best');
+const overEl = document.getElementById('over');
+
+let grid, score, best, tray, drag = null;
+try { best = +(localStorage.getItem('blockdrop_best') || 0); } catch { best = 0; }
+bestEl.textContent = best;
+
+const cells = [];
+for (let i = 0; i < N * N; i++) {
+  const d = document.createElement('div');
+  d.className = 'cell';
+  boardEl.appendChild(d);
+  cells.push(d);
+}
+
+function randPiece() {
+  const s = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+  return { s, c: COLORS[Math.floor(Math.random() * COLORS.length)] };
+}
+function drawBoard() {
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const v = grid[r][c];
+    const el = cells[r * N + c];
+    el.className = v ? 'cell on' : 'cell';
+    el.style.setProperty('--c', v || '');
+  }
+}
+function drawTray() {
+  trayEl.innerHTML = '';
+  tray.forEach((p, i) => {
+    if (!p) return;
+    const el = document.createElement('div');
+    el.className = 'piece';
+    el.style.setProperty('--c', p.c);
+    el.style.gridTemplateColumns = `repeat(${p.s[0].length}, auto)`;
+    p.s.forEach(row => row.forEach(v => {
+      const pc = document.createElement('div');
+      pc.className = 'pcell';
+      pc.style.visibility = v ? 'visible' : 'hidden';
+      el.appendChild(pc);
+    }));
+    el.addEventListener('pointerdown', ev => startDrag(ev, i, p));
+    trayEl.appendChild(el);
+  });
+}
+function canPlace(s, r0, c0) {
+  for (let r = 0; r < s.length; r++) for (let c = 0; c < s[0].length; c++) {
+    if (!s[r][c]) continue;
+    const R = r0 + r, C = c0 + c;
+    if (R >= N || C >= N || grid[R][C]) return false;
+  }
+  return true;
+}
+function place(s, c, r0, c0) {
+  let filled = 0;
+  for (let r = 0; r < s.length; r++) for (let cc = 0; cc < s[0].length; cc++)
+    if (s[r][cc]) { grid[r0 + r][c0 + cc] = c; filled++; }
+  let cleared = 0;
+  const fullRows = [], fullCols = [];
+  for (let r = 0; r < N; r++) if (grid[r].every(Boolean)) fullRows.push(r);
+  for (let cc = 0; cc < N; cc++) {
+    let full = true;
+    for (let r = 0; r < N; r++) if (!grid[r][cc]) { full = false; break; }
+    if (full) fullCols.push(cc);
+  }
+  fullRows.forEach(r => { for (let cc = 0; cc < N; cc++) grid[r][cc] = 0; cleared++; });
+  fullCols.forEach(cc => { for (let r = 0; r < N; r++) grid[r][cc] = 0; cleared++; });
+  score += filled + cleared * N + (cleared > 1 ? cleared * 10 : 0);
+  scoreEl.textContent = score;
+  if (score > best) {
+    best = score; bestEl.textContent = best;
+    try { localStorage.setItem('blockdrop_best', best); } catch {}
+  }
+  return cleared;
+}
+function anyMove() {
+  for (const p of tray) {
+    if (!p) continue;
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+      if (canPlace(p.s, r, c)) return true;
+  }
+  return false;
+}
+function startDrag(ev, i, p) {
+  ev.preventDefault();
+  drag = { i, p };
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+}
+function cellAt(x, y) {
+  const rect = boardEl.getBoundingClientRect();
+  if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return null;
+  const c = Math.floor((x - rect.left) / (rect.width / N));
+  const r = Math.floor((y - rect.top) / (rect.height / N));
+  return { r: Math.min(r, N - 1), c: Math.min(c, N - 1) };
+}
+function onMove() {}
+function onUp(ev) {
+  window.removeEventListener('pointermove', onMove);
+  window.removeEventListener('pointerup', onUp);
+  if (!drag) return;
+  const t = cellAt(ev.clientX, ev.clientY);
+  if (t) {
+    const sh = drag.p.s;
+    const r0 = t.r - Math.floor(sh.length / 2), c0 = t.c - Math.floor(sh[0].length / 2);
+    if (r0 >= 0 && c0 >= 0 && canPlace(sh, r0, c0)) {
+      place(sh, drag.p.c, r0, c0);
+      tray[drag.i] = null;
+      drawBoard(); drawTray();
+      if (tray.every(p => !p)) { tray = [randPiece(), randPiece(), randPiece()]; drawTray(); }
+      if (!anyMove()) overEl.textContent = 'No moves left — tap New game.';
+    }
+  }
+  drag = null;
+}
+function reset() {
+  grid = Array.from({ length: N }, () => Array(N).fill(0));
+  score = 0; scoreEl.textContent = 0; overEl.textContent = '';
+  tray = [randPiece(), randPiece(), randPiece()];
+  drawBoard(); drawTray();
+}
+document.getElementById('reset').addEventListener('click', reset);
+reset();
+</script>
+</body>
+</html>
