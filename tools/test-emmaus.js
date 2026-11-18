@@ -474,6 +474,11 @@ check(/\.tag\.t-trad\{background:var\(--tag2-bg\)/.test(html.replace(/\n/g,"")),
 check(/\.tag\.t-read\{background:var\(--tag3-bg\)/.test(html.replace(/\n/g,"")), "the reading tag uses a token");
 check(/\.cb-safe\{[^}]*--tag1-fg/.test(html.replace(/\n/g,"")), "colourblind mode overrides the text tag");
 check(/\.cb-safe\{[^}]*--tag3-fg/.test(html.replace(/\n/g,"")), "colourblind mode overrides the reading tag");
+check(/html\[data-theme="light"\] \.cb-safe\{/.test(html.replace(/\n/g,"")), "light theme has its own colourblind tag values");
+// no hard-coded tag colour may shadow the tokens (this is what silently broke light mode)
+const tagRules = html.match(/[^{}]*\.tag\.t-(text|trad|read)\s*\{[^}]*\}/g) || [];
+check(tagRules.length >= 3, "all three truth tags are styled");
+check(tagRules.every(r => !/#[0-9a-fA-F]{3,6}/.test(r)), "every truth-tag rule uses tokens, never a fixed colour");
 check(/prefCb/.test(script), "Settings exposes the colourblind switch");
 api.prefToggle("cb", true);
 check(api.PREFS.cb === true, "the choice is remembered");
