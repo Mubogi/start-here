@@ -137,6 +137,26 @@ Offering (gather the word), Trial (two hearts), The Race (faster), Stillness
 applies the variant's hearts, timer (`A.timed`/`A.timeMax`), speed (`A.speedMul`)
 and spawn density (`A.spawnMul`).
 
+On top of the variant, every level also carries a **twist** from `TWISTS`
+(cycled by `twistOf(ch,lv)`, offset by the decade so a chapter's twenty levels
+each pair differently): The Open Path, Swift Water, Still Waters, The Crowd,
+The Quiet Hour, The Firstfruits, The Gentle Wind, The Whirlwind, Keep Watch, The
+Scribe. A twist nudges `mult` (pace), `spawn` (density), `need` (goal) or
+`letters` (how soon letters fall). `levelBlurb(ch,lv)` joins the variant and
+twist descriptions for the devotion screen and the level map.
+
+**The Trial — read before you play.** Every level opens with one question drawn
+from `TRIALS[ch]` (six questions per chapter, 60 total, rotated by
+`trialFor(ch,lv)` so they rarely repeat). `beginWithTrial(ch,lv,opts)` runs the
+chapter cutscene, then the trial, then `startLevel`. You get `CHANCES` (3) tries;
+a wrong answer costs one, and losing all three **rests** the level until the next
+dawn — `showRenewal` stores the date in the pilgrim's `rest` map and quotes
+Lamentations 3:22-23. `chancesLeft`, `levelResting` and `renewalText` drive the
+hearts row, the map's 🌅 resting mark and the countdown. A correct answer is
+recorded in `pass` and opens the level. Free play (`PREFS.free`), daily
+challenges (`opts.daily`) and the endless level skip the trial. State lives on
+the pilgrim record as `tries`/`rest`/`pass`.
+
 **Words that mean something.** The falling letters must be gathered **in order**
 to spell the chapter's word (`WORDS`), shown live in the HUD strip and the
 devotion scroll. The next letter glows; wrong letters still score but do not
