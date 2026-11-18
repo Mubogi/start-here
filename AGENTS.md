@@ -182,5 +182,19 @@ script does this), then publish the APK as a GitHub Release asset.
 Verify with `node tools/test-emmaus.js`: it runs the real code against a minimal
 DOM, checks the MAP rules, plays all ten modes through the actual
 update()/tap()/move() loop, and checks backdrops, word meanings, exercises,
-devotion, the fruit screen, level variants and boss rules, credits, and
-self-containment.
+devotion, the fruit screen, level variants and boss rules, credits,
+self-containment, themes, navigation, interactivity and scrolling.
+
+**Usability (v1.2).** Every screen scrolls: `.scroller` is `flex:1 1 auto;
+min-height:0; overflow-y:auto` and overlays scroll internally, so no content is
+ever clipped. A persistent `#navbar` (Back · Home · Next) sits at the bottom of
+every screen except play; `navSet(screen,nextFn,label)` is called at the end of
+each opener to declare its Next action, and `showScreen` pushes the previous
+screen onto `NAV.stack` so Back retraces the real path. Escape / ← / → and
+horizontal swipes drive the same actions. Two themes ship: dark (default) and
+light ("parchment & dawn") via `html[data-theme="light"]` and `setTheme()`;
+`PREFS.theme` is saved and the menu has a quick ☀️/🌙 toggle. Study layers are
+real `<button>` accordions (`.layer > .head.tappable` with a rotating `.chev`)
+that announce `aria-expanded`; the first layer opens by default. Delight comes
+from `ANGELS` chapter emblems, `cheer(emoji)` celebrations and `spawnFloaties()`
+floating angels/doves (`body.reduced-motion` hides them).

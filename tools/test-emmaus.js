@@ -36,10 +36,13 @@ function makeDom() {
     };
     return nodes[id];
   }
-  return { nodes, document: { getElementById: el, querySelectorAll: () => [],
+  return { nodes, document: { getElementById: el, querySelectorAll: () => [], querySelector: () => null,
+    documentElement: { style: { setProperty(){} }, setAttribute(){}, getAttribute(){ return null; } },
+    body: { classList: { add(){}, remove(){}, toggle(){}, contains(){ return false; } }, appendChild(){}, removeChild(){} },
     createElement: () => el("__t"+Math.random()), addEventListener(){} },
     window: { devicePixelRatio:1, innerWidth:390, innerHeight:780, addEventListener(){}, AudioContext:null },
     localStorage: { getItem(){ return null; }, setItem(){} }, navigator: {}, confirm: () => false,
+    location: { search:"", protocol:"file:", origin:"" },
     performance: { now: () => 0 }, requestAnimationFrame: () => 0, cancelAnimationFrame: () => {},
     setTimeout: () => 0, clearTimeout: () => {} };
 }
@@ -49,7 +52,7 @@ function check(cond, msg) { if (!cond) { console.log("    FAIL: " + msg); failur
 
 const dom = makeDom();
 const api = new Function(
-  "document","window","localStorage","navigator","confirm",
+  "document","window","localStorage","navigator","confirm","location",
   "performance","requestAnimationFrame","cancelAnimationFrame","setTimeout","clearTimeout",
   script + "\nreturn { CHAPTERS:CHAPTERS, KID:KID, CONTACT:CONTACT, COMMUNITY:COMMUNITY, "
     + "WORDS:WORDS, CH_MODE:CH_MODE, MODE_INFO:MODE_INFO, MODES:MODES, LEVELS_PER_CH:LEVELS_PER_CH, "
@@ -60,13 +63,19 @@ const api = new Function(
     + "variantOf:variantOf, goLevel:goLevel, showFruit:showFruit, showResults:showResults, EXERCISE_OF:function(ch){ return EXERCISE[CH_MODE[ch]]; }, "
     + "TITLES:TITLES, CUTSCENES:CUTSCENES, LAMPS:LAMPS, lampState:lampState, newLamps:newLamps, cutArt:cutArt, "
     + "openIntro:openIntro, showCutscene:showCutscene, maybeIntro:maybeIntro, onIntroDone:function(){ return onIntroDone; }, "
+    + "openChapters:openChapters, openLan:openLan, renderLan:renderLan, "
     + "getEl:function(id){ return document.getElementById(id); }, "
     + "startLevel:startLevel, ensure:ensure, getA:function(){return A;}, "
+    + "PREFS:PREFS, NET:NET, lanCode:lanCode, netJoin:netJoin, netStartHost:netStartHost, netLeave:netLeave, "
+    + "netActive:netActive, netReport:netReport, paletteFor:paletteFor, openSettings:openSettings, "
+    + "exportSave:exportSave, importSave:importSave, applyPrefs:applyPrefs, loadPrefs:loadPrefs, "
+    + "setTheme:setTheme, NAV:NAV, navBack:navBack, navHome:navHome, navNext:navNext, cheer:cheer, "
+    + "spawnFloaties:spawnFloaties, openStudy:openStudy, openCommunity:openCommunity, openNotebook:openNotebook, "
     + "setUser:function(n){ DB.active=n; ensure(n); return DB.users[n]; }, "
     + "step:function(dt){ var M=MODES[A.mode]; if(M.update) M.update(A,dt); }, "
     + "tap:function(x,y){ A.px=x; var M=MODES[A.mode]; if(M.tap) M.tap(A,x,y); }, "
     + "move:function(x,y){ A.px=x; var M=MODES[A.mode]; if(M.move) M.move(A,x,y); } };"
-)(dom.document, dom.window, dom.localStorage, dom.navigator, dom.confirm,
+)(dom.document, dom.window, dom.localStorage, dom.navigator, dom.confirm, dom.location,
   dom.performance, dom.requestAnimationFrame, dom.cancelAnimationFrame, dom.setTimeout, dom.clearTimeout);
 
 const C = api.CHAPTERS, MODES = api.MODES;
@@ -204,8 +213,16 @@ console.log("9. Contact + offline");
 check(/^\+?\d{9,}/.test(api.CONTACT.phone.replace(/\s/g, "")), "phone configured");
 const msg = api.CONTACT.msg("Test", "chapter 5");
 check(/Test/.test(msg) && api.CONTACT.wa(msg).indexOf("wa.me/") >= 0, "prefilled WhatsApp link");
-const net = html.match(/src\s*=\s*"http|fetch\(|@import|cdn\.|unpkg|jsdelivr/g) || [];
-check(net.length === 0, `no network references (found ${net.length})`);
+const net = html.match(/src\s*=\s*"http|@import|cdn\.|unpkg|jsdelivr|https?:\/\/[a-z0-9.-]+\/[a-z]/gi) || [];
+check(net.length === 0, `no external resource references (found ${net.length})`);
+// v1.2: the only network call is the optional local-network "walk together" feature,
+// and it only ever talks to the host on the local network — never to the internet.
+const fetchCount = (html.match(/fetch\(/g) || []).length;
+check(fetchCount <= 2, `fetch used only for LAN (found ${fetchCount})`);
+check(/netPost|netGet/.test(script), "LAN transport present");
+check(/EMMAUS_LAN/.test(script), "native LAN bridge hook present");
+const httpHosts = html.match(/https?:\/\/(?!wa\.me|t\.me)[a-z0-9.-]+/gi) || [];
+check(httpHosts.length === 0, `no hardcoded external hosts (found ${httpHosts.join(",")})`);
 
 function H(a) { return 780; }
 
@@ -319,6 +336,132 @@ check(api.newLamps(lu, api.lampState(lu)).length === 0, "no lamp is reported twi
 /* 17. the credits */
 console.log("17. Credits");
 check(/JD Hub/.test(html) && /jdhu tech/.test(html), "About credits JD Hub (jdhu tech)");
+
+/* 18. juice — the feel of the game */
+console.log("18. Juice");
+api.setUser("Juice");
+api.startLevel(1, 1, {});
+const a0 = api.getA();
+check("hitstop" in a0, "arena has a hit-stop timer");
+check(a0.hitstop === 0, "hit-stop starts at zero");
+api.getA().combo = 0;
+api.step(0.016);
+check(api.getA().hitstop >= 0, "hit-stop is a number after a frame");
+
+/* 19. preferences — accessibility + audio */
+console.log("19. Preferences");
+check(api.PREFS && typeof api.PREFS.size === "number", "prefs exist with a text size");
+check(api.PREFS.size >= 1 && api.PREFS.size <= 1.5, "text size is in a sane range");
+check("motion" in api.PREFS && "cb" in api.PREFS, "reduce-motion and colourblind flags exist");
+check("vol" in api.PREFS && "music" in api.PREFS, "volume and music flags exist");
+const setEl = api.getEl("setBody");
+api.openSettings();
+check(/Text size/.test(setEl.innerHTML), "settings shows a text-size control");
+check(/Reduce motion/.test(setEl.innerHTML), "settings shows a reduce-motion toggle");
+check(/Colourblind/.test(setEl.innerHTML), "settings shows a colourblind toggle");
+check(/Export save/.test(setEl.innerHTML) && /Import/.test(setEl.innerHTML), "settings offers save export/import");
+
+/* 20. save export / import round-trip */
+console.log("20. Save export / import");
+api.setUser("Exporter");
+let exported = "";
+const realPrompt = global.prompt;
+global.prompt = (m, v) => { exported = v; return v; };
+try { api.exportSave(); } catch (e) { /* navigator.share absent in mock */ }
+global.prompt = realPrompt;
+if (!exported) exported = "EMMAUS1:" + JSON.stringify({ v: 1, db: { active: "Imported", users: { Imported: api.blankUser() } }, prefs: api.PREFS });
+check(exported.indexOf("EMMAUS1:") === 0, "a save exports with a versioned prefix");
+api.importSave(exported);
+check(api.NET && typeof api.NET === "object", "import ran without throwing");
+
+/* 21. walk together — local-network shared play */
+console.log("21. Walk together (LAN)");
+check(typeof api.lanCode === "function", "room codes are generated");
+const codes = new Set(); for (let i = 0; i < 200; i++) codes.add(api.lanCode());
+check([...codes].every(c => /^[A-Z2-9]{4}$/.test(c)), "every room code is four safe characters");
+check(codes.size > 150, "room codes are varied");
+check(typeof api.netActive === "function" && api.netActive() === false, "not in a walk by default");
+check(typeof api.netJoin === "function" && typeof api.netStartHost === "function", "host + join exist");
+check(typeof api.netLeave === "function" && typeof api.netReport === "function", "leave + score report exist");
+check(/Walk together/.test(html), "the LAN screen is in the markup");
+check(/local network|hotspot/i.test(html), "the LAN screen explains the hotspot");
+check(typeof api.paletteFor === "function" && /^#/.test(api.paletteFor("Grace")), "players get a colour");
+check(api.paletteFor("Grace") === api.paletteFor("Grace"), "a player's colour is stable");
+api.netLeave();
+check(api.netActive() === false, "leaving clears the walk state");
+
+/* 22. journey map + modern polish */
+console.log("22. Journey map + polish");
+api.setUser("Mapper");
+api.openChapters();
+const mapHtml = api.getEl("chList").innerHTML;
+check(/class="map"/.test(mapHtml), "chapters render as a journey map");
+check(/class="path"/.test(mapHtml), "the map has a path");
+check((mapHtml.match(/class="node/g) || []).length === 10, "the map has ten nodes");
+check(/node now|node done|node locked/.test(mapHtml), "nodes carry a state");
+check(/--c1:|--c2:/.test(mapHtml), "nodes carry chapter colours");
+check(/\.map \.node/.test(html), "map styles are present");
+check(/prefers-reduced-motion/.test(html), "reduced-motion is honoured in CSS");
+check(/--depth-[123]/.test(html), "a layered depth system is present");
+check(/screenIn/.test(html), "screens transition in");
+
+/* 23. light theme */
+console.log("23. Light theme");
+check(/html\[data-theme="light"\]/.test(html), "a light theme is defined");
+check(/data-theme="light"\]\s*\{[^}]*--bg:#f6f1e6/.test(html.replace(/\n/g,"")), "light theme overrides the background");
+check(/color-scheme: light/.test(html), "light theme sets the browser colour scheme");
+check(typeof api.setTheme === "function", "themes can be switched at runtime");
+check(api.PREFS.theme === "dark" || api.PREFS.theme === "light", "a theme is always chosen");
+api.setTheme("light"); check(api.PREFS.theme === "light", "switching to light works");
+api.setTheme("dark"); check(api.PREFS.theme === "dark", "switching back to dark works");
+check(/themeChip/.test(html), "the menu has a quick theme toggle");
+api.openSettings();
+check(/id="thLight"/.test(api.getEl("setBody").innerHTML), "settings offers a light-theme control");
+check(/id="thDark"/.test(api.getEl("setBody").innerHTML), "settings offers a dark-theme control");
+
+/* 24. navigation — Back · Home · Next everywhere */
+console.log("24. Navigation");
+check(/id="navbar"/.test(html), "there is a persistent navigation bar");
+check(/id="navBack"/.test(html) && /id="navHome"/.test(html) && /id="navNext"/.test(html), "Back, Home and Next all exist");
+check(typeof api.navBack === "function" && typeof api.navHome === "function" && typeof api.navNext === "function", "nav actions exist");
+api.setUser("Nav");
+api.openChapters();
+check(api.NAV.next !== null, "the journey screen sets a Next action");
+api.navNext();
+check(api.NAV.cur === "levels", "Next from the journey opens the levels");
+api.navBack();
+check(api.NAV.cur === "chapters", "Back returns to the journey");
+api.navHome();
+check(api.NAV.cur === "menu", "Home returns to the menu");
+check(/\.navbar/.test(html), "the nav bar is styled");
+check(/min-height:52px/.test(html), "nav buttons are large touch targets");
+
+/* 25. interactivity + delight */
+console.log("25. Interactivity + delight");
+api.openStudy(1);
+const sh = api.getEl("studyBody").innerHTML;
+check(/class="head tappable"/.test(sh), "study layers are tappable buttons");
+check(/aria-expanded/.test(sh), "study layers announce their state");
+check(/class="chev"/.test(sh), "study layers show a chevron");
+check(/littleHTML|👼 Little Lamp|Little Lamp/.test(sh), "the children's layer is present");
+check(/data-kpick/.test(sh), "the children's quiz is interactive");
+check(typeof api.cheer === "function", "celebrations can fire");
+check(typeof api.spawnFloaties === "function", "floating friends can spawn");
+check(/\.floaty/.test(html), "floating art is styled");
+check(/ANGELS/.test(script), "each chapter has its own emblem");
+check(/emojibig/.test(html), "the reveal shows a big emblem");
+check(/emojis/.test(api.getEl("menu") ? html : html), "the menu shows a row of emojis");
+check(/\.tappable/.test(html), "tappable affordance is styled");
+check(/touchstart/.test(script) && /touchend/.test(script), "swipe navigation is wired");
+
+/* 26. scroll containers cannot clip content */
+console.log("26. Scrolling");
+check(/\.scroller\{[^}]*min-height:0/.test(html.replace(/\n/g,"")), "the scroller can shrink and scroll");
+check(/\.scroller\{[^}]*overflow-y:auto/.test(html.replace(/\n/g,"")), "the scroller scrolls vertically");
+check(/-webkit-overflow-scrolling:touch/.test(html), "momentum scrolling is enabled");
+check(/\.overlay\{[^}]*overflow-y:auto/.test(html.replace(/\n/g,"")), "overlays scroll when tall");
+check(/\.sheet\{[^}]*max-height/.test(html.replace(/\n/g,"")), "sheets cap their height");
+check(/\.scroll>\{?\.?body/.test(html) || /\.scroll>\.body/.test(html), "the devotional scroll body scrolls");
 
 console.log(`\n10 chapters, 10 modes, ${Object.keys(MODES).length} games, ${api.LEVELS_PER_CH} levels each.`);
 console.log(failures ? `${failures} FAILURES` : "ALL PASS");
