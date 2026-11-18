@@ -200,12 +200,18 @@ its Hebrew/Greek word underneath. Imported versions live in a JSON file the app 
 10. **An installable Android app** — `android/` (a WebView shell) and `tools/build-apk.sh`
     build and sign `dist/EMMAUS.apk`, published on the Releases page. No INTERNET permission;
     the game is bundled. — done. Verified by inspecting the APK and the release download.
+11. **Usable everywhere** — every screen scrolls (nothing is ever clipped), a persistent
+    **Back · Home · Next** bar retraces the real path (`NAV.stack`), a **light "parchment &
+    dawn"** theme joins the dark default, study layers are real accordion buttons, and the
+    menu, reveal and level screens carry delight (chapter emblems, cheers, floating
+    angels/doves). — done. Verified by `tools/test-emmaus.js` sections 23–26 and a live
+    browser pass.
 
 ---
 
 ## 13. Project contact
 
-- **GitHub:** https://github.com/MAYI12333
+- **GitHub:** https://github.com/Mubogi
 
 ---
 

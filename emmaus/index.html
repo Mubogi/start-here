@@ -22,10 +22,19 @@
     --fs-scale:1;
     --sp:8px;
     --radius:18px;
+    /* truth-tag tokens (the three colours that must never be confused) */
+    --tag1-bg:#1d3a25; --tag1-fg:#7ee39a; --tag1-bd:#2c6b3d;
+    --tag2-bg:#3a3218; --tag2-fg:#f0cf78; --tag2-bd:#6b5a20;
+    --tag3-bg:#1c2a44; --tag3-fg:#9dc0ff; --tag3-bd:#2f4a7a;
   }
   /* v1.2 — accessibility + preferences (set on :root by Prefs) */
   html{font-size:calc(16px * var(--fs-scale,1))}
-  .cb-safe{ --green:#6fb3ff; --rose:#ffb861; }
+  /* colourblind-safe palette: green→blue, red→amber, and the truth tags move to
+     blue / amber / violet so a red-green viewer can still tell all three apart. */
+  .cb-safe{ --green:#6fb3ff; --rose:#ffb861;
+    --tag1-bg:#10263f; --tag1-fg:#8ec7ff; --tag1-bd:#33608f;
+    --tag2-bg:#3a3218; --tag2-fg:#f4d17f; --tag2-bd:#6b5a20;
+    --tag3-bg:#2a1440; --tag3-fg:#dcaeff; --tag3-bd:#6a3f9f; }
 
   /* v1.2 · LIGHT THEME — "parchment & dawn". Everything readable in bright sun. */
   html[data-theme="light"]{
@@ -35,6 +44,9 @@
     --ink:#2a2418; --ink2:#5b5343; --dim:#7a7160;
     --gold:#b8860b; --gold2:#8a6408; --gold3:#d8b04a; --amber:#c9721a; --olive:#5f6f2a;
     --green:#2f8f4e; --blue:#2f63c9; --violet:#6a4fc0; --rose:#c94b62;
+    --tag1-bg:#dff3e4; --tag1-fg:#1f6b38; --tag1-bd:#9ed3ac;
+    --tag2-bg:#fbf0cf; --tag2-fg:#8a6408; --tag2-bd:#e0c777;
+    --tag3-bg:#e2ecff; --tag3-fg:#26478f; --tag3-bd:#a8c2ef;
     --depth-1:0 1px 0 rgba(255,255,255,.9) inset,0 6px 16px rgba(90,70,30,.12);
     --depth-2:0 1px 0 rgba(255,255,255,.9) inset,0 14px 34px rgba(90,70,30,.18);
     --depth-3:0 1px 0 rgba(255,255,255,.9) inset,0 24px 60px rgba(90,70,30,.22);
@@ -47,6 +59,11 @@
   html[data-theme="light"] .logo{background:linear-gradient(180deg,#8a6408,#b8860b 55%,#e0a92a);
     -webkit-background-clip:text;background-clip:text;text-shadow:0 6px 22px rgba(184,134,11,.22)}
   html[data-theme="light"] .logo small{-webkit-text-fill-color:var(--dim)}
+  /* light theme + colourblind-safe: keep the three tags separable on paper too */
+  html[data-theme="light"] .cb-safe{
+    --tag1-bg:#dbeafe; --tag1-fg:#1d4ed8; --tag1-bd:#93b8f5;
+    --tag2-bg:#fbf0cf; --tag2-fg:#8a6408; --tag2-bd:#e0c777;
+    --tag3-bg:#f0e2ff; --tag3-fg:#6a2fb0; --tag3-bd:#c9a6ef; }
   html[data-theme="light"] .topbar{background:linear-gradient(180deg,rgba(246,241,230,.94),rgba(246,241,230,0))}
   html[data-theme="light"] .chip{background:#fff;box-shadow:var(--depth-1)}
   html[data-theme="light"] .card{background:linear-gradient(180deg,#fff,var(--panel2))}
@@ -275,9 +292,9 @@
   .layer.open>.body{display:block;animation:fadeIn .25s ease both}
   .layer:not(.open)>.head:hover{filter:brightness(1.08)}
   .tag{display:inline-block;font-size:.68rem;font-weight:700;padding:.16rem .55rem;border-radius:7px;margin:.2rem 0 .5rem}
-  .tag.t-text{background:#1d3a25;color:#7ee39a;border:1px solid #2c6b3d}
-  .tag.t-trad{background:#3a3218;color:#f0cf78;border:1px solid #6b5a20}
-  .tag.t-read{background:#1c2a44;color:#9dc0ff;border:1px solid #2f4a7a}
+  .tag.t-text{background:var(--tag1-bg);color:var(--tag1-fg);border:1px solid var(--tag1-bd)}
+  .tag.t-trad{background:var(--tag2-bg);color:var(--tag2-fg);border:1px solid var(--tag2-bd)}
+  .tag.t-read{background:var(--tag3-bg);color:var(--tag3-fg);border:1px solid var(--tag3-bd)}
   table.v{width:100%;border-collapse:collapse;font-size:.86rem}
   table.v th,table.v td{text-align:left;vertical-align:top;padding:.5rem .6rem;border-bottom:1px solid var(--line)}
   table.v th{color:var(--gold2);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;width:96px}

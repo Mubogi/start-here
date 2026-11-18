@@ -38,7 +38,9 @@ function makeDom() {
   }
   return { nodes, document: { getElementById: el, querySelectorAll: () => [], querySelector: () => null,
     documentElement: { style: { setProperty(){} }, setAttribute(){}, getAttribute(){ return null; } },
-    body: { classList: { add(){}, remove(){}, toggle(){}, contains(){ return false; } }, appendChild(){}, removeChild(){} },
+    body: { classList: { _s: new Set(), add(c){this._s.add(c);}, remove(c){this._s.delete(c);},
+      toggle(c,on){ if(on===undefined) on=!this._s.has(c); on?this._s.add(c):this._s.delete(c); },
+      contains(c){ return this._s.has(c); } }, appendChild(){}, removeChild(){} },
     createElement: () => el("__t"+Math.random()), addEventListener(){} },
     window: { devicePixelRatio:1, innerWidth:390, innerHeight:780, addEventListener(){}, AudioContext:null },
     localStorage: { getItem(){ return null; }, setItem(){} }, navigator: {}, confirm: () => false,
@@ -69,7 +71,7 @@ const api = new Function(
     + "PREFS:PREFS, NET:NET, lanCode:lanCode, netJoin:netJoin, netStartHost:netStartHost, netLeave:netLeave, "
     + "netActive:netActive, netReport:netReport, paletteFor:paletteFor, openSettings:openSettings, "
     + "exportSave:exportSave, importSave:importSave, applyPrefs:applyPrefs, loadPrefs:loadPrefs, "
-    + "setTheme:setTheme, NAV:NAV, navBack:navBack, navHome:navHome, navNext:navNext, cheer:cheer, "
+    + "setTheme:setTheme, prefToggle:prefToggle, NAV:NAV, navBack:navBack, navHome:navHome, navNext:navNext, cheer:cheer, "
     + "spawnFloaties:spawnFloaties, openStudy:openStudy, openCommunity:openCommunity, openNotebook:openNotebook, "
     + "setUser:function(n){ DB.active=n; ensure(n); return DB.users[n]; }, "
     + "step:function(dt){ var M=MODES[A.mode]; if(M.update) M.update(A,dt); }, "
@@ -462,6 +464,22 @@ check(/-webkit-overflow-scrolling:touch/.test(html), "momentum scrolling is enab
 check(/\.overlay\{[^}]*overflow-y:auto/.test(html.replace(/\n/g,"")), "overlays scroll when tall");
 check(/\.sheet\{[^}]*max-height/.test(html.replace(/\n/g,"")), "sheets cap their height");
 check(/\.scroll>\{?\.?body/.test(html) || /\.scroll>\.body/.test(html), "the devotional scroll body scrolls");
+
+/* 27. colourblind-safe palette — the three truth tags stay separable */
+console.log("27. Colourblind palette");
+check(/\.cb-safe\{/.test(html), "a colourblind-safe class exists");
+check(/\.cb-safe\{[^}]*--green/.test(html.replace(/\n/g,"")), "it recolours green");
+check(/\.tag\.t-text\{background:var\(--tag1-bg\)/.test(html.replace(/\n/g,"")), "the text tag uses a token, not a fixed green");
+check(/\.tag\.t-trad\{background:var\(--tag2-bg\)/.test(html.replace(/\n/g,"")), "the tradition tag uses a token");
+check(/\.tag\.t-read\{background:var\(--tag3-bg\)/.test(html.replace(/\n/g,"")), "the reading tag uses a token");
+check(/\.cb-safe\{[^}]*--tag1-fg/.test(html.replace(/\n/g,"")), "colourblind mode overrides the text tag");
+check(/\.cb-safe\{[^}]*--tag3-fg/.test(html.replace(/\n/g,"")), "colourblind mode overrides the reading tag");
+check(/prefCb/.test(script), "Settings exposes the colourblind switch");
+api.prefToggle("cb", true);
+check(api.PREFS.cb === true, "the choice is remembered");
+check(dom.document.body.classList.contains("cb-safe"), "turning it on adds the cb-safe class to the body");
+api.prefToggle("cb", false);
+check(!dom.document.body.classList.contains("cb-safe"), "turning it off removes the class again");
 
 console.log(`\n10 chapters, 10 modes, ${Object.keys(MODES).length} games, ${api.LEVELS_PER_CH} levels each.`);
 console.log(failures ? `${failures} FAILURES` : "ALL PASS");

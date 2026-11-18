@@ -198,3 +198,14 @@ real `<button>` accordions (`.layer > .head.tappable` with a rotating `.chev`)
 that announce `aria-expanded`; the first layer opens by default. Delight comes
 from `ANGELS` chapter emblems, `cheer(emoji)` celebrations and `spawnFloaties()`
 floating angels/doves (`body.reduced-motion` hides them).
+
+**Colourblind-safe palette.** `PREFS.cb` adds `body.cb-safe`. Green→blue and
+red→amber everywhere (`--green`, `--rose`), and — the part that matters most —
+the three truth tags move to **blue / amber / violet** so a red-green viewer can
+still tell "Text says", "Tradition holds" and "A reading" apart. The tags are
+themed through `--tag1-*` / `--tag2-*` / `--tag3-*` tokens (never hard-coded
+colours), with dark, light and `light + cb-safe` values all defined. When
+changing a tag colour, edit the tokens, not `.tag.t-*`. Guarded by section 27 of
+`tools/test-emmaus.js`, which also asserts `prefToggle("cb",…)` really adds and
+removes the body class (the harness's `document.body.classList` is a working
+`Set`, not a stub).
