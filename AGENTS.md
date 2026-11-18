@@ -101,47 +101,65 @@ verse resolves, every art key exists, no required field is missing.
 
 ## EMMAUS game (`emmaus/index.html`)
 
-One offline file. It is a **game platform**, not a study page: a canvas (2D)
-renders every frame through a `requestAnimationFrame` loop with its own
-update/draw, physics, particle bursts, screen shake, and a small Web Audio
-synth (no sound files).
+One offline file. A canvas (2D) renders every frame through a
+`requestAnimationFrame` loop with its own update/draw, physics, particles,
+screen shake, and a small Web Audio synth (no sound files).
 
-**Ten chapters, ten different games.** `CH_MODE` maps each chapter to a mode in
-the `MODES` registry, and each mode is a genuinely different mechanic:
+**Ten chapters, ten games, ten spiritual exercises.** `CH_MODE` maps a chapter
+to a mode in the `MODES` registry; each mode is a different mechanic *and* a
+different discipline (`EXERCISE[mode]` names it and explains it):
 
-| # | Chapter | Mode | Play |
-|---|---------|------|------|
-| 1 | The Garden | `garden` | catch good fruit, avoid the rot |
-| 2 | The Fall | `fall` | dodge the darkness and survive |
-| 3 | The Ark | `ark` | slide the raft through gaps in the flood |
-| 4 | The Lamb | `lamb` | swipe through shadows, spare the lambs |
-| 5 | The Wilderness | `wilderness` | tap the manna, ignore the serpents |
-| 6 | The Temple | `temple` | drop each stone true, build without toppling |
-| 7 | The Veil | `veil` | tap when the light crosses the mark |
-| 8 | The Tomb | `tomb` | remember and match the stones |
-| 9 | The Upper Room | `upper` | run and jump, do not fall into the fire |
-| 10 | The City | `city` | guard the city, turn back every shadow |
+| # | Chapter | Mode | Play | Exercise |
+|---|---------|------|------|----------|
+| 1 | The Garden | `garden` | catch good fruit, avoid the rot | Trust |
+| 2 | The Fall | `fall` | dodge the darkness | Watchfulness |
+| 3 | The Ark | `ark` | slide the raft through gaps | Endurance |
+| 4 | The Lamb | `lamb` | swipe shadows, spare the lambs | Discernment |
+| 5 | The Wilderness | `wilderness` | tap the manna | Attention |
+| 6 | The Temple | `temple` | drop each stone true | Order |
+| 7 | The Veil | `veil` | tap when the light crosses | Faith |
+| 8 | The Tomb | `tomb` | remember and match the stones | Memory |
+| 9 | The Upper Room | `upper` | run and jump | Perseverance |
+| 10 | The City | `city` | guard the city | Prayer |
 
-Each chapter has `LEVELS_PER_CH` (21) levels: 20 that get harder, then an
-**endless** mode. A level awards up to three stars by how many hearts you keep;
-eight stars of a chapter open the next chapter. Progress is per pilgrim:
-`{marks, stars:{ch-lv:n}, best:{ch-lv:score}, notes:[], sound, daily:{}, streak, plays}`
-in localStorage under `emmaus_v3`.
+**Something to learn before and after every level.** Tapping a level opens
+`goLevel()` — a devotion Scroll: the exercise, the chapter verse, a teaching
+(`DEVOTION`), a practice for the day, the level's goal, and the word to gather.
+Winning or losing opens `showFruit()`: the word you gathered, its meaning
+(`WORD_MEANING` — a plain-language paragraph and a promise verse), the fruit
+line, and a practice. Then the results sheet.
 
-Add a mode by calling `regMode({id, meter, init(A), update(A,dt), draw(A),
-tap(A,x,y), move(A,x,y)})`; set `CH_MODE[chapter]=id`. `A` is the arena: `A.t`,
-`A.px`, `A.diff` (0..1), `A.speed`, `A.rng`, `A.obj` (your own state). Helpers:
-`good()`, `hurt()`, `setProgress()`, `winLevel()`, `loseLevel()`, `drawPaddle()`,
-`drawPlayerLight()`, `glow()`, `circ()`, `burst()`, `txt()`. Use `A.obj.next` /
-`A.obj.wait` timers for delayed steps — **never** `setTimeout` inside a mode
-(it breaks when paused and in tests).
+**Candy-Crush variety.** Every level carries a variant from `VARIANTS`, cycled
+by `variantOf(ch,lv)`: The Path, Watchful (one heart), Harvest (timed), The
+Offering (gather the word), Trial (two hearts), The Race (faster), Stillness
+(slow, one mistake), Storm (more, faster), Covenant (word required), and a
+**Boss** every tenth level (two hearts, timed, word required). `startLevel`
+applies the variant's hearts, timer (`A.timed`/`A.timeMax`), speed (`A.speedMul`)
+and spawn density (`A.spawnMul`).
 
-Screens are `<section>` elements toggled by `showScreen()`; the canvas is always
-the backdrop: menu, chapters, levels, reveal (the verse, word by word), study
-(the five layers, deeper notes, Little Lamp, Pulpit, notebook), leaderboard,
-daily, notebook, community, about.
+**Words that mean something.** The falling letters must be gathered **in order**
+to spell the chapter's word (`WORDS`), shown live in the HUD strip and the
+devotion scroll. The next letter glows; wrong letters still score but do not
+advance the word. Completing it shows the meaning and a treasure card.
 
-Verify with `node tools/test-emmaus.js`. It runs the real code against a minimal
-DOM, checks the MAP rules, then **plays all ten modes through the actual
-update()/tap()/move() loop** to a win, and checks losing, endless, the daily
-seed, the study scroll, contact, and self-containment.
+**Biblical backdrops.** `BACKS[mode]` is a procedural animated scene drawn every
+frame — Eden, the fall, the flood, the altar, the desert, the temple, the veil,
+the tomb, the upper room, the city — with sky, ground, glow, and moving light.
+
+Each chapter has `LEVELS_PER_CH` (21) levels: 20 + an **endless** mode. Three
+stars a level by hearts kept; eight stars of a chapter open the next. Progress
+is per pilgrim in localStorage under `emmaus_v3` (add `daily`, `streak`).
+
+Add a mode with `regMode({id, meter, init(A), update(A,dt), draw(A), tap(A,x,y),
+move(A,x,y)})`, set `CH_MODE[chapter]=id`, and add `EXERCISE`, `DEVOTION`,
+`WORD_MEANING`, `BACKS` entries. Use `A.obj.next`/`A.obj.wait` timers for
+delayed steps — **never** `setTimeout` inside a mode.
+
+Credits live in the About screen: **JD Hub (jdhu tech)**, built with the
+OpenHands AI agent. Every screen keeps Call / WhatsApp / Telegram to the owner.
+
+Verify with `node tools/test-emmaus.js`: it runs the real code against a minimal
+DOM, checks the MAP rules, plays all ten modes through the actual
+update()/tap()/move() loop, and checks backdrops, word meanings, exercises,
+devotion, the fruit screen, level variants and boss rules, credits, and
+self-containment.

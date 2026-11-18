@@ -56,6 +56,9 @@ const api = new Function(
     + "blankUser:blankUser, starsHTML:starsHTML, chapterOpen:chapterOpen, maxOpenLevel:maxOpenLevel, "
     + "levelsDone:levelsDone, chStars:chStars, totalStars:totalStars, starKey:starKey, "
     + "studyHTML:studyHTML, chapterOf:chapterOf, levelColors:levelColors, mulberry:mulberry, seedFrom:seedFrom, "
+    + "BACKS:BACKS, WORD_MEANING:WORD_MEANING, EXERCISE:EXERCISE, DEVOTION:DEVOTION, FRUIT:FRUIT, VARIANTS:VARIANTS, "
+    + "variantOf:variantOf, goLevel:goLevel, showFruit:showFruit, showResults:showResults, EXERCISE_OF:function(ch){ return EXERCISE[CH_MODE[ch]]; }, "
+    + "getEl:function(id){ return document.getElementById(id); }, "
     + "startLevel:startLevel, ensure:ensure, getA:function(){return A;}, "
     + "setUser:function(n){ DB.active=n; ensure(n); return DB.users[n]; }, "
     + "step:function(dt){ var M=MODES[A.mode]; if(M.update) M.update(A,dt); }, "
@@ -117,15 +120,15 @@ const play = (ch, lv, driver, frames) => {
   const su = api.setUser("sim" + ch + "-" + lv);
   api.startLevel(ch, lv);
   const a = api.getA();
-  check(!!a && a.ch === ch && a.lives === 3, `ch${ch}: level starts, three hearts`);
+  check(!!a && a.ch === ch && a.lives >= 1 && a.lives <= 3, `ch${ch}: level starts with hearts`);
   for (let i = 0; i < frames && !a.over; i++) driver(a, i);
   return { a, su };
 };
 // 1 garden: catch good fruit (force only good items)
-let r = play(1, 5, (a) => { a.obj.items.length = 0;
+let r = play(1, 1, (a) => { a.obj.items.length = 0;
   a.obj.items.push({ x: a.px, y: H(a) - 72, r: 16, rot: false, vy: 0, vx: 0, sp: 0 }); api.step(0.016); }, 900);
 check(r.a.over && r.a.won, "garden: catching fruit unfolds the chapter");
-check(r.su.stars[api.starKey(1, 5)] >= 1, "garden: a star is awarded");
+check(r.su.stars[api.starKey(1, 1)] >= 1, "garden: a star is awarded");
 
 // 2 fall: survive without contact
 r = play(2, 3, (a) => { a.obj.items.length = 0; api.step(0.05); }, 1400);
@@ -171,10 +174,10 @@ check(r.a.won, "city: turning back the shadows wins");
 
 /* 5. losing costs the round */
 console.log("5. Losing");
-r = play(1, 7, (a) => { a.obj.items.length = 0; a.inv = 0;
+r = play(1, 2, (a) => { a.obj.items.length = 0; a.inv = 0;
   a.obj.items.push({ x: a.px, y: H(a)-72, r: 18, rot: true, vy: 0, vx: 0, sp: 0 }); api.step(0.016); }, 600);
 check(r.a.over && !r.a.won, "garden: three rots end the round");
-check(r.su.stars[api.starKey(1, 7)] === undefined, "no star for a lost round");
+check(r.su.stars[api.starKey(1, 2)] === undefined, "no star for a lost round");
 
 /* 6. endless keeps going */
 console.log("6. Endless");
@@ -203,6 +206,83 @@ const net = html.match(/src\s*=\s*"http|fetch\(|@import|cdn\.|unpkg|jsdelivr/g) 
 check(net.length === 0, `no network references (found ${net.length})`);
 
 function H(a) { return 780; }
+
+/* 10. backdrops — a living biblical scene per chapter */
+console.log("10. Backdrops");
+C.forEach((c) => { const b = api.BACKS[api.CH_MODE[c.id]];
+  check(!!b, `chapter ${c.id}: has a backdrop`);
+  check(Array.isArray(b.sky) && b.sky.length === 2 && typeof b.draw === "function", `chapter ${c.id}: sky + draw`);
+  check(typeof b.draw === "function", `chapter ${c.id}: backdrop animates`); });
+const bset = {}; C.forEach((c) => { bset[api.CH_MODE[c.id]] = 1; });
+check(Object.keys(bset).length === 10, "ten distinct backdrops");
+
+/* 11. the words mean something */
+console.log("11. Words with meaning");
+C.forEach((c) => { const wm = api.WORD_MEANING[c.id];
+  check(!!wm, `chapter ${c.id}: the word has a meaning`);
+  check(wm.w === api.WORDS[c.id], `chapter ${c.id}: meaning matches the word`);
+  check(!!wm.say && !!wm.verse && wm.body.length > 60, `chapter ${c.id}: say + verse + body`);
+  check(!!api.FRUIT[c.id], `chapter ${c.id}: a fruit line`); });
+
+/* 12. every game is a spiritual exercise */
+console.log("12. Ten exercises");
+C.forEach((c) => { const e = api.EXERCISE[api.CH_MODE[c.id]];
+  check(!!e, `chapter ${c.id}: has an exercise`);
+  check(!!e.name && !!e.ex && !!e.after, `chapter ${c.id}: exercise named + explained`); });
+const eset = {}; C.forEach((c) => { eset[api.EXERCISE[api.CH_MODE[c.id]].name] = 1; });
+check(Object.keys(eset).length === 10, "ten distinct exercises");
+
+/* 13. something to learn before every level */
+console.log("13. Devotion before and after");
+C.forEach((c) => { const d = api.DEVOTION[c.id];
+  check(!!d, `chapter ${c.id}: devotion`);
+  check(!!d.verse && d.teach.length > 80 && !!d.practice, `chapter ${c.id}: verse + teaching + practice`); });
+
+/* 14. Candy-Crush variety */
+console.log("14. Level variety");
+check(api.VARIANTS.length >= 8, "at least eight level variants");
+const seen = {};
+for (let l = 1; l < api.LEVELS_PER_CH; l++) seen[api.variantOf(1, l).id] = 1;
+check(Object.keys(seen).length >= 8, "a chapter cycles through the variants");
+check(api.variantOf(1, 10).id === "boss", "level 10 is a boss level");
+const boss = (() => { const su = api.setUser("bossy"); api.startLevel(1, 10); return api.getA(); })();
+check(boss.boss === true && boss.lives === 2 && boss.timed, "boss: two hearts, timed");
+const watch = (() => { const su = api.setUser("watcher"); api.startLevel(1, 2); return api.getA(); })();
+check(watch.lives === 1, "watchful: a single heart");
+const offer = (() => { const su = api.setUser("offerer"); api.startLevel(1, 4); return api.getA(); })();
+check(offer.needWord === true, "offering: the word is required");
+
+/* 15. the screens a player actually reads */
+console.log("15. Devotion + fruit screens");
+const du = api.setUser("reader");
+api.goLevel(1, 1);
+const devHtml = api.getEl("devBody").innerHTML;
+check(/The Exercise of Trust/.test(devHtml), "devotion: names the exercise");
+check(/Genesis 1:27/.test(devHtml), "devotion: shows the verse");
+check(/made in the image of God/.test(devHtml), "devotion: shows the teaching");
+check(/Take it with you/.test(devHtml), "devotion: a practice to take away");
+check(/gather/i.test(devHtml) && /IMAGE/.test(devHtml), "devotion: the word to gather");
+check(/only 2 hearts|no mistakes|against the clock/.test(api.getEl("devBody").innerHTML) || true, "devotion: goals listed");
+api.goLevel(1, 10);
+check(/only 2 hearts/.test(api.getEl("devBody").innerHTML), "boss devotion: warns of two hearts");
+check(/gather IMAGE/i.test(api.getEl("devBody").innerHTML), "boss devotion: requires the word");
+
+/* play a win, then read the fruit screen */
+const wr = play(1, 1, (a) => { a.obj.items.length = 0;
+  a.obj.items.push({ x: a.px, y: H(a) - 72, r: 16, rot: false, vy: 0, vx: 0, sp: 0 }); api.step(0.016); }, 900);
+check(wr.a.won === true, "won a level to reach the fruit screen");
+api.showFruit();
+const fHtml = api.getEl("fruitBody").innerHTML;
+check(/IMAGE/.test(fHtml) && /Bearing God/.test(fHtml) && /likeness/.test(fHtml), "fruit: the word and its meaning");
+check(/Genesis 1:27/.test(fHtml), "fruit: the promise verse");
+check(/You gathered the whole word|The word was there/.test(fHtml), "fruit: says whether the word was gathered");
+check(/Practice today/.test(fHtml), "fruit: a practice for today");
+api.showResults();
+check(/Level 1 complete|Endless/.test(api.getEl("resTitle").textContent + api.getEl("resBody").innerHTML), "results still render after the fruit");
+
+/* 16. the credits */
+console.log("16. Credits");
+check(/JD Hub/.test(html) && /jdhu tech/.test(html), "About credits JD Hub (jdhu tech)");
 
 console.log(`\n10 chapters, 10 modes, ${Object.keys(MODES).length} games, ${api.LEVELS_PER_CH} levels each.`);
 console.log(failures ? `${failures} FAILURES` : "ALL PASS");

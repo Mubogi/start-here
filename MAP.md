@@ -185,6 +185,13 @@ its Hebrew/Greek word underneath. Imported versions live in a JSON file the app 
    slice, tap, stack, time, remember, run, guard), 21 levels each (20 + endless), three stars a
    level, a daily seeded challenge, streaks, and a local leaderboard. — done. Verified by
    `tools/test-emmaus.js`, which plays all ten modes through the real loop.
+8. **A living, biblical, spiritual game** — a devotion Scroll before every level and a fruit
+   screen after it (the word, its meaning, a practice); each game named as a spiritual exercise
+   (Trust, Watchfulness, Endurance, Discernment, Attention, Order, Faith, Memory, Perseverance,
+   Prayer); Candy-Crush level variety (ten trials plus a boss, changing hearts, time, speed and
+   goals); letters gathered **in order** to spell a meaningful word; a procedural animated
+   biblical backdrop per chapter; and biblical-modern scroll cards with credits to JD Hub
+   (jdhu tech). — done. Verified by `tools/test-emmaus.js` (16 sections).
 
 ---
 

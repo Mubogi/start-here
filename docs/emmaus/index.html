@@ -190,6 +190,46 @@
     color:#fff;text-decoration:none;box-shadow:0 8px 20px #0008}
   .fab a.call{background:linear-gradient(180deg,#4a73e8,#3450b0)}
   .fab a.wa{background:linear-gradient(180deg,#2fae5a,#1f8a45)}
+  /* ---------- devotional cards (biblical-modern) ---------- */
+  .scroll{position:relative;background:linear-gradient(180deg,#1b2036,#141828);
+    border:1px solid #3a4266;border-radius:20px;max-width:520px;width:100%;text-align:left;
+    box-shadow:0 24px 60px rgba(0,0,0,.6);animation:pop .3s cubic-bezier(.2,.9,.3,1.2);
+    overflow:hidden}
+  .scroll::before,.scroll::after{content:"";position:absolute;left:0;right:0;height:22px;
+    background:repeating-linear-gradient(90deg,#2a3050,#39406a 8px,#2a3050 16px);opacity:.7}
+  .scroll::before{top:0} .scroll::after{bottom:0}
+  .scroll .body{padding:26px 22px}
+  .scroll .eyebrow{font-size:.68rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold2);text-align:center}
+  .scroll h2{margin:.35rem 0 .1rem;font-size:1.25rem;text-align:center}
+  .scroll .ref{text-align:center;color:var(--gold);font-weight:700;font-size:.95rem;margin-bottom:.6rem}
+  .verse{border-left:3px solid var(--gold);padding:.3rem 0 .3rem .9rem;margin:12px 0;font-family:Georgia,serif;
+    font-size:1rem;line-height:1.6;color:#f6f2e6}
+  .exercise{background:linear-gradient(120deg,rgba(232,184,75,.14),rgba(232,184,75,.02));
+    border:1px solid #6b5a20;border-radius:14px;padding:12px 14px;margin:12px 0}
+  .exercise .t{font-weight:700;color:var(--gold2);font-size:.95rem}
+  .goal{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .goal span{background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+    padding:.32rem .7rem;font-size:.78rem}
+  .goal span.warn{border-color:#6b2a2a;color:#ffb3b3;background:#2a1414}
+  .wordbar{display:flex;gap:5px;justify-content:center;margin:12px 0;flex-wrap:wrap}
+  .wordbar i{font-style:normal;width:30px;height:34px;border-radius:8px;display:grid;place-items:center;
+    font-weight:800;background:#12162a;border:1px solid var(--line);color:#5c6480}
+  .wordbar i.have{background:linear-gradient(180deg,#3a2f10,#241c05);border-color:#8a7020;color:var(--gold2)}
+  .treasure{background:linear-gradient(160deg,#241c05,#12162a);border:1px solid #8a7020;
+    border-radius:16px;padding:14px;margin:12px 0;text-align:center}
+  .treasure .word{font-size:1.6rem;font-weight:800;letter-spacing:.2em;color:var(--gold2)}
+  .treasure .say{color:var(--gold);font-weight:600;margin:.2rem 0 .5rem}
+  .fruit{background:linear-gradient(120deg,rgba(91,214,122,.12),rgba(91,214,122,.02));
+    border:1px solid #2c6b3d;border-radius:14px;padding:12px 14px;margin:12px 0}
+  .credit{font-size:.8rem;color:var(--dim);line-height:1.7}
+  .credit b{color:var(--ink)}
+  .hud-word{position:absolute;left:50%;top:98px;transform:translateX(-50%);display:flex;gap:4px}
+  .hud-word i{font-style:normal;width:24px;height:26px;border-radius:6px;display:grid;place-items:center;
+    font-size:.82rem;font-weight:800;background:rgba(11,14,26,.6);border:1px solid var(--line);color:#5c6480}
+  .hud-word i.have{color:var(--gold2);border-color:#8a7020;background:rgba(58,47,16,.8)}
+  .lv.boss{border-color:#8a7020;background:linear-gradient(180deg,#2a2210,#161009)}
+  .badge{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:.2rem .55rem;font-size:.72rem;margin:.15rem .15rem 0 0;color:var(--gold2)}
 </style>
 </head>
 <body>
@@ -215,9 +255,10 @@
           <span class="chip gold" id="starChip">★ 0</span>
           <span class="chip" id="streakChip">🔥 0</span>
         </div>
-        <p class="tiny" style="margin-top:1.2rem;max-width:34ch;margin-left:auto;margin-right:auto">
-        Ten chapters. Each chapter is its own game. Twenty-one levels each — plus an endless mode
-        that never ends.</p>
+        <p class="tiny" style="margin-top:1.2rem;max-width:36ch;margin-left:auto;margin-right:auto">
+        Ten chapters. Each chapter is its own game and its own spiritual exercise. Twenty levels
+        each — every one a different trial — plus an endless mode that never ends.</p>
+        <p class="tiny" style="margin-top:1rem">A production of <b style="color:var(--gold2)">JD Hub</b> · jdhu tech</p>
       </div>
     </div>
   </section>
@@ -253,6 +294,7 @@
       <button class="hud-box" id="pauseBtn" style="pointer-events:auto">❚❚</button>
     </div>
     <div class="combo" id="combo"></div>
+    <div class="hud-word" id="hudWord"></div>
     <div class="bigmsg" id="bigmsg"></div>
     <div id="meter">
       <div class="lab" id="meterLab">Progress</div>
@@ -339,9 +381,14 @@
     <div class="scroller"><div class="wrap" id="aboutBody"></div></div>
   </section>
 
+  <!-- DEVOTION (before a level) -->
+  <div class="overlay" id="ovDev"><div class="scroll"><div class="body" id="devBody"></div></div></div>
+
+  <!-- FRUIT (after a level) -->
+  <div class="overlay" id="ovFruit"><div class="scroll"><div class="body" id="fruitBody"></div></div></div>
+
   <!-- PROFILES -->
-  <div class="overlay" id="ovProfiles"><div class="sheet">
-    <h2>Who is walking today?</h2>
+  <div class="overlay" id="ovProfiles"><div class="sheet">    <h2>Who is walking today?</h2>
     <div id="profList" style="margin:12px 0"></div>
     <label>Add a pilgrim</label>
     <div style="display:flex;gap:8px">
@@ -607,6 +654,281 @@ var MODE_INFO = {
 };
 
 /* ============================================================
+   BACKDROPS — one living biblical scene per chapter
+   Each has layers + a draw(t, accent) that the canvas calls
+   every frame. No images, no files.
+   ============================================================ */
+function sin(t,s,o){ return Math.sin(t*(s||1)+(o||0)); }
+var BACKS={
+  garden:{sky:["#12301f","#0a1a12"],draw:function(t,ac){
+    ground(H-118,"#123a22","#0a2415");
+    hill(W*0.3,H-120,220,150,"#16422a"); hill(W*0.78,H-118,260,170,"#123a24");
+    for(var i=0;i<7;i++) tree(70+i*((W-140)/6),H-120,44+((i*37)%26),"#1c5230","#3f9b5e");
+    glow(W*0.5,H*0.24,220,"255,230,150",.16+0.04*sin(t,.6));
+    sun(W*0.5,H*0.24,46,"#fff2c4","255,225,150");
+    birds(t,ac);
+  }},
+  fall:{sky:["#2a2410","#140f06"],draw:function(t,ac){
+    ground(H-110,"#2a2210","#181306");
+    for(var i=0;i<5;i++) hill(120+i*((W-240)/4),H-112,180,120,"#3a3016");
+    glow(W*0.5,H*0.22,240,"255,150,90",.12+0.05*sin(t,.5));
+    sun(W*0.5,H*0.22,40,"#ffcf8a","255,150,90");
+    for(var j=0;j<26;j++){ var x=(j*97+t*14)%W, y=(j*61+t*30)%H;
+      glow(x,y,3,"255,180,120",.35); }
+  }},
+  ark:{sky:["#0e2740","#050f1c"],draw:function(t,ac){
+    water(t,"#123c5e","#1e6a9e",H-150);
+    hill(W*0.2,H-150,180,120,"#0d2b40"); hill(W*0.82,H-150,220,150,"#0d2b40");
+    glow(W*0.5,H*0.3,220,"180,220,255",.12);
+    var bx=W*0.5+sin(t,.4)*30, by=H-190+sin(t,1.1)*8;
+    ctx.fillStyle="#6b4a24"; rr(bx-70,by,140,54,12); ctx.fill();
+    ctx.fillStyle="#8a6230"; rr(bx-70,by,140,12,6); ctx.fill();
+    ctx.fillStyle="#3f2c14"; ctx.beginPath(); ctx.moveTo(bx-40,by); ctx.lineTo(bx,by-30); ctx.lineTo(bx+40,by); ctx.closePath(); ctx.fill();
+    glow(bx,by+10,120,"255,217,138",.14);
+    for(var i=0;i<40;i++){ var x=((i*131+t*40)%(W+40))-20; ctx.fillStyle="rgba(200,230,255,.35)";
+      ctx.fillRect(x,H-150+((i*53)%70),2,10); }
+  }},
+  lamb:{sky:["#3a1420","#170810"],draw:function(t,ac){
+    ground(H-118,"#3a1822","#1c0a12");
+    hill(W*0.25,H-118,220,140,"#43182a"); hill(W*0.75,H-120,200,150,"#3a1626");
+    for(var i=0;i<4;i++){ var x=90+i*((W-180)/3);
+      ctx.fillStyle="#2a0f1a"; ctx.beginPath(); ctx.moveTo(x-30,H-118); ctx.lineTo(x,H-208); ctx.lineTo(x+30,H-118); ctx.closePath(); ctx.fill();
+      glow(x,H-150,60,"255,90,120",.1); }
+    glow(W*0.5,H*0.3,300,"255,90,120",.14+0.04*sin(t,.7));
+    for(var j=0;j<30;j++){ var x2=(j*83+t*22)%W, y2=(j*57+t*16)%H;
+      glow(x2,y2,2.5,"255,150,170",.3); }
+  }},
+  wilderness:{sky:["#3a3218","#171208"],draw:function(t,ac){
+    ground(H-112,"#43391c","#241d0e");
+    for(var i=0;i<5;i++){ var x=60+i*((W-120)/4), y=H-112, w=90+((i*41)%50);
+      ctx.fillStyle=i%2?"#4d4322":"#3f3619";
+      ctx.beginPath(); ctx.moveTo(x-w/2,y); ctx.quadraticCurveTo(x-w*0.18,y-46,x,y-58); ctx.quadraticCurveTo(x+w*0.18,y-46,x+w/2,y); ctx.closePath(); ctx.fill(); }
+    glow(W*0.5,H*0.22,260,"255,225,150",.14+0.05*sin(t,.5));
+    sun(W*0.5,H*0.22,42,"#fff0c0","255,215,140");
+    for(var j=0;j<10;j++){ var x2=(j*151+t*10)%W, y2=(j*97+t*6)%(H*0.4);
+      glow(x2,y2,3,"255,235,180",.3); }
+  }},
+  temple:{sky:["#241a3a","#0d0918"],draw:function(t,ac){
+    ground(H-104,"#241c3a","#120d1e");
+    glow(W*0.5,H*0.3,320,"190,150,255",.14+0.04*sin(t,.4));
+    var w=200,h=120,cx=W*0.5,base=H-104;
+    ctx.fillStyle="#3a2c5c"; rr(cx-w/2,base-h,w,h,6); ctx.fill();
+    ctx.fillStyle="#4d3a78"; rr(cx-w/2-14,base-h-16,w+28,20,6); ctx.fill();
+    ctx.fillStyle="#2a1f44";
+    for(var i=0;i<6;i++){ rr(cx-w/2+10+i*((w-20)/6),base-h+8,(w-20)/6-8,h-18,4); ctx.fill(); }
+    glow(cx,base-h*0.5,120,"255,225,150",.22);
+    var fl=1+0.2*sin(t,6);
+    glow(cx,base-18,40*fl,"255,217,138",.5); circ(cx,base-18,7*fl,"#fff6d8");
+    for(var j=0;j<40;j++){ var a=j*1.7+t; var x2=cx+Math.cos(a)*(40+((j*13)%90)), y2=base-20-Math.abs(Math.sin(a))*80;
+      glow(x2,y2,2,"255,230,180",.25); }
+  }},
+  veil:{sky:["#2a1440","#100820"],draw:function(t,ac){
+    ground(H-106,"#2a1840","#140b22");
+    glow(W*0.5,H*0.34,360,"220,190,255",.16+0.05*sin(t,.5));
+    var cx=W*0.5, top=H*0.18, bot=H-106, w=W*0.5;
+    var g=ctx.createLinearGradient(cx-w/2,0,cx+w/2,0);
+    g.addColorStop(0,"rgba(180,140,255,.05)"); g.addColorStop(.5,"rgba(240,225,255,.5)"); g.addColorStop(1,"rgba(180,140,255,.05)");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(cx-w/2,top); ctx.lineTo(cx-w*0.18,top+30);
+    ctx.lineTo(cx-w*0.18,bot); ctx.lineTo(cx+w*0.18,bot); ctx.lineTo(cx+w*0.18,top+30); ctx.lineTo(cx+w/2,top); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,.18)"; ctx.lineWidth=2; ctx.stroke();
+    for(var j=0;j<5;j++){ var x=cx-w*0.18+ (j+1)*(w*0.36/6);
+      ctx.strokeStyle="rgba(255,255,255,.10)"; ctx.beginPath(); ctx.moveTo(x,top+30); ctx.lineTo(x,bot); ctx.stroke(); }
+    for(var k=0;k<26;k++){ var x2=(k*97+t*8)%W, y2=(k*61+t*14)%H; glow(x2,y2,2,"230,210,255",.3); }
+  }},
+  tomb:{sky:["#101c2a","#050b12"],draw:function(t,ac){
+    ground(H-108,"#16283a","#0a141e");
+    hill(W*0.22,H-108,240,170,"#0f2030"); hill(W*0.8,H-110,220,150,"#0d1c2a");
+    var cx=W*0.5, base=H-108;
+    ctx.fillStyle="#1e3448"; rr(cx-90,base-120,180,120,10); ctx.fill();
+    ctx.fillStyle="#0a1420"; ctx.beginPath(); ctx.arc(cx,base-40,44,Math.PI,0); ctx.fill();
+    ctx.fillRect(cx-44,base-40,88,40);
+    glow(cx,base-44,70,"150,230,180",.22+0.06*sin(t,.8));
+    ctx.fillStyle="#5a6b7a"; circ(cx-104,base-24,34,"#4a5b6a");
+    for(var k=0;k<30;k++){ var x2=(k*113+t*5)%W, y2=(k*71+t*9)%(H*0.5); glow(x2,y2,2,"190,220,255",.3); }
+  }},
+  upper:{sky:["#2a1016","#120609"],draw:function(t,ac){
+    ground(H-96,"#2a1218","#160a0d");
+    var cx=W*0.5, base=H-96;
+    for(var i=0;i<5;i++){ var x=cx-160+i*80; flame(x,base,50+((i*17)%20),t+i); }
+    glow(cx,base-120,300,"255,150,90",.14+0.05*sin(t,.6));
+    var fl=1+0.25*sin(t,7);
+    glow(cx,base-150,50*fl,"255,217,138",.5);
+    for(var j=0;j<4;j++){ var x2=cx-90+j*60;
+      ctx.fillStyle="#3a2416"; rr(x2-16,base-56,32,56,6); ctx.fill();
+      ctx.fillStyle="#5a3a20"; rr(x2-20,base-62,40,10,4); ctx.fill(); }
+    for(var k=0;k<40;k++){ var a=k*1.3+t*2, x3=cx+Math.cos(a)*(30+((k*11)%130)), y3=base-30-Math.abs(Math.sin(a))*120;
+      glow(x3,y3,2.4,"255,190,120",.3); }
+  }},
+  city:{sky:["#1a1440","#080520"],draw:function(t,ac){
+    ground(H-100,"#1a1640","#0a0820");
+    glow(W*0.5,H*0.3,380,"255,225,150",.15+0.05*sin(t,.4));
+    var cx=W*0.5, base=H-100;
+    for(var i=0;i<7;i++){ var w=40+((i*29)%40), h=70+((i*47)%90), x=cx-190+i*64;
+      ctx.fillStyle="rgba(120,100,220,"+(0.18+((i%3)*0.08))+")"; rr(x-w/2,base-h,w,h,6); ctx.fill();
+      ctx.fillStyle="rgba(255,225,150,.18)"; for(var f=0;f<3;f++) rr(x-w/2+8,base-h+14+f*22,w-16,10,3), ctx.fill(); }
+    glow(cx,base-180,60,"255,240,190",.4);
+    for(var k=0;k<50;k++){ var x2=(k*131+t*3)%W, y2=(k*79+t*5)%(H*0.55); glow(x2,y2,2,"220,230,255",.3); }
+    for(var m=0;m<8;m++){ var mx=((m*173+t*26)%(W+40))-20, my=(m*89+t*18)%(H*0.4);
+      glow(mx,my,3,"255,240,190",.3); }
+  }}
+};
+/* ---------- backdrop helpers ---------- */
+function ground(y,c1,c2){ var g=ctx.createLinearGradient(0,y,0,H); g.addColorStop(0,c1); g.addColorStop(1,c2);
+  ctx.fillStyle=g; ctx.fillRect(0,y,W,H-y); }
+function hill(cx,base,r,h,col){ ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(cx-r,base);
+  ctx.quadraticCurveTo(cx,base-h*1.5,cx+r,base); ctx.closePath(); ctx.fill(); }
+function sun(x,y,r,core,halo){ glow(x,y,r*3,hexRgb(halo),.16); glow(x,y,r*1.7,hexRgb(core),.4); circ(x,y,r,core); }
+function tree(x,base,h,col1,col2){ ctx.fillStyle="#2a1a0c"; ctx.fillRect(x-3,base-h,6,h*0.5);
+  glow(x,base-h,44,"90,200,120",.18); circ(x,base-h,22,col1); circ(x-11,base-h+8,15,col2); circ(x+12,base-h+4,14,col1); }
+function flame(x,base,h,t){ var fl=1+0.25*sin(t*7+x);
+  glow(x,base-h/2,h*1.2,"255,140,70",.4);
+  ctx.fillStyle="#ff7a40"; ctx.beginPath(); ctx.moveTo(x-h*0.35,base);
+  ctx.quadraticCurveTo(x,base-h*1.4*fl,x+h*0.35,base); ctx.closePath(); ctx.fill();
+  ctx.fillStyle="#ffd08a"; ctx.beginPath(); ctx.moveTo(x-h*0.16,base);
+  ctx.quadraticCurveTo(x,base-h*0.9*fl,x+h*0.16,base); ctx.closePath(); ctx.fill(); }
+function water(t,c1,c2,y){ var g=ctx.createLinearGradient(0,y,0,H); g.addColorStop(0,c1); g.addColorStop(1,"#03080f");
+  ctx.fillStyle=g; ctx.fillRect(0,y,W,H-y);
+  for(var i=0;i<9;i++){ var yy=y+8+i*14; ctx.strokeStyle="rgba(140,200,255,"+(0.05+0.03*sin(t+i))+")";
+    ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,yy+sin(t*0.7+i)*4);
+    for(var x=0;x<=W;x+=40) ctx.lineTo(x,yy+Math.sin(t*1.2+i+x*0.01)*5); ctx.stroke(); } }
+function birds(t,ac){ for(var i=0;i<5;i++){ var x=((i*160+t*22)%(W+80))-40, y=90+((i*70)%120);
+  ctx.strokeStyle="rgba(255,255,255,.35)"; ctx.lineWidth=2; ctx.beginPath();
+  ctx.moveTo(x-8,y); ctx.quadraticCurveTo(x,y-6+sin(t*4+i)*3,x+8,y); ctx.stroke(); } }
+
+/* ============================================================
+   WORDS — every word you gather has a meaning and a promise
+   ============================================================ */
+var WORD_MEANING={
+  1:{w:"IMAGE", say:"Bearing God's likeness",
+     verse:"Genesis 1:27",
+     body:"You are not an accident and you are not a copy. God made you in his own image — male and female, made to bear his likeness into the world. Your worth was given before you did anything at all."},
+  2:{w:"COVER", say:"Grace over shame",
+     verse:"Genesis 3:21",
+     body:"When they saw they were naked, God did not mock them — he clothed them. The first covering of shame was God's own work. He covers what we cannot cover ourselves."},
+  3:{w:"REFUGE", say:"A shelter in the storm",
+     verse:"Genesis 7:1",
+     body:"The ark was not a prison; it was a refuge. God shut the door himself. When the flood rises, he does not leave you outside the boat — he carries you through it."},
+  4:{w:"BLOOD", say:"A life poured out for another",
+     verse:"Leviticus 17:11",
+     body:"The blood is the life. A substitute dies so the guilty may live. Every lamb on every altar was pointing forward to the Lamb of God who takes away the sin of the world."},
+  5:{w:"MANNA", say:"Bread from heaven, given daily",
+     verse:"John 6:35",
+     body:"Manna could not be stored — it had to be gathered fresh each morning. So it is with God: he feeds you today, and you must come back tomorrow. Jesus said, 'I am the bread of life.'"},
+  6:{w:"DWELL", say:"God with us",
+     verse:"John 1:14",
+     body:"The Word became flesh and made his dwelling among us. The temple was never the point — God's presence with his people was the point. He came to live where we live."},
+  7:{w:"ACCESS", say:"The way in is open",
+     verse:"Hebrews 10:19-22",
+     body:"The veil was torn from top to bottom. The barrier between God and man was not opened by us; it was opened for us. Come in — the door stands open."},
+  8:{w:"RISEN", say:"Death has lost",
+     verse:"1 Corinthians 15:20",
+     body:"Christ has indeed been raised from the dead, the firstfruits of those who have fallen asleep. The tomb is empty and the stone is rolled away. Death does not get the last word."},
+  9:{w:"SPIRIT", say:"Power for the weak",
+     verse:"Acts 1:8",
+     body:"You will receive power when the Holy Spirit comes on you. Not power to boast, but power to witness — to live and speak as people who have been with Jesus."},
+  10:{w:"COME", say:"The invitation stands",
+     verse:"Revelation 22:17",
+     body:"The Spirit and the bride say, 'Come.' Whoever is thirsty, let him come. The whole Bible ends with an open door and an invitation — and it is for you."}
+};
+
+/* ============================================================
+   THE EXERCISE — what each game is, spiritually
+   ============================================================ */
+var EXERCISE={
+  garden:{name:"The Exercise of Trust",
+    ex:"Catch the fruit; let the rot fall past. Notice how your hand reaches for the good without thinking — that is trust in the small things.",
+    after:"Trust is built by small daily choices: what you reach for, what you let fall."},
+  fall:{name:"The Exercise of Watchfulness",
+    ex:"Move to dodge the darkness. You cannot stop the shadows, but you can choose where to stand.",
+    after:"Watchfulness is not fear — it is choosing, again and again, where to stand."},
+  ark:{name:"The Exercise of Endurance",
+    ex:"Ride the flood and slide through each narrow gap. Do not panic; a way through opens for those who keep steady.",
+    after:"Endurance is not escaping the storm, but staying steady in the middle of it."},
+  lamb:{name:"The Exercise of Discernment",
+    ex:"Swipe through the shadows — but never touch the lambs. Move quickly, and still spare what is precious.",
+    after:"Discernment is swift and gentle at once: firm against the shadow, tender with the lamb."},
+  wilderness:{name:"The Exercise of Attention",
+    ex:"Tap the manna as it appears, and let the serpents pass. You cannot take everything; the hand must learn what to take.",
+    after:"Attention is a form of love: what you give your eyes to, you give your heart to."},
+  temple:{name:"The Exercise of Order",
+    ex:"Drop each stone true, one upon another. A life built in prayer stands; a life built in haste leans.",
+    after:"Order is love made visible: one stone, one day, one act at a time."},
+  veil:{name:"The Exercise of Faith",
+    ex:"Tap when the light crosses the mark. You cannot see it coming — you must believe it will come, and be ready.",
+    after:"Faith is being ready for the light before you can see it."},
+  tomb:{name:"The Exercise of Memory",
+    ex:"Remember the stones, then repeat them. Hold what you were shown, and it will hold you.",
+    after:"Memory is how the Lord keeps teaching us — what he showed you yesterday is strength for today."},
+  upper:{name:"The Exercise of Perseverance",
+    ex:"Run and jump; do not fall into the fire. Keep moving when your legs say stop.",
+    after:"Perseverance is love with dirt on its hands — it does not quit when it is tired."},
+  city:{name:"The Exercise of Prayer",
+    ex:"Guard the city; turn back every shadow before it reaches the walls. This is watchful prayer.",
+    after:"Prayer is standing on the wall of your own life, turning back the dark before it enters."}
+};
+
+/* ============================================================
+   DEVOTION — something to learn before and after every level
+   ============================================================ */
+var DEVOTION={
+  1:{verse:"Genesis 1:27", teach:"Before you do anything today, hear this: you are made in the image of God. Not the image of your family, your failures, or your fears. The first thing the Bible says about you is not what you must do — it is whose you are.",
+     practice:"Say it out loud: 'I am made in the image of God.' Then begin."},
+  2:{verse:"Genesis 3:21", teach:"Shame tells you to hide. Grace comes looking for you. God did not wait for them to fix themselves; he made them coverings with his own hands. Your shame is not the end of your story — it is where mercy begins.",
+     practice:"Name one thing you are hiding. Tell God about it, and let him cover it."},
+  3:{verse:"Genesis 7:1", teach:"God told Noah, 'Come into the ark' — not 'go'. He was already inside, waiting. When the waters rise in your life, God is not shouting instructions from the shore. He is in the boat with you.",
+     practice:"Where is your flood right now? Ask God to be in the boat with you."},
+  4:{verse:"Leviticus 17:11", teach:"The blood on the altar was a picture: someone innocent standing in the place of the guilty. Every lamb pointed to Jesus. You do not have to carry your guilt — it was carried for you.",
+     practice:"Lay down one thing you have been punishing yourself for. Receive forgiveness."},
+  5:{verse:"John 6:35", teach:"Manna spoiled if you kept it overnight. God was teaching his people to depend on him daily. He still does. Yesterday's faith will not feed today's hunger — come to him again this morning.",
+     practice:"Ask God for today's bread only. Trust him for tomorrow."},
+  6:{verse:"John 1:14", teach:"The temple was beautiful, but it was never the point — God's presence was. And in Jesus, God moved in. He did not just visit; he made his dwelling among us. He wants to live where you live.",
+     practice:"Invite God into one ordinary room of your day — your work, your kitchen, your commute."},
+  7:{verse:"Hebrews 10:19-22", teach:"The veil was torn from top to bottom — from God's side, not ours. The barrier you could never cross was removed for you. You are not standing outside, hoping to be noticed. You are welcome in.",
+     practice:"Walk in. Pray boldly today — not carefully, not apologetically. You are welcome."},
+  8:{verse:"1 Corinthians 15:20", teach:"The tomb is the only religious founder's tomb that is empty. Death, the last enemy, met its match. Whatever has died in your life — hope, a dream, a relationship — the resurrection says it is not the final word.",
+     practice:"Name one dead thing. Ask the God of resurrection to speak life into it."},
+  9:{verse:"Acts 1:8", teach:"The disciples were told to wait for power they did not have. God does not send you to do his work in your own strength. He gives his Spirit — not for your glory, but so you can be his witness.",
+     practice:"Admit one weakness. Ask the Holy Spirit for power exactly there."},
+  10:{verse:"Revelation 22:17", teach:"The Bible ends not with a command but an invitation: 'Come.' The Spirit and the bride say it together. However far you have walked, however long you have been away — the door is open and the table is set.",
+     practice:"Say yes again. Whatever 'come' means for you today, take one step toward it."}
+};
+
+/* what a level's word-gathering teaches, shown after the round */
+var FRUIT={
+  1:"You gathered letters into IMAGE. Hold them: you are his.",
+  2:"You gathered COVER. Shame is covered, not carried.",
+  3:"You gathered REFUGE. The door was shut by God himself.",
+  4:"You gathered BLOOD. The price was paid by another.",
+  5:"You gathered MANNA. Daily bread, daily dependence.",
+  6:"You gathered DWELL. He lives where you live.",
+  7:"You gathered ACCESS. The way in stands open.",
+  8:"You gathered RISEN. Death lost; hope lives.",
+  9:"You gathered SPIRIT. Power for the weak.",
+  10:"You gathered COME. The invitation is still open."
+};
+
+/* ============================================================
+   LEVEL VARIANTS — Candy-Crush style variety
+   Every level is the chapter's game with a twist. The twist
+   changes the goal, the rules, or the stakes.
+   ============================================================ */
+var VARIANTS=[
+  {id:"path",   name:"The Path",     desc:"Reach the goal to move on."},
+  {id:"watch",  name:"Watchful",     desc:"Reach the goal without losing a single heart."},
+  {id:"harvest",name:"Harvest",      desc:"Reach the goal before the time runs out."},
+  {id:"offering",name:"The Offering",desc:"Reach the goal — gather the word too."},
+  {id:"trial",  name:"Trial",        desc:"Only two hearts this time."},
+  {id:"race",   name:"The Race",     desc:"Faster than usual. Hold your nerve."},
+  {id:"quiet",  name:"Stillness",    desc:"Slower, but one mistake costs you."},
+  {id:"storm",  name:"Storm",        desc:"More of everything, all at once."},
+  {id:"covenant",name:"Covenant",    desc:"Reach the goal; the word is the whole point."},
+  {id:"boss",   name:"Boss — The Trial",desc:"Everything at once. A long haul. Only for the faithful."}
+];
+function variantOf(ch,lv){ return VARIANTS[(lv-1)%VARIANTS.length]; }
+function levelTitle(ch,lv){ var v=variantOf(ch,lv); return "Level "+lv+" · "+v.name; }
+
+
+/* ============================================================
    STATE
    ============================================================ */
 var LS_KEY = "emmaus_v3";
@@ -726,25 +1048,42 @@ function startLevel(ch, lv, opts){
   opts=opts||{};
   var u=me(); if(!u) return openProfiles();
   var mode=CH_MODE[ch], endless=(lv>=LEVELS_PER_CH);
+  var v = endless ? VARIANTS[0] : variantOf(ch,lv);
   A={
     ch:ch, lv:lv, mode:mode, endless:endless, daily:!!opts.daily, label:opts.label||"",
+    variant:v, boss:(v.id==="boss"),
     rng:opts.rng||mulberry(seedFrom("E"+ch+"-"+lv+(opts.seed||""))),
     t:0, score:0, lives:3, combo:0, comboBest:0, progress:0,
     over:false, won:false, paused:false, inv:0, shake:0, flash:0,
-    px:W/2, down:false, palette:levelColors(ch), word:WORDS[ch], wordGot:"", letters:[],
-    diff:endless?1:(lv-1)/(LEVELS_PER_CH-1), speed:0, obj:{}
+    px:W/2, down:false, palette:levelColors(ch), word:WORDS[ch], wordGot:"", wordIdx:0, wordDone:false,
+    letters:[], diff:endless?1:(lv-1)/(LEVELS_PER_CH-1), speed:0, obj:{},
+    bg:BACKS[mode], timed:false, timeLeft:0, needWord:false, spawnMul:1
   };
-  A.speed=(105+ch*4)*(1+A.diff*1.05);
+  if(!endless){
+    if(v.id==="trial"||v.id==="boss") A.lives=2;
+    if(v.id==="watch"||v.id==="quiet") A.lives=1;
+    if(v.id==="harvest"){ A.timed=true; A.timeLeft=32+Math.round(A.diff*34); }
+    if(v.id==="boss"){ A.timed=true; A.timeLeft=48+Math.round(A.diff*46); }
+    if(v.id==="offering"||v.id==="covenant"||v.id==="boss") A.needWord=true;
+    if(v.id==="race") A.speedMul=1.3; if(v.id==="storm") A.speedMul=1.25;
+    if(v.id==="quiet") A.speedMul=0.82; if(v.id==="boss") A.speedMul=1.15;
+    if(v.id==="storm"||v.id==="boss") A.spawnMul=0.76;
+    if(v.id==="quiet") A.spawnMul=1.3;
+  }
+  if(A.timed) A.timeMax=A.timeLeft;
+  A.speed=(105+ch*4)*(1+A.diff*1.05)*(A.speedMul||1);
   if(MODES[mode].init) MODES[mode].init(A);
-  el("hudMode").textContent=MODE_INFO[mode].name+(endless?"  ·  ENDLESS":"  ·  Lv "+lv);
+  el("hudMode").textContent=MODE_INFO[mode].name+(endless?"  ·  ENDLESS":"  ·  Lv "+lv+" · "+v.name);
   el("hudScore").textContent="0"; el("meterBar").style.width="0%";
-  el("meterLab").textContent=MODES[mode].meter||"Progress";
-  drawLife();
+  el("meterLab").textContent=(A.needWord?"Gather "+A.word+" — ":"")+(MODES[mode].meter||"Progress");
+  drawLife(); updateHudWord();
   showScreen("play"); el("hud").classList.add("on");
   resize(); A.px=W/2;
   if(!running){ running=true; last=performance.now(); raf=requestAnimationFrame(loop); }
 }
 function stopGame(){ running=false; if(raf) cancelAnimationFrame(raf); raf=null; A=null; el("hud").classList.remove("on"); }
+function updateHudWord(){ var e=el("hudWord"); if(!e||!A) return;
+  e.innerHTML=A.word.split("").map(function(x,i){ return '<i class="'+(i<A.wordIdx?"have":"")+'">'+x+'</i>'; }).join(""); }
 function drawLife(){ var s=""; for(var i=0;i<3;i++) s+= i<A.lives?"❤":"<span style='opacity:.22'>❤</span>"; el("hudLife").innerHTML=s; }
 function addScore(n){ A.score+=n; el("hudScore").textContent=A.score; }
 function setProgress(v){ A.progress=Math.max(0,Math.min(1,v)); el("meterBar").style.width=(A.progress*100)+"%"; }
@@ -762,15 +1101,22 @@ function updLetters(A,dt){
     if(L.y>H-64 && Math.abs(L.x-A.px)<70){ A.letters.splice(i,1); grantLetter(L); continue; }
     if(L.y>H+30) A.letters.splice(i,1); } }
 function grantLetter(L){
-  A.wordGot+=L.ch; addScore(25); SFX.letter(); burst(L.x,L.y,"150,220,255",12,200);
-  if(A.wordGot.length>=A.word.length){ addScore(150); A.wordGot=""; burst(W/2,H*0.6,"255,217,138",40,320);
-    SFX.word(); bigMsg("WORD: "+A.word+"  +150",1100); } }
+  if(L.ch===A.word[A.wordIdx]){ A.wordGot+=L.ch; A.wordIdx++; addScore(30);
+    burst(L.x,L.y,"150,220,255",14,220); SFX.letter(); }
+  else { addScore(10); SFX.tick(); }
+  updateHudWord();
+  if(A.wordIdx>=A.word.length && !A.wordDone){
+    A.wordDone=true; addScore(150); burst(W/2,H*0.6,"255,217,138",44,340); SFX.word();
+    var wm=WORD_MEANING[A.ch];
+    bigMsg(A.word+" — "+wm.say,1800);
+  } }
 function drawLetters(A){
-  for(var i=0;i<A.letters.length;i++){ var L=A.letters[i]; glow(L.x,L.y,26,"150,220,255",.4);
+  for(var i=0;i<A.letters.length;i++){ var L=A.letters[i]; var want=(L.ch===A.word[A.wordIdx]);
+    glow(L.x,L.y,want?30:20,want?"255,225,150":"150,220,255",want?.5:.3);
     ctx.save(); ctx.translate(L.x,L.y); ctx.rotate(A.t*1.2);
-    ctx.fillStyle="rgba(18,28,50,.95)"; ctx.strokeStyle="#9ddcff"; ctx.lineWidth=2;
+    ctx.fillStyle="rgba(18,28,50,.95)"; ctx.strokeStyle=want?"#ffd98a":"#6f86a8"; ctx.lineWidth=2;
     rr(-14,-14,28,28,6); ctx.fill(); ctx.stroke(); ctx.restore();
-    txt(L.ch,L.x,L.y,20,"#eaf6ff"); } }
+    txt(L.ch,L.x,L.y,20,want?"#fff3d0":"#a9bcd6"); } }
 function drawPaddle(x,y,w,fill,rim){
   fill=fill||"#7a5326"; rim=rim||"#c9962c";
   glow(x,y+14,110,"255,217,138",.2);
@@ -807,12 +1153,13 @@ function winLevel(){
   if(A.endless){ A.obj.need=Math.ceil((A.obj.need||12)*1.12); A.diff=Math.min(1.8,A.diff+0.05);
     A.speed*=1.06; bigMsg("LEVEL UP!",800); SFX.word(); addScore(200); recordResult(); return; }
   if(A.won||A.over) return;
+  if(A.needWord && !A.wordDone){ bigMsg("Gather "+A.word+" first!",900); return; }
   A.won=true; A.over=true; recordResult(); SFX.win(); burst(W/2,H-140,"255,217,138",60,340);
-  setTimeout(function(){ showResults(); }, 480);
+  setTimeout(function(){ showFruit(); }, 700);
 }
 function loseLevel(){
   if(A.over) return; A.over=true; A.won=false; recordResult(); SFX.lose();
-  setTimeout(function(){ showResults(); }, 420);
+  setTimeout(function(){ showFruit(); }, 650);
 }
 
 /* ============================================================
@@ -829,7 +1176,7 @@ regMode({
   update:function(A,dt){
     var o=A.obj, px=A.px, py=H-72, pw=44;
     o.spawn-=dt;
-    if(o.spawn<=0){ o.spawn=(0.9-A.diff*0.5)*(0.75+A.rng()*0.6);
+    if(o.spawn<=0){ o.spawn=(0.9-A.diff*0.5)*(0.75+A.rng()*0.6)*A.spawnMul;
       var rot=A.rng()<(0.18+A.diff*0.18);
       o.items.push({x:34+A.rng()*(W-68),y:-24,r:rot?18:16,rot:rot,vy:A.speed*(0.85+A.rng()*0.5),vx:(A.rng()-.5)*30,sp:0}); }
     if(A.rng()<(0.05+A.diff*0.05)) letterDrop(A,A.word[Math.floor(A.rng()*A.word.length)]);
@@ -866,7 +1213,7 @@ regMode({
     var o=A.obj, px=A.px, py=H-70;
     o.t+=dt; setProgress(o.t/o.need); if(o.t>=o.need) return winLevel();
     o.spawn-=dt;
-    if(o.spawn<=0){ o.spawn=(0.7-A.diff*0.42)*(0.7+A.rng()*0.7);
+    if(o.spawn<=0){ o.spawn=(0.7-A.diff*0.42)*(0.7+A.rng()*0.7)*A.spawnMul;
       o.items.push({x:28+A.rng()*(W-56),y:-24,r:15+A.rng()*11,vy:A.speed*(0.9+A.rng()*0.5),vx:(A.rng()-.5)*40}); }
     for(var i=o.items.length-1;i>=0;i--){ var it=o.items[i]; it.y+=it.vy*dt; it.x+=it.vx*dt;
       if(it.x<18||it.x>W-18) it.vx*=-1;
@@ -889,7 +1236,7 @@ regMode({
   update:function(A,dt){
     var o=A.obj, px=A.px, py=H-70, sp=A.speed*1.5;
     o.spawn-=dt;
-    if(o.spawn<=0){ o.spawn=1.0-A.diff*0.42; var gx=30+A.rng()*(W-60-o.gap);
+    if(o.spawn<=0){ o.spawn=1.0-A.diff*0.42*A.spawnMul; var gx=30+A.rng()*(W-60-o.gap);
       o.walls.push({y:-30,gx:gx,gap:o.gap,hit:false,passed:false}); }
     for(var i=o.walls.length-1;i>=0;i--){ var wl=o.walls[i]; wl.y+=sp*dt;
       if(wl.y>py-14&&wl.y<py+30&&!wl.hit){ if(px-44<wl.gx||px+44>wl.gx+wl.gap){ wl.hit=true; hurt(1); } }
@@ -912,7 +1259,7 @@ regMode({
   init:function(A){ A.obj.need=14+Math.floor(A.lv*0.7); A.obj.cut=0; A.obj.items=[]; A.obj.spawn=.5; A.obj.trail=[]; },
   update:function(A,dt){
     var o=A.obj; o.spawn-=dt;
-    if(o.spawn<=0){ o.spawn=(0.8-A.diff*0.42)*(0.7+A.rng()*0.7); var lamb=A.rng()<0.3;
+    if(o.spawn<=0){ o.spawn=(0.8-A.diff*0.42)*(0.7+A.rng()*0.7)*A.spawnMul; var lamb=A.rng()<0.3;
       o.items.push({x:30+A.rng()*(W-60),y:-20,r:lamb?15:19,lamb:lamb,vy:A.speed*(0.9+A.rng()*0.6)}); }
     if(A.rng()<(0.05+A.diff*0.05)) letterDrop(A,A.word[Math.floor(A.rng()*A.word.length)]);
     for(var i=o.items.length-1;i>=0;i--){ var it=o.items[i]; it.y+=it.vy*dt;
@@ -945,7 +1292,7 @@ regMode({
   init:function(A){ A.obj.need=14+Math.floor(A.lv*0.7); A.obj.got=0; A.obj.items=[]; A.obj.spawn=.6; },
   update:function(A,dt){
     var o=A.obj; o.spawn-=dt;
-    if(o.spawn<=0){ o.spawn=(0.9-A.diff*0.5)*(0.7+A.rng()*0.6); var snake=A.rng()<(0.22+A.diff*0.15);
+    if(o.spawn<=0){ o.spawn=(0.9-A.diff*0.5)*(0.7+A.rng()*0.6)*A.spawnMul; var snake=A.rng()<(0.22+A.diff*0.15);
       var life=snake?1.0:1.5;
       o.items.push({x:34+A.rng()*(W-68),y:84+A.rng()*(H-240),r:snake?17:19,snake:snake,life:life,max:life}); }
     if(A.rng()<(0.05+A.diff*0.04)) letterDrop(A,A.word[Math.floor(A.rng()*A.word.length)]);
@@ -1087,7 +1434,7 @@ regMode({
     o.vy+=2400*dt; o.py+=o.vy*dt;
     if(o.py>=o.ground){ o.py=o.ground; o.vy=0; o.on=true; }
     o.spawn-=dt;
-    if(o.spawn<=0){ o.spawn=(0.95-A.diff*0.45)*(0.7+A.rng()*0.7);
+    if(o.spawn<=0){ o.spawn=(0.95-A.diff*0.45)*(0.7+A.rng()*0.7)*A.spawnMul;
       o.obs.push({x:W+30,y:o.ground-24,w:26+A.rng()*22,h:24+A.rng()*30}); }
     var pxx=W*0.26, ptop=o.py-46, pbot=o.py;
     for(var i=o.obs.length-1;i>=0;i--){ var ob=o.obs[i]; ob.x-=A.speed*1.6*dt;
@@ -1119,7 +1466,7 @@ regMode({
   update:function(A,dt){
     var o=A.obj; o.spawn-=dt;
     var cx=W/2, cy=H*0.42, R=Math.min(W,H)*0.16;
-    if(o.spawn<=0){ o.spawn=(0.85-A.diff*0.45)*(0.7+A.rng()*0.6);
+    if(o.spawn<=0){ o.spawn=(0.85-A.diff*0.45)*(0.7+A.rng()*0.6)*A.spawnMul;
       var ang=A.rng()*6.283, dist=Math.max(W,H)*0.62;
       o.shadows.push({x:cx+Math.cos(ang)*dist,y:cy+Math.sin(ang)*dist,r:16+A.rng()*8,
         vx:-Math.cos(ang)*A.speed*0.5,vy:-Math.sin(ang)*A.speed*0.5}); }
@@ -1153,6 +1500,9 @@ regMode({
 function loop(now){
   var dt=Math.min(0.034,(now-last)/1000); last=now;
   if(A && !A.paused && !A.over){ A.t+=dt; if(A.inv>0) A.inv=Math.max(0,A.inv-dt);
+    if(A.timed){ A.timeLeft-=dt; el("meterLab").textContent="⏳ "+Math.ceil(Math.max(0,A.timeLeft))+"s — "+(MODES[A.mode].meter||"Progress");
+      if(A.timeLeft<=5 && A.timeLeft+dt>5) bigMsg("5 seconds!",900);
+      if(A.timeLeft<=0){ A.timeLeft=0; return loseLevel(); } }
     if(A.shake>0) A.shake=Math.max(0,A.shake-dt*3.2);
     if(A.flash>0) A.flash=Math.max(0,A.flash-dt*3);
     var M=MODES[A.mode]; if(M.update) M.update(A,dt); }
@@ -1165,13 +1515,15 @@ function draw(dt){
   ctx.setTransform(DPR,0,0,DPR,0,0);
   var sx=0,sy=0; if(A&&A.shake>0){ sx=(Math.random()-.5)*14*A.shake; sy=(Math.random()-.5)*14*A.shake; }
   ctx.save(); ctx.translate(sx,sy);
-  var sky=A?A.palette.sky:"#141828";
-  var g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,"#080a12"); g.addColorStop(.55,sky); g.addColorStop(1,"#05070d");
+  var bg = A ? A.bg : null;
+  var topc = bg ? bg.sky[0] : "#141828", botc = bg ? bg.sky[1] : "#05070d";
+  var g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,topc); g.addColorStop(1,botc);
   ctx.fillStyle=g; ctx.fillRect(-20,-20,W+40,H+40);
   for(var i=0;i<stars.length;i++){ var s=stars[i], tw=.5+.5*Math.sin((A?A.t:0)*s.s+s.p);
-    ctx.globalAlpha=.3+.5*tw; ctx.fillStyle="#dfe6ff"; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill(); }
+    ctx.globalAlpha=.25+.45*tw; ctx.fillStyle="#dfe6ff"; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill(); }
   ctx.globalAlpha=1;
-  if(A){ glow(W/2,H+30,Math.max(W,H)*.7,hexRgb(A.palette.accent),.15);
+  if(bg && bg.draw) bg.draw(A?A.t:0, A?A.palette.accent:"#e8b84b");
+  if(A){ glow(W/2,H+30,Math.max(W,H)*.7,hexRgb(A.palette.accent),.12);
     var M=MODES[A.mode]; if(M.draw) M.draw(A); }
   drawParts();
   ctx.restore();
@@ -1243,25 +1595,78 @@ function openLevels(ch){
   var openLv=maxOpenLevel(u,ch);
   var cells="";
   for(var l=1;l<LEVELS_PER_CH;l++){
-    var st=u.stars[starKey(ch,l)]||0, isOpen=l<=openLv;
+    var st=u.stars[starKey(ch,l)]||0, isOpen=l<=openLv, v=variantOf(ch,l);
     var cls=st?"done":(isOpen?"now":"locked");
-    cells+='<div class="lv '+cls+'" data-lv="'+l+'">'+(isOpen?(st?"✓":l):"🔒")
-      +'<span class="s">'+(st?starsHTML(st).replace(/<[^>]+>/g,""):"")+'</span></div>';
+    cells+='<div class="lv '+cls+(v.id==="boss"?" boss":"")+'" data-lv="'+l+'" title="'+esc(v.name)+' — '+esc(v.desc)+'">'
+      +(isOpen?(st?"✓":l):"🔒")
+      +'<span class="s">'+(v.id==="boss"?"◆":(st?starsHTML(st).replace(/<[^>]+>/g,""):""))+'</span>'
+      +'<span class="endless" style="color:#8a93b0">'+esc(v.name)+'</span></div>';
   }
   cells+='<div class="lv now" data-lv="'+LEVELS_PER_CH+'" style="grid-column:span 2;aspect-ratio:auto;padding:12px">'
     +'<div>∞</div><div class="endless">ENDLESS</div></div>';
   el("lvBody").innerHTML='<div class="lvhead" style="--c1:'+col.sky+'">'
     +'<div class="tiny">'+esc(mi.name)+'</div><h1>'+esc(c.title)+'</h1>'
-    +'<div class="tiny">'+esc(mi.how)+'</div></div>'
-    +'<div class="sec-title">Levels 1–20</div>'
+    +'<div class="tiny">'+esc(mi.how)+'</div>'
+    +'<div class="tiny" style="margin-top:6px;color:var(--gold2)">'+esc(EXERCISE[CH_MODE[ch]].name)+'</div></div>'
+    +'<div class="sec-title">Levels 1–20 · each one a different trial</div>'
     +'<div class="lvgrid">'+cells+'</div>'
     +'<div class="sec-title">The chapter</div>'
     +'<div class="row" style="justify-content:flex-start"><button class="btn ghost" id="readCh">📖 Read the chapter</button></div>';
   document.querySelectorAll("[data-lv]").forEach(function(d){ d.onclick=function(){
     var lv=+this.dataset.lv; SFX.tap();
     if(lv<LEVELS_PER_CH && lv>openLv) return toast("Finish the level before this one first");
-    startLevel(ch,lv); }; });
+    goLevel(ch,lv); }; });
   el("readCh").onclick=function(){ openStudy(ch); };
+}
+
+/* ---------- the devotion: learn before you play ---------- */
+function goLevel(ch,lv,opts){
+  var c=chapterOf(ch), d=DEVOTION[ch], ex=EXERCISE[CH_MODE[ch]];
+  var endless=(lv>=LEVELS_PER_CH);
+  var v=endless?{id:"endless",name:"Endless",desc:"It never ends — go as far as you can."}:variantOf(ch,lv);
+  var goal='<span>'+esc(ex.name)+'</span><span>'+esc(v.desc)+'</span>';
+  if(!endless){
+    if(v.id==="trial"||v.id==="boss") goal+='<span class="warn">only 2 hearts</span>';
+    if(v.id==="watch"||v.id==="quiet") goal+='<span class="warn">no mistakes</span>';
+    if(v.id==="harvest") goal+='<span class="warn">against the clock</span>';
+    if(v.id==="boss") goal+='<span class="warn">the long haul</span>';
+    if(v.id==="offering"||v.id==="covenant"||v.id==="boss") goal+='<span class="warn">gather '+esc(WORDS[ch])+'</span>';
+  }
+  el("devBody").innerHTML=
+    '<div class="eyebrow">Before you play · Chapter '+ch+'</div>'
+   +'<h2>'+esc(ex.name)+'</h2>'
+   +'<div class="ref">'+esc(d.verse)+'</div>'
+   +'<div class="exercise"><div class="t">'+esc(v.name)+'</div>'+esc(ex.ex)+'</div>'
+   +'<p>'+esc(d.teach)+'</p>'
+   +'<div class="verse">'+esc(c.plain.kjv)+'<br><span class="tiny">'+esc(c.plain.ref)+'</span></div>'
+   +'<div class="fruit"><b>Take it with you:</b> '+esc(d.practice)+'</div>'
+   +'<div class="goal">'+goal+'</div>'
+   +'<div class="wordbar">'+WORDS[ch].split("").map(function(x){ return "<i>"+x+"</i>"; }).join("")+'</div>'
+   +'<p class="tiny" style="text-align:center">Gather the letters <b>in order</b> to spell '+esc(WORDS[ch])+'.</p>'
+   +'<div class="row" style="margin-top:14px">'
+   +'<button class="btn gold" id="devGo">▶  Begin the exercise</button>'
+   +'<button class="btn ghost" id="devRead">📖 Read the chapter</button></div>';
+  el("ovDev").classList.add("on");
+  el("devGo").onclick=function(){ el("ovDev").classList.remove("on"); actx(); startLevel(ch,lv,opts); };
+  el("devRead").onclick=function(){ el("ovDev").classList.remove("on"); openStudy(ch); };
+}
+/* ---------- the fruit: learn after you play ---------- */
+function showFruit(){
+  var c=chapterOf(A.ch), d=DEVOTION[A.ch], ex=EXERCISE[A.mode], wm=WORD_MEANING[A.ch];
+  var got=A.wordDone;
+  el("fruitBody").innerHTML=
+    '<div class="eyebrow">After you play · Chapter '+A.ch+'</div>'
+   +'<h2>'+esc(c.title)+'</h2>'
+   +'<div class="ref">'+esc(A.won?"Well run. Now sit with this.":"The road is patient. Sit with this.")+'</div>'
+   +'<div class="treasure"><div class="word">'+esc(wm.w)+'</div><div class="say">'+esc(wm.say)+'</div>'
+   +'<div class="tiny">'+esc(wm.verse)+'</div></div>'
+   +'<p>'+esc(wm.body)+'</p>'
+   +'<div class="fruit"><b>'+(got?"You gathered the whole word.":"The word was there to gather.")+'</b> '+esc(FRUIT[A.ch])+'</div>'
+   +'<p class="tiny">'+esc(ex.after)+'</p>'
+   +'<div class="exercise"><div class="t">Practice today</div>'+esc(d.practice)+'</div>'
+   +'<div class="row" style="margin-top:14px"><button class="btn gold" id="fruitGo">Continue →</button></div>';
+  el("ovFruit").classList.add("on");
+  el("fruitGo").onclick=function(){ el("ovFruit").classList.remove("on"); showResults(); };
 }
 
 /* ---------- results ---------- */
@@ -1275,7 +1680,7 @@ function showResults(){
     el("resBody").innerHTML='<div class="scoreline"><span>Score</span><b>'+A.score+'</b></div>'
       +'<div class="scoreline"><span>Best combo</span><b>×'+A.comboBest+'</b></div>'
       +'<div class="scoreline"><span>Personal best</span><b>'+u.best[key]+'</b>'+(newBest?' <span class="newbest">NEW!</span>':'')+'</div>';
-    el("resNext").textContent="Play again"; el("resNext").onclick=function(){ el("ovResult").classList.remove("on"); startLevel(A.ch,LEVELS_PER_CH); };
+    el("resNext").textContent="Play again"; el("resNext").onclick=function(){ el("ovResult").classList.remove("on"); goLevel(A.ch,LEVELS_PER_CH); };
   } else {
     el("resStars").innerHTML=starsHTML(stars);
     el("resTitle").textContent= A.won?("Level "+A.lv+" complete") : "Not yet…";
@@ -1285,11 +1690,11 @@ function showResults(){
       +(A.won?'':'<p class="tiny" style="margin-top:8px">Three hearts, then the level ends. Try again — the road is patient.</p>');
     el("resNext").textContent = A.won? (A.lv<LEVELS_PER_CH-1?"Next level →":"Endless ∞") : "Try again";
     el("resNext").onclick=function(){ el("ovResult").classList.remove("on");
-      if(A.won && A.lv<LEVELS_PER_CH-1) startLevel(A.ch,A.lv+1);
-      else if(A.won) startLevel(A.ch,LEVELS_PER_CH);
-      else startLevel(A.ch,A.lv); };
+      if(A.won && A.lv<LEVELS_PER_CH-1) goLevel(A.ch,A.lv+1);
+      else if(A.won) goLevel(A.ch,LEVELS_PER_CH);
+      else goLevel(A.ch,A.lv); };
   }
-  el("resRetry").onclick=function(){ el("ovResult").classList.remove("on"); startLevel(A.ch,A.lv); };
+  el("resRetry").onclick=function(){ el("ovResult").classList.remove("on"); goLevel(A.ch,A.lv); };
   el("resMap").onclick=function(){ el("ovResult").classList.remove("on"); openLevels(A.ch); };
   el("ovResult").classList.add("on");
 }
@@ -1373,12 +1778,15 @@ function pulpitCard(c){
   return '<div class="card"><h2>The Pulpit</h2><p class="tiny">A sermon outline from this chapter\'s own exegesis.</p>'
   +'<table class="v">'+o.map(function(r){ return '<tr><th>'+r[0]+'</th><td>'+esc(r[1])+'</td></tr>'; }).join("")+'</table></div>';
 }
-function contactCard(c){
+function contactLinks(c){
   var who=DB.active||"a pilgrim", where=c?("chapter "+c.id+", "+c.title):"the journey", m=CONTACT.msg(who,where);
+  return '<a class="call" href="'+CONTACT.tel()+'">☎ Call '+esc(CONTACT.show())+'</a>'
+  +'<a class="wa" href="'+esc(CONTACT.wa(m))+'">WhatsApp</a><a class="tg" href="'+CONTACT.tg()+'">Telegram</a>';
+}
+function contactCard(c){
   return '<div class="card"><h2>Talk to someone</h2>'
   +'<p class="tiny">You do not have to walk this alone. Call or message — someone will pray with you.</p>'
-  +'<div class="links"><a class="call" href="'+CONTACT.tel()+'">☎ Call '+esc(CONTACT.show())+'</a>'
-  +'<a class="wa" href="'+esc(CONTACT.wa(m))+'">WhatsApp</a><a class="tg" href="'+CONTACT.tg()+'">Telegram</a></div></div>';
+  +'<div class="links">'+contactLinks(c)+'</div></div>';
 }
 function wireStudy(c,u){
   var heads=document.querySelectorAll("#studyBody .layer .head");
@@ -1407,7 +1815,7 @@ function openDaily(){
    +'<div class="scoreline"><span>Your streak</span><b>🔥 '+u.streak+'</b></div>'
    +'<div class="scoreline"><span>Today\'s best</span><b>'+((u.daily&&u.daily.best)||0)+'</b></div>'
    +'<div class="row" style="margin-top:14px"><button class="btn gold" id="dailyPlay">'+(done?"Play again":"▶ Play today\'s challenge")+'</button></div></div>';
-  el("dailyPlay").onclick=function(){ SFX.tap(); startLevel(ch,10,{daily:true,seed:seed,rng:mulberry(seedFrom(seed)),label:"Daily "+d}); };
+  el("dailyPlay").onclick=function(){ SFX.tap(); goLevel(ch,10,{daily:true,seed:seed,rng:mulberry(seedFrom(seed)),label:"Daily "+d}); };
 }
 
 /* ---------- leaderboard ---------- */
@@ -1449,11 +1857,26 @@ function openCommunity(){
 function openAbout(){
   showScreen("about"); var u=me();
   el("aboutBody").innerHTML='<div class="card"><h2>EMMAUS — The Unfolding</h2>'
-   +'<p class="muted">A Scripture-discovery journey. Ten chapters from the Garden to the City — and each chapter is its own game: catch, dodge, slice, tap, stack, run, guard. Twenty levels each, then an endless mode that never ends.</p>'
+   +'<p class="muted">A Scripture-discovery journey. Ten chapters from the Garden to the City — and each chapter is its own game and its own spiritual exercise. Twenty levels each (every one a different trial), then an endless mode that never ends.</p>'
    +'<p class="tiny">"And beginning with Moses and all the Prophets, he explained to them what was said in all the Scriptures concerning himself." — Luke 24:27</p></div>'
-   +'<div class="card"><h2>The ten games</h2><table class="v"><tbody>'
-   + CHAPTERS.map(function(c){ var m=MODE_INFO[CH_MODE[c.id]]; return '<tr><th>'+c.id+'</th><td><b>'+esc(m.name)+'</b><br><span class="tiny">'+esc(m.how)+'</span></td></tr>'; }).join("")
+   +'<div class="card"><h2>Ten games, ten exercises</h2><table class="v"><tbody>'
+   + CHAPTERS.map(function(c){ var m=MODE_INFO[CH_MODE[c.id]], e=EXERCISE[CH_MODE[c.id]];
+       return '<tr><th>'+c.id+'</th><td><b>'+esc(m.name)+'</b> · <span style="color:var(--gold2)">'+esc(e.name)+'</span><br><span class="tiny">'+esc(m.how)+'</span><br><span class="tiny">'+esc(e.after)+'</span></td></tr>'; }).join("")
    +'</tbody></table></div>'
+   +'<div class="card"><h2>The words you gather</h2><table class="v"><tbody>'
+   + CHAPTERS.map(function(c){ var wm=WORD_MEANING[c.id];
+       return '<tr><th>'+esc(wm.w)+'</th><td>'+esc(wm.say)+'<br><span class="tiny">'+esc(wm.verse)+'</span></td></tr>'; }).join("")
+   +'</tbody></table></div>'
+   +'<div class="card"><h2>Built by</h2>'
+   +'<p class="credit"><b>EMMAUS — The Unfolding</b> is a production of <b>JD Hub</b> (jdhu tech).<br>'
+   +'Design, code, and content built with the OpenHands AI agent on behalf of the project owner.<br>'
+   +'Every page connects to a real person for prayer and conversation — that is the point of the whole thing.</p>'
+   +'<p style="margin-top:8px">'
+   +'<span class="badge">JD Hub</span><span class="badge">jdhu tech</span><span class="badge">OpenHands agent</span>'
+   +'<span class="badge">One offline file</span><span class="badge">No tracking</span><span class="badge">Works offline</span></p>'
+   +'<p class="tiny" style="margin-top:8px">Scripture quotations from the King James Version and the World English Bible (public domain). '
+   +'Hebrew and Greek glosses are for study. Nothing here is sold.</p>'
+   +'<div class="links" style="margin-top:10px">'+contactLinks(null)+'</div></div>'
    +'<div class="card"><h2>Settings</h2>'
    +'<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="snd" style="width:auto"'+(u&&u.sound!==false?" checked":"")+'> Sound on</label>'
    +'<button class="btn ghost" id="switchUser" style="margin-top:10px">Switch user</button></div>'
