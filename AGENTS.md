@@ -179,6 +179,12 @@ apksigner). The APK carries no INTERNET permission and loads only
 `cp emmaus/index.html android/assets/index.html` before building (the build
 script does this), then publish the APK as a GitHub Release asset.
 
+**Build with JDK 17, not 21.** d8 (build-tools 34.0.0, r8 8.2.2) crashes with
+`NullPointerException: Cannot invoke "String.length()"` on javac 21 bytecode,
+even at `-source/-target 8`. Install a JDK 17 (e.g. under `~/tools/`) and set
+`JAVA_HOME` to it before running `tools/build-apk.sh`. Debian trixie's apt has
+no JDK 17; download a tarball instead.
+
 Verify with `node tools/test-emmaus.js`: it runs the real code against a minimal
 DOM, checks the MAP rules, plays all ten modes through the actual
 update()/tap()/move() loop, and checks backdrops, word meanings, exercises,
