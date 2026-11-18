@@ -1,0 +1,12 @@
+{
+  "appId": "org.starthere.bible",
+  "appName": "START HERE",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

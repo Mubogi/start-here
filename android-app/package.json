@@ -1,0 +1,20 @@
+{
+  "name": "start-here",
+  "version": "1.0.0",
+  "private": true,
+  "description": "START HERE — offline Bible courses wrapped as an Android app (Capacitor)",
+  "scripts": {
+    "assets": "node ../build.js && mkdir -p www && cp ../dist/start-here-new-believer.html www/index.html",
+    "add:android": "npx cap add android",
+    "sync": "npx cap sync android",
+    "apk": "cd android && ./gradlew assembleDebug",
+    "open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  }
+}
