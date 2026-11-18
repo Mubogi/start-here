@@ -6,6 +6,12 @@ works with no internet, no server, and no sign-up.**
 
 > Built by an AI agent (OpenHands) on behalf of the project owner.
 
+## Live links
+
+- **Read online:** https://mubogi.github.io/start-here/
+- **Android app (APK):** https://github.com/Mubogi/start-here/releases/download/v1.0.0/start-here-v1.0.0.apk
+- **Source:** https://github.com/Mubogi/start-here
+
 ---
 
 ## The two courses
