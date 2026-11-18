@@ -206,6 +206,18 @@ its Hebrew/Greek word underneath. Imported versions live in a JSON file the app 
     menu, reveal and level screens carry delight (chapter emblems, cheers, floating
     angels/doves). — done. Verified by `tools/test-emmaus.js` sections 23–26 and a live
     browser pass.
+12. **Colourblind-safe palette** — `PREFS.cb` (Settings ▸ "Blue instead of green, amber
+    instead of red") adds `body.cb-safe`, which swaps green→blue and red→amber across the
+    UI and — the point of the feature — moves the three **truth tags** to blue / amber /
+    violet so a red-green viewer can still tell "Text says", "Tradition holds" and "A
+    reading" apart. The tags are driven by `--tag1-*` / `--tag2-*` / `--tag3-*` tokens with
+    dark, light and `light + cb-safe` values; no `.tag.t-*` rule may hard-code a colour. —
+    done. Verified by `tools/test-emmaus.js` section 27 (tokens used, no fixed colours,
+    `prefToggle` really toggles the body class) and by reading the **resolved** cascade in
+    headless Chromium: on the running page `light + cb-safe` yields blue/amber/violet
+    (`rgb(219,234,254)`, `rgb(251,240,207)`, `rgb(240,226,255)`). The earlier light-theme
+    bug (two higher-specificity hard-coded rules silently winning) was found this way and
+    removed.
 
 ---
 
