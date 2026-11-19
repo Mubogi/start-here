@@ -1,0 +1,106 @@
+name: Release EMMAUS APK
+
+# Builds the real EMMAUS game into a signed APK and attaches it to a GitHub
+# Release, so the app is downloadable from the Releases page.
+#
+# Runs when a v* tag is pushed, or by hand from the Actions tab.
+# The APK is built by tools/build-apk.sh — the same script used locally — so
+# what ships is exactly what the tests were run against.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Run the test suites
+        run: |
+          node tools/test-emmaus.js
+          node tools/test.js
+
+      - name: Install the Android SDK
+        run: |
+          SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -name sdkmanager | head -1)"
+          echo "using $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0" > /dev/null
+          echo "$ANDROID_SDK_ROOT/build-tools/34.0.0" >> "$GITHUB_PATH"
+
+      - name: Build the APK
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+        run: |
+          chmod +x tools/build-apk.sh
+          tools/build-apk.sh
+
+      - name: Prove the APK contains this build of the game
+        run: |
+          python3 - <<'PY'
+          import zipfile, sys
+          z = zipfile.ZipFile("dist/EMMAUS.apk")
+          names = z.namelist()
+          assert "classes.dex" in names, "the APK has no code"
+          assert "assets/index.html" in names, "the APK has no game"
+          game = z.read("assets/index.html").decode("utf-8", "replace")
+          src = open("emmaus/index.html", encoding="utf-8").read()
+          assert len(game) == len(src), f"stale APK: {len(game)} bytes vs {len(src)} in the repo"
+          for marker in ("Cloud of Witnesses", "faithStep", "TRACKS", "LS_BAK"):
+              assert marker in game, f"the APK is missing {marker}"
+          print(f"APK carries the current game: {len(game)} bytes, all markers present")
+          PY
+
+      - name: Upload the APK as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EMMAUS-apk
+          path: dist/EMMAUS.apk
+          if-no-files-found: error
+
+      - name: Attach the APK to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/EMMAUS.apk
+          name: EMMAUS ${{ github.ref_name }}
+          body: |
+            ## EMMAUS — The Unfolding ${{ github.ref_name }}
+
+            Ten chapters, ten games, twenty-one levels each — plus an endless mode.
+            Every chapter is a spiritual exercise: trust, watchfulness, endurance,
+            discernment, attention, order, faith, memory, perseverance, prayer.
+
+            **Install:** download `EMMAUS.apk` below and open it on your phone.
+            You may need to allow "install from unknown sources" for your browser
+            or file manager. The app needs no internet connection at all.
+
+            **In this build**
+            - The Cloud of Witnesses — a voice speaks after every level, and the
+              whole cloud can be browsed from the menu.
+            - The Faith Step — gather faith through good play, then still the
+              world for a moment. A witness speaks over the silence.
+            - Gospel instrumentals — four original pieces composed in code
+              (Yeshua, Amen, Hallelujah, Still Waters). Tap ♪ in the HUD to change.
+            - Your progress is written twice and recovered automatically if the
+              save is ever damaged.
+
+            A production of JD Hub · jdhu tech.

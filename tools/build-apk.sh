@@ -43,7 +43,7 @@ echo "asset: $(wc -c < "$APP/assets/index.html") bytes"
   "$B/res.zip" \
   --java "$B/gen" \
   --min-sdk-version 21 --target-sdk-version 34 \
-  --version-code 3 --version-name 1.2 \
+  --version-code 4 --version-name 1.3 \
   -A "$APP/assets"
 
 # 4. java -> classes -> dex

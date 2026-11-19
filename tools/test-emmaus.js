@@ -70,6 +70,7 @@ const api = new Function(
     + "WITNESSES:WITNESSES, quotableWitnesses:quotableWitnesses, witnessFor:witnessFor, witnessCard:witnessCard, "
     + "scriptureFor:scriptureFor, openWitnesses:openWitnesses, "
     + "faithStep:faithStep, drawFaith:drawFaith, gainFaith:gainFaith, speakWitness:speakWitness, "
+    + "TRACKS:TRACKS, musicTrack:musicTrack, musicTrackName:musicTrackName, musicNext:musicNext, musicPump:musicPump, MUS:MUS, midiFreq:midiFreq, save:save, load:load, LS_KEY:LS_KEY, DBref:function(){return DB;}, setDB:function(d){DB=d;}, "
     + "TITLES:TITLES, CUTSCENES:CUTSCENES, LAMPS:LAMPS, lampState:lampState, newLamps:newLamps, cutArt:cutArt, "
     + "openIntro:openIntro, showCutscene:showCutscene, maybeIntro:maybeIntro, onIntroDone:function(){ return onIntroDone; }, "
     + "openChapters:openChapters, openLan:openLan, renderLan:renderLan, "
@@ -667,6 +668,123 @@ check(!api.getEl("faithBtn").classList.contains("ready"), "the button dims after
 check(api.getEl("witnessVoice").classList.contains("on"), "a witness speaks when the world is stilled");
 check(/wv-q/.test(api.getEl("witnessVoice").innerHTML), "the voice carries the words themselves");
 check(/wv-src/.test(api.getEl("witnessVoice").innerHTML), "the voice names its source");
+
+console.log("\n34. The music — gospel instrumentals");
+check(api.TRACKS.length >= 4, "there are several pieces to choose from");
+check(api.TRACKS.every(t => t.name && t.bpm > 0), "each piece has a name and a tempo");
+check(api.TRACKS.every(t => Array.isArray(t.chords) && t.chords.length >= 4), "each piece has a four-bar progression");
+check(api.TRACKS.every(t => t.chords.every(c => c.length >= 3)), "every chord is a real triad or richer");
+check(api.TRACKS.every(t => Array.isArray(t.melody) && t.melody.length === t.chords.length), "every bar has a melody");
+check(api.TRACKS.every(t => t.bass.length === t.chords.length), "every bar has a bass note");
+// every melody note must sit inside a sane singing range
+const notes = api.TRACKS.flatMap(t => t.melody.flat().map(n => n[1]));
+check(notes.every(n => n >= 55 && n <= 88), "every melody note is in a singable range");
+// the pieces must not be the same music
+const sigs = api.TRACKS.map(t => t.chords.flat().join(","));
+check(new Set(sigs).size === sigs.length, "no two pieces are the same music");
+check(api.TRACKS.some(t => /yeshua/i.test(t.name)), "a piece is named for Yeshua");
+check(api.TRACKS.some(t => /amen/i.test(t.name)), "a piece is named Amen");
+check(api.TRACKS.some(t => /hallelujah/i.test(t.name)), "a piece is named Hallelujah");
+// equal temperament is correct
+check(Math.abs(api.midiFreq(69) - 440) < 0.001, "A4 is 440 Hz");
+check(Math.abs(api.midiFreq(81) - 880) < 0.001, "an octave up doubles the frequency");
+check(Math.abs(api.midiFreq(57) - 220) < 0.001, "an octave down halves the frequency");
+// cycling pieces
+const first = api.musicTrackName();
+api.musicNext();
+check(api.musicTrackName() !== first, "the next piece really changes the music");
+api.MUS.track = 0;
+let cycleSeen = new Set();
+for (let i = 0; i < api.TRACKS.length; i++) { cycleSeen.add(api.musicTrackName()); api.musicNext(); }
+check(cycleSeen.size === api.TRACKS.length, "cycling reaches every piece");
+check(api.MUS.track === 0, "a full cycle returns to the beginning");
+// the scheduler must be safe with no audio device (the harness has none)
+check(api.MUS.on === false, "music does not start without a gesture or audio");
+api.musicPump();
+check(true, "the scheduler is safe when there is no audio context");
+
+// and it must actually compose notes when an audio device exists
+{
+  let CLOCK = 0;
+  const played = [];
+  const Param = v => ({ value: v, setValueAtTime(x){ this.value = x; },
+    exponentialRampToValueAtTime(x){ this.value = x; }, linearRampToValueAtTime(x){ this.value = x; } });
+  function FakeCtx(){
+    this.state = "running"; this.destination = {};
+    Object.defineProperty(this, "currentTime", { get: () => CLOCK });
+    this.resume = () => {};
+    this.createGain = () => ({ gain: Param(1), connect(){}, disconnect(){} });
+    this.createOscillator = () => {
+      const o = { type:"sine", frequency: Param(440), connect(){}, disconnect(){},
+        start(t){ o._s = t; }, stop(t){ o._t = t;
+          played.push({ type:o.type, freq:o.frequency.value, dur:(o._t||0)-(o._s||0) }); } };
+      return o;
+    };
+  }
+  const win2 = { devicePixelRatio:1, innerWidth:390, innerHeight:780, addEventListener(){}, AudioContext:FakeCtx };
+  const api3 = new Function("document","window","localStorage","navigator","confirm","location",
+    "performance","requestAnimationFrame","cancelAnimationFrame","setTimeout","clearTimeout",
+    script + "\nreturn { musicStart:musicStart, musicPump:musicPump, MUS:MUS, PREFS:PREFS, musicStop:musicStop };"
+  )(dom.document, win2, dom.localStorage, dom.navigator, dom.confirm, dom.location,
+    dom.performance, dom.requestAnimationFrame, dom.cancelAnimationFrame, dom.setTimeout, dom.clearTimeout);
+
+  api3.PREFS.music = true;
+  api3.musicStart();
+  check(api3.MUS.on === true, "music starts when an audio device is present");
+  for (let i = 0; i < 600; i++) { CLOCK += 0.05; api3.musicPump(); }
+  clearInterval(api3.MUS.timer); api3.MUS.timer = null;
+
+  check(played.length > 100, "thirty seconds of music schedules many notes, not a drone");
+  const freqs = played.map(p => p.freq);
+  check(new Set(freqs.map(f => f.toFixed(1))).size >= 12, "the music moves through many pitches");
+  check(freqs.some(f => f < 120), "there is a bass line");
+  check(freqs.some(f => f > 300), "there is a melody above the bass");
+  check(played.some(p => p.dur >= 1), "there are sustained chords under the melody");
+  check(freqs.every(f => f >= 30 && f <= 5000), "every note is in the audible range");
+  check(played.some(p => p.type === "triangle") && played.some(p => p.type === "sine"),
+    "the arrangement uses more than one voice");
+  api3.musicStop();
+  check(api3.MUS.on === false, "music stops cleanly");
+}
+
+console.log("\n35. The save — a road that is never lost");
+// a working in-memory localStorage, unlike the harness stub
+const store = {};
+const fakeLS = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); },
+  removeItem: k => { delete store[k]; } };
+// re-load the game against a real store so save/load can be exercised
+const api2 = new Function("document","window","localStorage","navigator","confirm","location",
+  "performance","requestAnimationFrame","cancelAnimationFrame","setTimeout","clearTimeout",
+  script + "\nreturn { save:save, load:load, LS_KEY:LS_KEY, DBref:function(){return DB;}, "
+  + "setDB:function(d){DB=d;}, blankUser:blankUser, ensure:ensure, "
+  + "setUser:function(n){ DB.active=n; ensure(n); return DB.users[n]; }, "
+  + "totalStars:totalStars, starKey:starKey, norm:norm };"
+)(dom.document, dom.window, fakeLS, dom.navigator, dom.confirm, dom.location,
+  dom.performance, dom.requestAnimationFrame, dom.cancelAnimationFrame, dom.setTimeout, dom.clearTimeout);
+
+api2.setUser("Pilgrim");
+api2.setDB({ active:"Pilgrim", users:{ Pilgrim: api2.blankUser() } });
+api2.ensure("Pilgrim");
+api2.DBref().users.Pilgrim.stars[api2.starKey(1,1)] = 3;
+check(api2.save() === true, "a save reports success");
+check(store[api2.LS_KEY] !== undefined, "the save is written to storage");
+check(JSON.parse(store[api2.LS_KEY]).users.Pilgrim.stars["1-1"] === 3, "stars survive the round trip");
+
+// the backup is written on the second save
+api2.DBref().users.Pilgrim.stars[api2.starKey(1,2)] = 2;
+api2.save();
+check(store[api2.LS_KEY + "_bak"] !== undefined, "a second save leaves a backup behind");
+
+// corrupt the live key; the backup must rescue the journey
+store[api2.LS_KEY] = "{ this is not json";
+const recovered = api2.load();
+check(recovered && recovered.users && recovered.users.Pilgrim, "a corrupt save is recovered from the backup");
+check(recovered.users.Pilgrim.stars["1-1"] === 3, "the recovered journey keeps its stars");
+
+// a save must never be written before the game has loaded
+api2.setDB(undefined);
+check(api2.save() === false, "saving before load is refused");
+check(store[api2.LS_KEY] !== "undefined", "an unloaded save never overwrites real data");
 
 console.log(`\n10 chapters, 10 modes, ${Object.keys(MODES).length} games, ${api.LEVELS_PER_CH} levels each.`);
 console.log(failures ? `${failures} FAILURES` : "ALL PASS");

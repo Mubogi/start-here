@@ -669,6 +669,7 @@
       </div>
       <div class="hud-box" id="hudLife">❤❤❤</div>
       <button class="hud-box" id="faithBtn" style="pointer-events:auto" title="Faith Step — still the storm for a moment">🕊</button>
+      <button class="hud-box" id="musBtn" style="pointer-events:auto" title="Change the music">♪</button>
       <button class="hud-box" id="pauseBtn" style="pointer-events:auto">❚❚</button>
     </div>
     <div class="combo" id="combo"></div>
@@ -1607,12 +1608,25 @@ function newLamps(u,before){ var have={}; before.forEach(function(l){ have[l.id]
    STATE
    ============================================================ */
 var LS_KEY = "emmaus_v3";
+var RECOVERED = false;
 var DB = load();
+if(RECOVERED){ RECOVERED=false; save(); }
 
 function blankUser(){ return {marks:0, stars:{}, best:{}, notes:[], sound:true, daily:{}, streak:0, plays:0,
   lamps:{}, cuts:{}, intro:false, tries:{}, rest:{}, pass:{}}; }
 function load(){
-  try{ var r=localStorage.getItem(LS_KEY); if(r){ var d=JSON.parse(r); norm(d); return d; } }catch(e){}
+  var keys=[LS_KEY, LS_KEY+"_bak"];
+  for(var i=0;i<keys.length;i++){
+    try{
+      var r=localStorage.getItem(keys[i]);
+      if(!r) continue;
+      var d=JSON.parse(r);
+      if(!d || typeof d!=="object") continue;
+      norm(d);
+      if(i>0){ RECOVERED=true; }   // promote the backup once DB is assigned
+      return d;
+    }catch(e){ /* try the next key */ }
+  }
   return {active:null, users:{}};
 }
 function norm(d){
@@ -1623,7 +1637,31 @@ function norm(d){
     if(!u.stars) u.stars={}; if(!u.best) u.best={}; if(!u.daily) u.daily={};
   });
 }
-function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e){} }
+/* Saves are written twice — to the live key and to a backup — so a
+   half-written or corrupt entry can never cost a pilgrim their road.
+   load() falls back to the backup, and then to a fresh journey. */
+var LS_BAK = LS_KEY+"_bak";
+function save(){
+  if(typeof DB==="undefined" || !DB) return false;   // never write over a save before it loads
+  var txt;
+  try{ txt=JSON.stringify(DB); }catch(e){ return false; }
+  try{
+    var prev=localStorage.getItem(LS_KEY);
+    if(prev && prev!==txt) localStorage.setItem(LS_BAK, prev);
+    localStorage.setItem(LS_KEY, txt);
+    return true;
+  }catch(e){ return false; }
+}
+/* Called when the page is hidden or closed. Android can kill a WebView
+   without warning, so the last state is written before that happens. */
+function saveNow(){ save(); }
+if(typeof document!=='undefined' && document.addEventListener){
+  document.addEventListener("visibilitychange",function(){ if(document.hidden) saveNow(); });
+}
+if(typeof window!=='undefined' && window.addEventListener){
+  window.addEventListener("pagehide",saveNow);
+  window.addEventListener("beforeunload",saveNow);
+}
 function me(){ return DB.active ? DB.users[DB.active] : null; }
 function ensure(n){ if(!DB.users[n]) DB.users[n]=blankUser(); else norm(DB); return DB.users[n]; }
 function starKey(ch,lv){ return ch+"-"+lv; }
@@ -2288,6 +2326,7 @@ window.addEventListener("keydown",function(e){ if(!A||A.over) return;
   if(e.key===" "||e.key==="ArrowUp"||e.key==="w"){ var M=MODES[A.mode]; if(M.tap) M.tap(A,A.px,H-70); e.preventDefault(); } });
 
 el("faithBtn").onclick=function(){ actx(); SFX.tap(); faithStep(); };
+el("musBtn").onclick=function(){ actx(); MUS.gestured=true; SFX.tap(); musicNext(); };
 el("pauseBtn").onclick=function(){ if(A&&!A.over){ A.paused=true; el("pauseSub").textContent=MODE_INFO[A.mode].name; el("ovPause").classList.add("on"); } };
 el("resumeBtn").onclick=function(){ el("ovPause").classList.remove("on"); if(A){ A.paused=false; last=performance.now(); } };
 el("quitBtn").onclick=function(){ el("ovPause").classList.remove("on"); var ch=A.ch; stopGame(); openLevels(ch); };
@@ -3240,28 +3279,164 @@ function routeTo(screen){
 }
 
 /* ============================================================
-   v1.2 · MUSIC — a soft ambient bed, generated, no files
+   MUSIC — gospel instrumentals, composed in code
+   ------------------------------------------------------------
+   Four original instrumental pieces in a gospel idiom: plagal
+   cadences (the "Amen" IV–I), seventh and ninth chords, a walking
+   bass, an arpeggiated inner voice and a singable melody on top.
+   Nothing is sampled and nothing is fetched — every note is
+   written here and synthesised by the browser, so the music works
+   with no connection and adds nothing to the download.
    ============================================================ */
-var MUS={on:false,gestured:false,nodes:[],g:null};
+var MUS={on:false,gestured:false,nodes:[],g:null,bus:null,
+  track:0,nextT:0,step:0,timer:null};
+
+/* Equal temperament, A4 = 440. */
+function midiFreq(m){ return 440*Math.pow(2,(m-69)/12); }
+
+/* Each track: bass per bar, a chord voicing per bar, and a melody
+   written as [eighth-step, midi, length-in-eighths] per bar. */
+var TRACKS=[
+  { id:"yeshua", name:"Yeshua", bpm:64, home:62,
+    bass:[38,45,47,43],
+    chords:[[62,66,69,76],[69,73,76,79],[71,74,78,81],[67,71,74,78]],
+    melody:[[[0,74,3],[3,76,1],[4,78,2],[6,74,2]],
+            [[0,73,2],[2,76,2],[4,81,3],[7,79,1]],
+            [[0,78,2],[2,74,2],[4,71,4]],
+            [[0,74,3],[3,71,1],[4,67,4]]] },
+
+  { id:"amen", name:"Amen", bpm:72, home:67,
+    bass:[48,43,45,50],
+    chords:[[60,64,67,72],[67,71,74,79],[69,72,76,79],[62,66,69,72]],
+    melody:[[[0,79,2],[2,76,2],[4,72,4]],
+            [[0,74,3],[3,71,1],[4,67,4]],
+            [[0,76,2],[2,72,2],[4,69,4]],
+            [[0,74,2],[2,72,2],[4,69,2],[6,66,2]]] },
+
+  { id:"hallelujah", name:"Hallelujah", bpm:68, home:60,
+    bass:[48,41,48,43],
+    chords:[[60,64,67,72],[65,69,72,77],[60,64,67,72],[67,71,74,79]],
+    melody:[[[0,72,2],[2,76,2],[4,79,4]],
+            [[0,77,3],[3,76,1],[4,72,4]],
+            [[0,76,2],[2,79,2],[4,84,4]],
+            [[0,83,3],[3,79,1],[4,74,4]]] },
+
+  { id:"stillwaters", name:"Still Waters", bpm:56, home:65,
+    bass:[41,50,46,48],
+    chords:[[65,69,72,76],[62,65,69,74],[58,62,65,70],[60,64,67,72]],
+    melody:[[[0,72,4],[4,69,4]],
+            [[0,74,4],[4,69,4]],
+            [[0,70,4],[4,65,4]],
+            [[0,72,4],[4,67,4]]] }
+];
+function musicTrack(){ return TRACKS[MUS.track % TRACKS.length]; }
+function musicTrackName(){ return musicTrack().name; }
+function musicNext(){
+  MUS.track=(MUS.track+1)%TRACKS.length; MUS.step=0;
+  if(MUS.on){ MUS.nextT=(AC?AC.currentTime:0)+0.06; }
+  toast("♪ "+musicTrackName()); return musicTrackName();
+}
+
+function mPush(n){ MUS.nodes.push(n); if(MUS.nodes.length>320) MUS.nodes.splice(0,160); }
+
+/* A sustained pad — the organ under everything. */
+function mPad(a,freqs,t,dur,vol){
+  var g=a.createGain();
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),t+Math.min(.85,dur*.3));
+  g.gain.setValueAtTime(Math.max(.0002,vol),t+dur*.72);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  g.connect(MUS.bus); mPush(g);
+  for(var i=0;i<freqs.length;i++){
+    var o=a.createOscillator(), d=a.createGain();
+    o.type = i%2 ? "sine" : "triangle";
+    o.frequency.value=freqs[i];
+    d.gain.value=1/freqs.length;
+    o.connect(d); d.connect(g); o.start(t); o.stop(t+dur+.05); mPush(o);
+  }
+}
+/* A soft plucked string — the inner arpeggio. */
+function mPluck(a,freq,t,dur,vol){
+  var o=a.createOscillator(), g=a.createGain();
+  o.type="triangle"; o.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),t+.015);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(MUS.bus); o.start(t); o.stop(t+dur+.02); mPush(o); mPush(g);
+}
+/* A round bass. */
+function mBass(a,freq,t,dur,vol){
+  var o=a.createOscillator(), g=a.createGain();
+  o.type="sine"; o.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),t+.03);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(MUS.bus); o.start(t); o.stop(t+dur+.02); mPush(o); mPush(g);
+}
+/* The melody voice — a bell-like flute. */
+function mLead(a,freq,t,dur,vol){
+  var o=a.createOscillator(), g=a.createGain(), o2=a.createOscillator(), g2=a.createGain();
+  o.type="sine"; o.frequency.value=freq;
+  o2.type="sine"; o2.frequency.value=freq*2; g2.gain.value=.18;
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),t+.05);
+  g.gain.setValueAtTime(Math.max(.0002,vol),t+dur*.6);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); o2.connect(g2); g2.connect(g); g.connect(MUS.bus);
+  o.start(t); o.stop(t+dur+.03); o2.start(t); o2.stop(t+dur+.03);
+  mPush(o); mPush(o2); mPush(g);
+}
+
+/* Look-ahead scheduler: queue notes slightly ahead of the clock so
+   timing stays even even when the page is busy drawing. */
+function musicPump(){
+  var a=AC; if(!a||!MUS.on) return;
+  var T=musicTrack(), spb=60/T.bpm/2;   // one eighth note
+  if(MUS.nextT < a.currentTime-0.5) MUS.nextT=a.currentTime+0.05;
+  while(MUS.nextT < a.currentTime+0.22){
+    var bar=Math.floor(MUS.step/8)%T.chords.length;
+    var s=MUS.step%8, t=MUS.nextT, ch=T.chords[bar];
+    if(s===0){
+      mPad(a,ch.map(midiFreq),t,spb*8*.97,.05);
+      mBass(a,midiFreq(T.bass[bar]),t,spb*7.4,.09);
+    }
+    mPluck(a,midiFreq(ch[(s+(bar%2?2:0))%ch.length]+12),t,spb*1.7,.028);
+    var mel=T.melody[bar]||[];
+    for(var i=0;i<mel.length;i++){
+      if(mel[i][0]===s) mLead(a,midiFreq(mel[i][1]),t,spb*mel[i][2]*.94,.055);
+    }
+    MUS.step++; MUS.nextT+=spb;
+  }
+}
+
 function musicStart(){
   var a=actx(); if(!a||MUS.on||!PREFS.music) return;
-  var master=a.createGain(); master.gain.value=0.0001; master.connect(a.destination);
-  master.gain.exponentialRampToValueAtTime(Math.max(.0002,(PREFS.vol||.6)*0.045), a.currentTime+2.5);
-  var freqs=[110,164.81,220,329.63]; // A2 · E3 · A3 · E4 — an open, restful fifth
-  freqs.forEach(function(f,i){
-    var o=a.createOscillator(), g=a.createGain();
-    o.type= i%2? "sine":"triangle"; o.frequency.value=f; g.gain.value=0.5/freqs.length;
-    var lfo=a.createOscillator(), lg=a.createGain();
-    lfo.frequency.value=0.05+i*0.013; lg.gain.value=0.35/freqs.length;
-    lfo.connect(lg); lg.connect(g.gain); o.connect(g); g.connect(master); o.start(); lfo.start();
-    MUS.nodes.push(o,lfo);
-  });
-  MUS.g=master; MUS.on=true;
+  MUS.g=a.createGain();
+  MUS.g.gain.setValueAtTime(0.0001,a.currentTime);
+  MUS.g.gain.exponentialRampToValueAtTime(Math.max(.0002,(PREFS.vol||.6)*0.10),a.currentTime+2.2);
+  MUS.g.connect(a.destination);
+  MUS.bus=a.createGain(); MUS.bus.gain.value=1; MUS.bus.connect(MUS.g);
+  MUS.nextT=a.currentTime+0.08; MUS.on=true;
+  if(MUS.timer) clearInterval(MUS.timer);
+  MUS.timer=setInterval(musicPump,45);
+  musicPump();
 }
-function musicStop(){ var a=AC; if(!MUS.on||!a) return;
-  try{ MUS.g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+0.6); }catch(e){}
-  var ns=MUS.nodes.slice(); setTimeout(function(){ ns.forEach(function(n){ try{n.stop();}catch(e){} }); },700);
-  MUS.nodes=[]; MUS.on=false; }
+function musicStop(){
+  var a=AC;
+  if(!MUS.on) return;
+  if(MUS.timer){ clearInterval(MUS.timer); MUS.timer=null; }
+  try{ if(a&&MUS.g) MUS.g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+0.7); }catch(e){}
+  var ns=MUS.nodes.slice();
+  setTimeout(function(){ for(var i=0;i<ns.length;i++){ try{ns[i].stop&&ns[i].stop();}catch(e){} } },800);
+  MUS.nodes=[]; MUS.on=false;
+}
+function musicSetVolume(){
+  if(MUS.on&&MUS.g&&AC){ try{ MUS.g.gain.value=Math.max(.0002,(PREFS.vol||.6)*0.10); }catch(e){} }
+}
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden && MUS.on){ if(MUS.timer){ clearInterval(MUS.timer); MUS.timer=null; } }
+  else if(!document.hidden && MUS.on && !MUS.timer){ MUS.timer=setInterval(musicPump,45); MUS.nextT=(AC?AC.currentTime:0)+0.08; }
+});
 
 /* ============================================================
    v1.2 · WALK TOGETHER — local-network shared play
@@ -3435,7 +3610,8 @@ function openSettings(){
    +'</div>'
    +'<div class="card"><h2>Sound</h2>'
    +'<div class="setrow"><div class="lbl">Sound effects</div><div class="sw'+(u&&u.sound!==false?" on":"")+'" id="prefSfx" role="switch" aria-label="Sound effects"></div></div>'
-   +'<div class="setrow"><div class="lbl">Music<small>A soft ambient bed</small></div><div class="sw'+(PREFS.music?" on":"")+'" id="prefMusic" role="switch" aria-label="Music"></div></div>'
+   +'<div class="setrow"><div class="lbl">Music<small id="musName">♪ '+musicTrackName()+' — gospel instrumental</small></div><div class="sw'+(PREFS.music?" on":"")+'" id="prefMusic" role="switch" aria-label="Music"></div></div>'
+   +'<div class="row" style="justify-content:flex-start;margin-top:4px"><button class="btn ghost" id="musNext">♪ Next piece</button></div>'
    +'<div class="setrow"><div class="lbl">Volume</div><input type="range" id="prefVol" min="0" max="1" step="0.05" value="'+PREFS.vol+'" style="width:130px"></div>'
    +'</div>'
    +'<div class="card"><h2>Your journey</h2>'
@@ -3456,7 +3632,8 @@ function openSettings(){
   el("prefFree").onclick=function(){ prefToggle("free",!PREFS.free); this.classList.toggle("on",PREFS.free);
     toast(PREFS.free?"🎟 Free play on — every level is open":"Free play off — the road unlocks again"); };
   el("prefMusic").onclick=function(){ prefToggle("music",!PREFS.music); this.classList.toggle("on",PREFS.music); MUS.gestured=true; if(PREFS.music) musicStart(); };
-  el("prefVol").oninput=function(){ PREFS.vol=parseFloat(this.value); savePrefs(); if(MUS.on){ try{ MUS.g.gain.value=Math.max(.0002,PREFS.vol*0.045); }catch(e){} } };
+  el("prefVol").oninput=function(){ PREFS.vol=parseFloat(this.value); savePrefs(); musicSetVolume(); };
+  el("musNext").onclick=function(){ musicNext(); var nm=el("musName"); if(nm) nm.textContent="♪ "+musicTrackName()+" — gospel instrumental"; };
   el("prefSfx").onclick=function(){ if(u){ u.sound=!(u.sound!==false); save(); this.classList.toggle("on",u.sound); } };
   el("expSave").onclick=exportSave;
   el("impGo").onclick=function(){ importSave(el("impBox").value); };

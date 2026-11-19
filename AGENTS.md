@@ -261,3 +261,47 @@ slows every mode by passing `dt*0.32` into `M.update` — it is applied once in
 `loop()`, so new modes inherit it for free and must not implement their own.
 While calm, `speakWitness()` shows `#witnessVoice` with the current level's
 witness. Guarded by section 33.
+
+**The music (v1.3).** `TRACKS` holds four original gospel instrumentals —
+*Yeshua*, *Amen*, *Hallelujah*, *Still Waters*. Each is written as data: a bass
+note per bar, a chord voicing per bar, and a melody of `[eighth-step, midi,
+length]`. `musicPump()` is a look-ahead scheduler (runs every 45 ms, queues
+~220 ms ahead) that realises them with four voices — `mPad` (organ),
+`mBass`, `mPluck` (inner arpeggio) and `mLead` (bell flute). Nothing is sampled
+and nothing is fetched; the music is synthesised, so it costs the download
+nothing and works offline.
+
+This replaced a static four-oscillator drone that had no melody, no progression
+and no rhythm. If you add a piece, keep it original — do not transcribe a
+copyrighted recording. Put the harmony in `chords`, the melody in `melody`, and
+keep every melody note between MIDI 55 and 88 so it stays singable. Section 34
+enforces the shape of every track, that no two are identical, that the pieces
+cycle, and — with a fake `AudioContext` that records what it is asked to play —
+that the scheduler really emits many notes across many pitches with a bass line,
+a melody and a sustained chord under them. That last part is what proves it is
+music and not a drone; keep it.
+
+`musicNext()` cycles the pieces and is bound to the ♪ button in the HUD and to
+"Next piece" in Settings. `musicStop()` is called when the Music switch is
+turned off, and `visibilitychange` parks the scheduler while the page is hidden
+so a backgrounded game does not keep scheduling notes.
+
+**Saving (v1.3).** `save()` writes the journey to `emmaus_v3` and keeps the
+previous good value in `emmaus_v3_bak`. `load()` reads the live key and falls
+back to the backup, so a corrupt or half-written entry can never cost a pilgrim
+their road. `save()` refuses to run while `DB` is still undefined — without that
+guard, a backup promoted during `load()` would have written the string
+`"undefined"` over the real save. Do not remove the guard. Saves also fire on
+`visibilitychange`, `pagehide` and `beforeunload`, because Android can kill a
+WebView without warning. Section 35 covers all of this against a real
+in-memory `localStorage`, including deliberately corrupting the live key.
+
+**Shipping (v1.3).** `.github/workflows/release-apk.yml` runs the test suites,
+builds with `tools/build-apk.sh`, and attaches `dist/EMMAUS.apk` to the GitHub
+Release when a `v*` tag is pushed. It includes a staleness guard that compares
+the game inside the APK against `emmaus/index.html` and fails if they differ or
+if markers such as `Cloud of Witnesses`, `faithStep`, `TRACKS` and `LS_BAK` are
+missing. That guard exists because v1.2.0 shipped an APK built from an older
+game — the release looked fine but contained none of the new work. The old
+`android.yml` was deleted: it built the *courses* page through Capacitor and
+pointed at `android-app/www`, which does not exist.
