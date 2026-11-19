@@ -64,35 +64,7 @@ public class MainActivity extends Activity {
         }
 
         // Keep every navigation inside the app, except links meant for other apps.
-        web.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
-                return handle(r.getUrl().toString());
-            }
-
-            @Override
-            @SuppressWarnings("deprecation")
-            public boolean shouldOverrideUrlLoading(WebView v, String url) {
-                return handle(url);
-            }
-
-            private boolean handle(String url) {
-                if (url == null) return false;
-                if (url.startsWith("file://")) return false;             // the game itself
-                if (url.startsWith("tel:") || url.startsWith("mailto:")
-                        || url.startsWith("sms:") || url.startsWith("whatsapp:")
-                        || url.startsWith("tg:") || url.startsWith("https://wa.me/")
-                        || url.startsWith("https://t.me/") || url.startsWith("http")) {
-                    try {
-                        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(i);
-                    } catch (Exception ignored) { /* no app for this link */ }
-                    return true;
-                }
-                return false;
-            }
-        });
+        web.setWebViewClient(new GameClient(this));
 
         root.addView(web);
         setContentView(root);
@@ -128,5 +100,46 @@ public class MainActivity extends Activity {
             web = null;
         }
         super.onDestroy();
+    }
+
+    /**
+     * Sends anything that is not the game itself out to the system, so a phone
+     * number opens the dialler and a WhatsApp link opens WhatsApp. Declared as a
+     * named nested class rather than an anonymous one: d8 in build-tools 34.0.0
+     * crashes on anonymous inner classes produced by recent javac.
+     */
+    private static final class GameClient extends WebViewClient {
+
+        private final Activity host;
+
+        GameClient(Activity host) { this.host = host; }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
+            return handle(r.getUrl().toString());
+        }
+
+        @Override
+        @SuppressWarnings("deprecation")
+        public boolean shouldOverrideUrlLoading(WebView v, String url) {
+            return handle(url);
+        }
+
+        private boolean handle(String url) {
+            if (url == null) return false;
+            if (url.startsWith("file://")) return false;             // the game itself
+            if (url.startsWith("tel:") || url.startsWith("mailto:")
+                    || url.startsWith("sms:") || url.startsWith("whatsapp:")
+                    || url.startsWith("tg:") || url.startsWith("https://wa.me/")
+                    || url.startsWith("https://t.me/") || url.startsWith("http")) {
+                try {
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    host.startActivity(i);
+                } catch (Exception ignored) { /* no app for this link */ }
+                return true;
+            }
+            return false;
+        }
     }
 }

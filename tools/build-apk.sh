@@ -10,10 +10,30 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-: "${ANDROID_HOME:=${ANDROID_SDK_ROOT:-$HOME/tools/sdk}}"
-JAVA_HOME="${JAVA_HOME:-$(dirname "$(dirname "$(readlink -f "$(command -v javac)")")")}"
+# Find the SDK: prefer the standard variables, but ignore them when they are
+# set to nothing, and fall back to the usual install locations.
+find_sdk() {
+  for d in "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" /usr/local/lib/android/sdk \
+           "$HOME/Android/Sdk" "$HOME/tools/sdk"; do
+    [ -n "$d" ] && [ -d "$d/build-tools" ] && { echo "$d"; return; }
+  done
+}
+ANDROID_HOME="$(find_sdk)"
+if [ -z "$ANDROID_HOME" ]; then
+  echo "No Android SDK found. Set ANDROID_HOME, or install:" >&2
+  echo "  sdkmanager 'platforms;android-34' 'build-tools;34.0.0'" >&2
+  exit 1
+fi
+export ANDROID_HOME
+
+# Use the JDK that GitHub Actions already selected, if any.
+if [ -z "${JAVA_HOME:-}" ] || [ ! -x "$JAVA_HOME/bin/javac" ]; then
+  JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v javac)")")")"
+fi
 export JAVA_HOME
 PATH="$JAVA_HOME/bin:$PATH"; export PATH
+echo "sdk:  $ANDROID_HOME"
+echo "java: $JAVA_HOME"
 
 BT="$ANDROID_HOME/build-tools/34.0.0"
 PLATFORM="$ANDROID_HOME/platforms/android-34/android.jar"
@@ -22,6 +42,16 @@ for f in "$BT/aapt2" "$BT/d8" "$BT/zipalign" "$BT/apksigner" "$PLATFORM"; do
 done
 
 APP=android
+# d8 in build-tools 34.0.0 crashes on anonymous inner classes compiled by
+# modern javac. Named nested classes are fine, so refuse the anonymous form
+# early with a message that says what to do instead of dumping an R8 stack.
+if grep -rn 'new [A-Z][A-Za-z0-9_.]*() *{' "$APP/src" >/dev/null 2>&1; then
+  echo "Anonymous inner class found in $APP/src." >&2
+  echo "d8 34.0.0 cannot dex these; use a named nested class instead." >&2
+  grep -rn 'new [A-Z][A-Za-z0-9_.]*() *{' "$APP/src" >&2
+  exit 1
+fi
+
 OUT=dist
 B=$OUT/apk-build
 NAME=EMMAUS
@@ -47,8 +77,9 @@ echo "asset: $(wc -c < "$APP/assets/index.html") bytes"
   -A "$APP/assets"
 
 # 4. java -> classes -> dex
-javac -source 1.8 -target 1.8 -bootclasspath "$PLATFORM" -encoding UTF-8 \
-  -d "$B/classes" $(find "$APP/src" "$B/gen" -name '*.java') 2> >(grep -v 'bootstrap class path' >&2 || true)
+javac -source 8 -target 8 -bootclasspath "$PLATFORM" -encoding UTF-8 \
+  -Xlint:-options -nowarn \
+  -d "$B/classes" $(find "$APP/src" "$B/gen" -name '*.java')
 "$BT/d8" --lib "$PLATFORM" --min-api 21 --output "$B/dex" \
   $(find "$B/classes" -name '*.class')
 
