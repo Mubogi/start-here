@@ -758,7 +758,9 @@ const api2 = new Function("document","window","localStorage","navigator","confir
   script + "\nreturn { save:save, load:load, LS_KEY:LS_KEY, DBref:function(){return DB;}, "
   + "setDB:function(d){DB=d;}, blankUser:blankUser, ensure:ensure, "
   + "setUser:function(n){ DB.active=n; ensure(n); return DB.users[n]; }, "
-  + "totalStars:totalStars, starKey:starKey, norm:norm };"
+  + "totalStars:totalStars, starKey:starKey, norm:norm, "
+  + "musicNext:musicNext, musicTrackName:musicTrackName, MUS:MUS, "
+  + "PREFS:PREFS, savePrefs:savePrefs, loadPrefs:loadPrefs, TRACKS:TRACKS };"
 )(dom.document, dom.window, fakeLS, dom.navigator, dom.confirm, dom.location,
   dom.performance, dom.requestAnimationFrame, dom.cancelAnimationFrame, dom.setTimeout, dom.clearTimeout);
 
@@ -785,6 +787,40 @@ check(recovered.users.Pilgrim.stars["1-1"] === 3, "the recovered journey keeps i
 api2.setDB(undefined);
 check(api2.save() === false, "saving before load is refused");
 check(store[api2.LS_KEY] !== "undefined", "an unloaded save never overwrites real data");
+
+// the piece you chose must still be chosen after a restart
+console.log("\n36. The music you chose is still chosen tomorrow");
+const pstore = {};
+const prefsLS = { getItem: k => (k in pstore ? pstore[k] : null), setItem: (k, v) => { pstore[k] = String(v); },
+  removeItem: k => { delete pstore[k]; } };
+const mk = () => new Function("document","window","localStorage","navigator","confirm","location",
+  "performance","requestAnimationFrame","cancelAnimationFrame","setTimeout","clearTimeout",
+  script + "\nreturn { PREFS:PREFS, MUS:MUS, TRACKS:TRACKS, musicNext:musicNext, "
+  + "musicTrackName:musicTrackName, savePrefs:savePrefs, loadPrefs:loadPrefs };"
+)(dom.document, dom.window, prefsLS, dom.navigator, dom.confirm, dom.location,
+  dom.performance, dom.requestAnimationFrame, dom.cancelAnimationFrame, dom.setTimeout, dom.clearTimeout);
+
+// a fresh player starts on the first piece
+const run1 = mk();
+check(run1.PREFS.track === 0 && run1.MUS.track === 0, "a new pilgrim starts on the first piece");
+run1.musicNext();
+const chosen = run1.musicTrackName();
+check(run1.PREFS.track === 1, "choosing a piece records the choice");
+check(pstore["emmaus_prefs"] !== undefined, "the choice reaches storage");
+
+// a new session must come back to the same piece
+const run2 = mk();
+run2.loadPrefs();
+check(run2.MUS.track === 1, "the chosen piece is restored on the next launch");
+check(run2.musicTrackName() === chosen, "it is the same piece, not merely the same index");
+
+// a stale or nonsense choice must not silence the music
+pstore["emmaus_prefs"] = JSON.stringify({ track: 999 });
+const run3 = mk(); run3.loadPrefs();
+check(run3.MUS.track >= 0 && run3.MUS.track < run3.TRACKS.length, "an out-of-range choice falls back to a real piece");
+pstore["emmaus_prefs"] = JSON.stringify({ track: "banana" });
+const run4 = mk(); run4.loadPrefs();
+check(run4.MUS.track === 0, "a nonsense choice falls back to the first piece");
 
 console.log(`\n10 chapters, 10 modes, ${Object.keys(MODES).length} games, ${api.LEVELS_PER_CH} levels each.`);
 console.log(failures ? `${failures} FAILURES` : "ALL PASS");

@@ -627,7 +627,7 @@
         <div class="emojis" style="margin-top:.8rem">🌿 🕊️ 🛶 🐑 🍞 🕯️ ✨ 🌅 🔥 👑</div>
         <p class="tiny" style="margin-top:1.2rem;max-width:36ch;margin-left:auto;margin-right:auto">
         Ten chapters. Each chapter is its own game and its own spiritual exercise. Twenty levels
-        each — every one a different trial — plus an endless mode that never ends.</p>
+        each, every one a different trial, and then an endless mode that never ends.</p>
         <div class="row" style="margin-top:1rem">
           <button class="chip" data-go="notebook">📓 Notebook</button>
           <button class="chip" data-go="witnesses">☁ Witnesses</button>
@@ -3209,9 +3209,12 @@ document.addEventListener("keydown",function(e){
 /* ============================================================
    v1.2 · PREFERENCES (accessibility + audio)
    ============================================================ */
-var PREFS={size:1, motion:false, cb:false, vol:0.6, music:true, theme:"dark", free:false};
+var PREFS={size:1, motion:false, cb:false, vol:0.6, music:true, theme:"dark", free:false, track:0};
 function loadPrefs(){ try{ var p=JSON.parse(localStorage.getItem("emmaus_prefs")||"{}");
-  Object.keys(p).forEach(function(k){ if(k in PREFS) PREFS[k]=p[k]; }); }catch(e){} applyPrefs(); }
+  Object.keys(p).forEach(function(k){ if(k in PREFS) PREFS[k]=p[k]; });
+  var n=parseInt(PREFS.track,10);
+  PREFS.track=(isFinite(n)&&n>=0&&n<TRACKS.length)?n:0;
+  MUS.track=PREFS.track; }catch(e){} applyPrefs(); }
 function savePrefs(){ try{ localStorage.setItem("emmaus_prefs", JSON.stringify(PREFS)); }catch(e){} }
 function applyPrefs(){
   document.documentElement.style.setProperty("--fs-scale", PREFS.size);
@@ -3333,6 +3336,7 @@ function musicTrack(){ return TRACKS[MUS.track % TRACKS.length]; }
 function musicTrackName(){ return musicTrack().name; }
 function musicNext(){
   MUS.track=(MUS.track+1)%TRACKS.length; MUS.step=0;
+  PREFS.track=MUS.track; savePrefs();          // the piece you chose is still chosen tomorrow
   if(MUS.on){ MUS.nextT=(AC?AC.currentTime:0)+0.06; }
   toast("♪ "+musicTrackName()); return musicTrackName();
 }
