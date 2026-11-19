@@ -61,7 +61,7 @@ jobs:
           game = z.read("assets/index.html").decode("utf-8", "replace")
           src = open("emmaus/index.html", encoding="utf-8").read()
           assert len(game) == len(src), f"stale APK: {len(game)} bytes vs {len(src)} in the repo"
-          for marker in ("Cloud of Witnesses", "faithStep", "TRACKS", "LS_BAK"):
+          for marker in ("Cloud of Witnesses", "faithStep", "TRACKS", "LS_BAK", "PREFS.track"):
               assert marker in game, f"the APK is missing {marker}"
           print(f"APK carries the current game: {len(game)} bytes, all markers present")
           PY
@@ -82,7 +82,7 @@ jobs:
           body: |
             ## EMMAUS — The Unfolding ${{ github.ref_name }}
 
-            Ten chapters, ten games, twenty-one levels each — plus an endless mode.
+            Ten chapters, ten games, twenty levels each, then an endless mode.
             Every chapter is a spiritual exercise: trust, watchfulness, endurance,
             discernment, attention, order, faith, memory, perseverance, prayer.
 
@@ -101,3 +101,8 @@ jobs:
               save is ever damaged.
 
             A production of JD Hub · jdhu tech.
+
+            ---
+
+            *This release was prepared by an AI agent (OpenHands) on behalf of the
+            project owner.*
