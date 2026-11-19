@@ -305,3 +305,23 @@ missing. That guard exists because v1.2.0 shipped an APK built from an older
 game — the release looked fine but contained none of the new work. The old
 `android.yml` was deleted: it built the *courses* page through Capacitor and
 pointed at `android-app/www`, which does not exist.
+
+**Building the APK (v1.3).** `tools/build-apk.sh` needs `platforms;android-34`,
+`build-tools;34.0.0` and a JDK. Two traps have already cost a release:
+
+*The SDK may be set to nothing.* The script ignores `ANDROID_HOME` and
+`ANDROID_SDK_ROOT` when they are set but empty, then searches
+`/usr/local/lib/android/sdk`, `~/Android/Sdk` and `~/tools/sdk`. Passing those
+variables through from a missing CI variable silently blanked them and hid the
+runner's real SDK.
+
+*Never use an anonymous inner class in `android/src`.* d8 from build-tools
+34.0.0 throws a `NullPointerException` on **any** anonymous inner class compiled
+by a modern javac — this is a d8 bug, reproducible with a three-line test class,
+not anything to do with this app. Named nested classes dex fine, which is why
+`GameClient` is one. The script refuses anonymous inner classes up front with a
+message naming the fix, so you get that instead of an R8 stack trace.
+
+Always build locally with the variables unset (`env -u ANDROID_HOME -u
+ANDROID_SDK_ROOT tools/build-apk.sh`) before trusting a green-looking change —
+that is the configuration the runner actually uses.
