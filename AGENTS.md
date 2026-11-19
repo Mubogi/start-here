@@ -235,3 +235,29 @@ changing a tag colour, edit the tokens, not `.tag.t-*`. Guarded by section 27 of
 `tools/test-emmaus.js`, which also asserts `prefToggle("cb",…)` really adds and
 removes the body class (the harness's `document.body.classList` is a working
 `Set`, not a stub).
+
+**The Cloud of Witnesses (v1.3).** A witness speaks after every level
+(`witnessCard(ch,lv)` on the fruit screen) and the whole cloud is browsable from
+the menu (`openWitnesses()` → `#witnesses`). `WITNESSES` is the single source of
+truth; `quotableWitnesses()` returns only the entries that carry a `q`, and the
+collection counter is measured against that, so the "N / M" total always matches
+what is actually printed.
+
+The honesty rule is the important part. Scripture voices (`scrip:true`) quote
+exact KJV text copied from `shared/verses.js`, with the reference named. The
+only preachers quoted are **John Wesley**, **David Oyedepo** and **Charles
+Spurgeon**, each with a citation that could be checked. **Kathryn Kuhlman,
+Kenneth Hagin, E. W. Kenyon and Myles Munroe** are named, described and honoured
+but carry **no quote** — `note` explains why — because no reliable source could
+be verified. Never invent words for them, and never "tidy up" a quote to make it
+punchier; if you cannot cite it, leave `q` off and write a `note`. Section 32 of
+`tools/test-emmaus.js` enforces this: every quoted entry must have `src`, every
+unquoted one must have `note`.
+
+**The Faith Step (v1.3).** Good play calls `gainFaith(4)` (25 for finishing the
+chapter word); `A.faith` fills to `A.faithMax`. At full measure the 🕊 button
+(`faithStep()`) sets `A.calm` for ~3.6s, spending all gathered faith. `calm`
+slows every mode by passing `dt*0.32` into `M.update` — it is applied once in
+`loop()`, so new modes inherit it for free and must not implement their own.
+While calm, `speakWitness()` shows `#witnessVoice` with the current level's
+witness. Guarded by section 33.
