@@ -353,6 +353,46 @@
   .goal span{background:var(--panel2);border:1px solid var(--line);border-radius:999px;
     padding:.32rem .7rem;font-size:.78rem}
   .goal span.warn{border-color:#6b2a2a;color:#ffb3b3;background:#2a1414}
+  /* a witness speaks over the stilled world */
+  #witnessVoice{position:absolute;left:0;right:0;bottom:14%;margin:0 auto;width:min(560px,88%);
+    pointer-events:none;opacity:0;transform:translateY(10px);
+    transition:opacity .45s ease,transform .45s ease;text-align:center;z-index:6}
+  #witnessVoice.on{opacity:1;transform:translateY(0)}
+  #witnessVoice .wv-who{font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:.35rem}
+  #witnessVoice .wv-q{font-family:Georgia,'Times New Roman',serif;font-style:italic;
+    font-size:1.02rem;line-height:1.5;color:#f2ecdd;
+    text-shadow:0 2px 14px rgba(0,0,0,.85)}
+  #witnessVoice .wv-src{margin-top:.4rem;font-size:.66rem;letter-spacing:.06em;
+    color:rgba(232,184,75,.85);text-transform:uppercase}
+  @media (prefers-reduced-motion:reduce){ #witnessVoice{transition:none} }
+  /* the faith step */
+  #faithBtn{transition:opacity .2s,box-shadow .2s,transform .2s}
+  #faithBtn.ready{box-shadow:0 0 0 1px var(--gold),0 0 16px rgba(232,184,75,.55);
+    animation:faithPulse 1.7s ease-in-out infinite}
+  @keyframes faithPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+  @media (prefers-reduced-motion:reduce){ #faithBtn.ready{animation:none} }
+  /* the cloud of witnesses */
+  .witness,.wcard{background:linear-gradient(160deg,rgba(169,139,255,.10),rgba(20,24,40,.55));
+    border:1px solid #3d3560;border-left:3px solid var(--violet);border-radius:14px;
+    padding:12px 14px;margin:12px 0;box-shadow:var(--depth-1)}
+  .witness .wtop,.wcard .wtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .witness .who,.wcard .who{font-weight:800;color:var(--gold2);font-size:.95rem;letter-spacing:.01em}
+  .wtag{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--violet);border:1px solid #4a3f78;background:rgba(169,139,255,.10);
+    border-radius:6px;padding:.1rem .4rem}
+  .wcard .wtag{margin-left:auto}
+  .witness blockquote,.wcard blockquote{margin:6px 0;padding:0;
+    font-family:Georgia,"Times New Roman",serif;font-size:1rem;line-height:1.7;
+    font-style:italic;color:#efe9ff;border:0}
+  .witness .src,.wcard .src{font-size:.76rem;color:var(--dim)}
+  .wcard{margin:10px 0}
+  .wcard.met{border-left-color:var(--green)}
+  .wcard.met .wtag{color:var(--green);border-color:#2f6b45;background:rgba(91,214,122,.10)}
+  .wcard.quiet{border-left-color:var(--line2);background:linear-gradient(160deg,rgba(255,255,255,.03),rgba(20,24,40,.45))}
+  .wcard.quiet .wtag{color:var(--dim);border-color:var(--line2);background:transparent}
+  html[data-theme="light"] .witness blockquote,
+  html[data-theme="light"] .wcard blockquote{color:#3a3222}
   .wordbar{display:flex;gap:5px;justify-content:center;margin:12px 0;flex-wrap:wrap}
   .wordbar i{font-style:normal;width:30px;height:34px;border-radius:8px;display:grid;place-items:center;
     font-weight:800;background:#12162a;border:1px solid var(--line);color:#5c6480}
@@ -590,6 +630,7 @@
         each — every one a different trial — plus an endless mode that never ends.</p>
         <div class="row" style="margin-top:1rem">
           <button class="chip" data-go="notebook">📓 Notebook</button>
+          <button class="chip" data-go="witnesses">☁ Witnesses</button>
           <button class="chip" data-go="community">🤝 Community</button>
           <button class="chip" data-go="settings">⚙ Settings</button>
           <button class="chip" data-go="about">ℹ About</button>
@@ -627,11 +668,13 @@
         <div class="hud-sub" id="hudMode"></div>
       </div>
       <div class="hud-box" id="hudLife">❤❤❤</div>
+      <button class="hud-box" id="faithBtn" style="pointer-events:auto" title="Faith Step — still the storm for a moment">🕊</button>
       <button class="hud-box" id="pauseBtn" style="pointer-events:auto">❚❚</button>
     </div>
     <div class="combo" id="combo"></div>
     <div class="hud-word" id="hudWord"></div>
     <div class="bigmsg" id="bigmsg"></div>
+    <div id="witnessVoice"></div>
     <div id="meter">
       <div class="lab" id="meterLab">Progress</div>
       <div class="bar"><i id="meterBar"></i></div>
@@ -706,6 +749,12 @@
   <section class="screen" id="notebook">
     <div class="topbar"><button class="chip" data-go="menu">← Menu</button><span class="brand">Notebook</span><span></span></div>
     <div class="scroller"><div class="wrap" id="noteBody"></div></div>
+  </section>
+
+  <!-- THE CLOUD OF WITNESSES -->
+  <section class="screen" id="witnesses">
+    <div class="topbar"><button class="chip" data-go="menu">← Menu</button><span class="brand">CLOUD OF WITNESSES</span><span></span></div>
+    <div class="scroller"><div class="wrap" id="witBody"></div></div>
   </section>
 
   <!-- COMMUNITY -->
@@ -1704,7 +1753,8 @@ function startLevel(ch, lv, opts){
     over:false, won:false, paused:false, inv:0, shake:0, flash:0,
     px:W/2, down:false, palette:levelColors(ch), word:WORDS[ch], wordGot:"", wordIdx:0, wordDone:false,
     letters:[], diff:endless?1:(lv-1)/(LEVELS_PER_CH-1), speed:0, obj:{},
-    bg:BACKS[mode], timed:false, timeLeft:0, needWord:false, spawnMul:1, hitstop:0
+    bg:BACKS[mode], timed:false, timeLeft:0, needWord:false, spawnMul:1, hitstop:0,
+    faith:0, faithMax:100, calm:0, faithUsed:0
   };
   if(!endless){
     if(v.id==="trial"||v.id==="boss") A.lives=2;
@@ -1727,7 +1777,7 @@ function startLevel(ch, lv, opts){
   if(MODES[mode].init) MODES[mode].init(A);
   if(A.twistNeed && A.obj.need) A.obj.need=Math.max(4,Math.round(A.obj.need*A.twistNeed));
   el("hudMode").textContent=MODE_INFO[mode].name+(endless?"  ·  ENDLESS":"  ·  Lv "+lv+" · "+v.name+" · "+tw.name);
-  el("hudScore").textContent="0"; el("meterBar").style.width="0%";
+  el("hudScore").textContent="0"; el("meterBar").style.width="0%"; drawFaith();
   el("meterLab").textContent=(A.needWord?"Gather "+A.word+" — ":"")+(MODES[mode].meter||"Progress");
   drawLife(); updateHudWord();
   showScreen("play"); el("hud").classList.add("on");
@@ -1738,13 +1788,42 @@ function stopGame(){ running=false; if(raf) cancelAnimationFrame(raf); raf=null;
 function updateHudWord(){ var e=el("hudWord"); if(!e||!A) return;
   e.innerHTML=A.word.split("").map(function(x,i){ return '<i class="'+(i<A.wordIdx?"have":"")+'">'+x+'</i>'; }).join(""); }
 function drawLife(){ var s=""; for(var i=0;i<3;i++) s+= i<A.lives?"❤":"<span style='opacity:.22'>❤</span>"; el("hudLife").innerHTML=s; }
+function drawFaith(){ var b=el("faithBtn"); if(!b||!A) return;
+  var full=A.faith>=A.faithMax;
+  b.classList.toggle("ready",full); b.style.opacity=full?1:(0.45+0.55*(A.faith/A.faithMax));
+  b.title=full?"Faith Step ready — tap to still the storm":("Faith Step — "+Math.floor(A.faith)+"%");
+}
+/* The Faith Step stills the world for a few seconds. It spends everything
+   gathered, so the choice is always: press on, or rest and be still. */
+function faithStep(){
+  if(!A || A.over || A.paused) return;
+  if(A.faith<A.faithMax){ SFX.tick(); bigMsg("Faith Step not yet — "+Math.floor(A.faith)+"%",700); return; }
+  A.faith=0; A.calm=3.6; A.faithUsed=(A.faithUsed||0)+1;
+  A.flash=Math.max(A.flash,.30); A.shake=0;
+  burst(A.px,H-90,"200,225,255",34,260); SFX.word();
+  bigMsg("🕊 Be still.",1500); drawFaith();
+  speakWitness();
+}
+/* A voice from the cloud speaks over the stilled world. */
+function speakWitness(){
+  if(!A) return;
+  var w=witnessFor(A.ch,A.lv); if(!w || !w.q) return;
+  var box=el("witnessVoice"); if(!box) return;
+  box.innerHTML='<div class="wv-who">'+esc(w.who)+'</div>'
+    +'<div class="wv-q">“'+esc(w.q)+'”</div>'
+    +'<div class="wv-src">'+esc(w.src)+'</div>';
+  box.classList.add("on");
+  clearTimeout(box._t);
+  box._t=setTimeout(function(){ box.classList.remove("on"); },3400);
+}
 function addScore(n){ A.score+=n; el("hudScore").textContent=A.score; }
 function setProgress(v){ A.progress=Math.max(0,Math.min(1,v)); el("meterBar").style.width=(A.progress*100)+"%"; }
 function showCombo(){ if(A.combo>=3){ var c=el("combo"); c.textContent="×"+A.combo+" COMBO"; c.classList.add("show");
   clearTimeout(c._t); c._t=setTimeout(function(){ c.classList.remove("show"); },850); } }
 function bigMsg(s,ms){ var b=el("bigmsg"); b.textContent=s; b.classList.add("show");
   clearTimeout(b._t); b._t=setTimeout(function(){ b.classList.remove("show"); },ms||900); }
-function good(x,y,rgb,pts){ A.combo++; A.comboBest=Math.max(A.comboBest,A.combo); addScore(pts*Math.max(1,A.combo));
+function gainFaith(n){ if(!A) return; A.faith=Math.min(A.faithMax,A.faith+n); drawFaith(); }
+function good(x,y,rgb,pts){ A.combo++; A.comboBest=Math.max(A.comboBest,A.combo); addScore(pts*Math.max(1,A.combo)); gainFaith(4);
   A.hitstop=Math.max(A.hitstop,0.055); burst(x,y,rgb,10+Math.min(A.combo,8),180); SFX.good(A.combo); showCombo();
   if(A.combo>=5){ A.flash=Math.max(A.flash,.18); } }
 function hurt(dmg){ if(A.inv>0) return; A.lives-=(dmg||1); A.combo=0; A.shake=1.25; A.flash=.7; A.inv=1.05; A.hitstop=Math.max(A.hitstop,.09);
@@ -1761,7 +1840,7 @@ function grantLetter(L){
   else { addScore(10); SFX.tick(); }
   updateHudWord();
   if(A.wordIdx>=A.word.length && !A.wordDone){
-    A.wordDone=true; addScore(150); burst(W/2,H*0.6,"255,217,138",44,340); SFX.word();
+    A.wordDone=true; addScore(150); gainFaith(25); burst(W/2,H*0.6,"255,217,138",44,340); SFX.word();
     var wm=WORD_MEANING[A.ch];
     bigMsg(A.word+" — "+wm.say,1800);
   } }
@@ -2163,7 +2242,11 @@ function loop(now){
       if(A.timeLeft<=0){ A.timeLeft=0; return loseLevel(); } }
     if(A.shake>0) A.shake=Math.max(0,A.shake-dt*3.2);
     if(A.flash>0) A.flash=Math.max(0,A.flash-dt*3);
-    var M=MODES[A.mode]; if(M.update) M.update(A,dt); }
+    if(A.calm>0) A.calm=Math.max(0,A.calm-dt);
+    var M=MODES[A.mode];
+    /* while the world is still, everything moves at a walk */
+    var step=dt*(A.calm>0?0.32:1);
+    if(M.update) M.update(A,step); }
   updParts(dt);
   if(A){ if(A.paused||A.over){ /* keep drawing the frozen frame */ } }
   draw(dt);
@@ -2182,7 +2265,9 @@ function draw(dt){
   ctx.globalAlpha=1;
   if(bg && bg.draw) bg.draw(A?A.t:0, A?A.palette.accent:"#e8b84b");
   if(A){ glow(W/2,H+30,Math.max(W,H)*.7,hexRgb(A.palette.accent),.12);
-    var M=MODES[A.mode]; if(M.draw) M.draw(A); }
+    var M=MODES[A.mode]; if(M.draw) M.draw(A);
+    if(A.calm>0){ var ca=Math.min(.20,A.calm*.06);
+      ctx.fillStyle="rgba(190,220,255,"+ca.toFixed(3)+")"; ctx.fillRect(-20,-20,W+40,H+40); } }
   drawParts();
   ctx.restore();
   if(A&&A.flash>0){ ctx.fillStyle="rgba(255,80,110,"+(A.flash*.32)+")"; ctx.fillRect(0,0,W,H); }
@@ -2202,6 +2287,7 @@ window.addEventListener("keydown",function(e){ if(!A||A.over) return;
   if(e.key==="ArrowRight"||e.key==="d") A.px=Math.min(W-30,A.px+56);
   if(e.key===" "||e.key==="ArrowUp"||e.key==="w"){ var M=MODES[A.mode]; if(M.tap) M.tap(A,A.px,H-70); e.preventDefault(); } });
 
+el("faithBtn").onclick=function(){ actx(); SFX.tap(); faithStep(); };
 el("pauseBtn").onclick=function(){ if(A&&!A.over){ A.paused=true; el("pauseSub").textContent=MODE_INFO[A.mode].name; el("ovPause").classList.add("on"); } };
 el("resumeBtn").onclick=function(){ el("ovPause").classList.remove("on"); if(A){ A.paused=false; last=performance.now(); } };
 el("quitBtn").onclick=function(){ el("ovPause").classList.remove("on"); var ch=A.ch; stopGame(); openLevels(ch); };
@@ -2210,7 +2296,7 @@ el("quitBtn").onclick=function(){ el("ovPause").classList.remove("on"); var ch=A
 /* ============================================================
    SCREENS + PROGRESSION
    ============================================================ */
-var SCREENS=["menu","chapters","levels","reveal","study","leaderboard","daily","notebook","community","about","lan","settings"];
+var SCREENS=["menu","chapters","levels","reveal","study","leaderboard","daily","notebook","witnesses","community","about","lan","settings"];
 function showScreen(id, opts){
   opts=opts||{};
   SCREENS.forEach(function(s){ var e=el(s); if(e) e.classList.toggle("on", s===id); });
@@ -2430,6 +2516,165 @@ function showRenewal(ch,lv){
   el("renewRead").onclick=function(){ el("ovTrial").classList.remove("on"); openStudy(ch); };
   el("renewMap").onclick=function(){ el("ovTrial").classList.remove("on"); openLevels(ch); };
 }
+/* ============================================================
+   THE CLOUD OF WITNESSES  (Hebrews 12:1)
+   Words that carry the journey — spoken by Christ, the apostles and
+   prophets, and by preachers of the last three centuries.
+
+   SOURCING RULE (non-negotiable, same spirit as the truth tags):
+   every `q` below is wording I could verify against a primary or
+   reference source (a Journal, a published sermon, a book). A person
+   whose famous line I could NOT verify is still honoured — with
+   `q:""` and a note saying the wording is not confirmed. We never
+   put invented words in a dead man's mouth.
+   ============================================================ */
+var WITNESSES=[
+  /* — the Lord and the Scriptures — */
+  {id:"jesus", who:"Jesus", tag:"The Word", scrip:true, src:"John 14:6",
+   q:"I am the way, the truth, and the life: no man cometh unto the Father, but by me."},
+  {id:"jesus2", who:"Jesus", tag:"The Word", scrip:true, src:"John 10:10",
+   q:"I am come that they might have life, and that they might have it more abundantly."},
+  {id:"jesus3", who:"Jesus", tag:"The Word", scrip:true, src:"Matthew 11:28",
+   q:"Come unto me, all ye that labour and are heavy laden, and I will give you rest."},
+  {id:"paul", who:"Paul the apostle", tag:"The Scriptures", scrip:true, src:"Romans 8:28",
+   q:"And we know that all things work together for good to them that love God, to them who are the called according to his purpose."},
+  {id:"paul2", who:"Paul the apostle", tag:"The Scriptures", scrip:true, src:"2 Corinthians 5:17",
+   q:"Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new."},
+  {id:"peter", who:"Peter the apostle", tag:"The Scriptures", scrip:true, src:"1 Peter 5:7",
+   q:"Casting all your care upon him; for he careth for you."},
+  {id:"david", who:"David the prophet", tag:"The Scriptures", scrip:true, src:"Psalm 23:1",
+   q:"The LORD is my shepherd; I shall not want."},
+  {id:"david2", who:"David the prophet", tag:"The Scriptures", scrip:true, src:"Psalm 119:105",
+   q:"Thy word is a lamp unto my feet, and a light unto my path."},
+  {id:"jeremiah", who:"Jeremiah the prophet", tag:"The Scriptures", scrip:true, src:"Jeremiah 29:11",
+   q:"For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end."},
+  {id:"joshua", who:"Joshua", tag:"The Scriptures", scrip:true, src:"Joshua 1:9",
+   q:"Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest."},
+  {id:"john", who:"John the apostle", tag:"The Scriptures", scrip:true, src:"John 3:16",
+   q:"For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."},
+  {id:"john2", who:"John the apostle", tag:"The Scriptures", scrip:true, src:"Revelation 21:4",
+   q:"And God shall wipe away all tears from their eyes; and there shall be no more death, neither sorrow, nor crying, neither shall there be any more pain."},
+  {id:"john3", who:"John the apostle", tag:"The Scriptures", scrip:true, src:"1 John 1:9",
+   q:"If we confess our sins, he is faithful and just to forgive us our sins, and to cleanse us from all unrighteousness."},
+  {id:"jude", who:"Jude the apostle", tag:"The Scriptures", scrip:true, src:"Jude 1:24",
+   q:"Now unto him that is able to keep you from falling, and to present you faultless before the presence of his glory with exceeding joy."},
+  {id:"james", who:"James the apostle", tag:"The Scriptures", scrip:true, src:"James 4:8",
+   q:"Draw nigh to God, and he will draw nigh to you. Cleanse your hands, ye sinners; and purify your hearts, ye double minded."},
+  {id:"paul3", who:"Paul the apostle", tag:"The Scriptures", scrip:true, src:"Colossians 3:23",
+   q:"And whatsoever ye do, do it heartily, as to the Lord, and not unto men."},
+  {id:"paul4", who:"Paul the apostle", tag:"The Scriptures", scrip:true, src:"Romans 5:8",
+   q:"But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."},
+  {id:"isaiah", who:"Isaiah the prophet", tag:"The Scriptures", scrip:true, src:"Isaiah 41:10",
+   q:"Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness."},
+  {id:"isaiah2", who:"Isaiah the prophet", tag:"The Scriptures", scrip:true, src:"Isaiah 26:3",
+   q:"Thou wilt keep him in perfect peace, whose mind is stayed on thee: because he trusteth in thee."},
+  {id:"zephaniah", who:"Zephaniah the prophet", tag:"The Scriptures", scrip:true, src:"Zephaniah 3:17",
+   q:"The LORD thy God in the midst of thee is mighty; he will save, he will rejoice over thee with joy; he will rest in his love, he will joy over thee with singing."},
+  {id:"moses", who:"Moses the man of God", tag:"The Scriptures", scrip:true, src:"Deuteronomy 31:6",
+   q:"Be strong and of a good courage, fear not, nor be afraid of them: for the LORD thy God, he it is that doth go with thee; he will not fail thee, nor forsake thee."},
+  {id:"solomon", who:"Solomon the preacher", tag:"The Scriptures", scrip:true, src:"Proverbs 4:23",
+   q:"Keep thy heart with all diligence; for out of it are the issues of life."},
+  {id:"asaph", who:"The psalmist", tag:"The Scriptures", scrip:true, src:"Psalm 46:1",
+   q:"God is our refuge and strength, a very present help in trouble."},
+  {id:"david3", who:"David the prophet", tag:"The Scriptures", scrip:true, src:"Psalm 34:18",
+   q:"The LORD is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit."},
+  {id:"john4", who:"Jesus", tag:"The Word", scrip:true, src:"Revelation 3:20",
+   q:"Behold, I stand at the door, and knock: if any man hear my voice, and open the door, I will come in to him, and will sup with him, and he with me."},
+  {id:"jesus4", who:"Jesus", tag:"The Word", scrip:true, src:"John 15:5",
+   q:"I am the vine, ye are the branches: He that abideth in me, and I in him, the same bringeth forth much fruit: for without me ye can do nothing."},
+  {id:"jesus5", who:"Jesus", tag:"The Word", scrip:true, src:"John 8:12",
+   q:"I am the light of the world: he that followeth me shall not walk in darkness, but shall have the light of life."},
+
+  /* — preachers, verified wording — */
+  {id:"wesley", who:"John Wesley", tag:"Methodism · 1703–1791", src:"Journal, 11 June 1739",
+   q:"I look on all the world as my parish; thus far I mean, that, in whatever part of it I am, I judge it meet, right, and my bounden duty, to declare unto all that are willing to hear, the glad tidings of salvation."},
+  {id:"wesley2", who:"John Wesley", tag:"Methodism · 1703–1791", src:"Journal, 22 December 1763",
+   q:"Lord, let me not live to be useless!"},
+  {id:"wesley3", who:"John Wesley", tag:"Methodism · 1703–1791", src:"Letter to Joseph Benson, 7 November 1768",
+   q:"Beware you be not swallowed up in books! An ounce of love is worth a pound of knowledge."},
+  {id:"wesley4", who:"John Wesley", tag:"Methodism · 1703–1791", src:"Letter, 10 December 1777",
+   q:"Though I am always in haste, I am never in a hurry."},
+  {id:"oyedepo", who:"David Oyedepo", tag:"Living Faith Church", src:"Exploits in Ministry",
+   q:"You can inspire people with faith and motivate them with hope, but you can only impact them with love."},
+  {id:"oyedepo2", who:"David Oyedepo", tag:"Living Faith Church", src:"Understanding Divine Direction",
+   q:"God has a place prepared for you in life; a discovery of that place is what is called vision."},
+  {id:"oyedepo3", who:"David Oyedepo", tag:"Living Faith Church", src:"Exploits in Ministry",
+   q:"Knowing what God has promised is information, but knowing what to do to actualise it is revelation."},
+  {id:"spurgeon", who:"Charles Spurgeon", tag:"Metropolitan Tabernacle · 1834–1892", src:"Morning and Evening (1866), 20 June",
+   q:"The practice of truth is the most profitable reading of it."},
+  {id:"spurgeon2", who:"Charles Spurgeon", tag:"Metropolitan Tabernacle · 1834–1892", src:"Gleanings Among the Sheaves (1869), \u201cHoliness\u201d",
+   q:"Holiness is the architectural plan upon which God buildeth up His living temple."},
+  {id:"spurgeon3", who:"Charles Spurgeon", tag:"Metropolitan Tabernacle · 1834–1892", src:"Faith\u2019s Checkbook (1888), 22 June",
+   q:"The truest lengthening of life is to live while we live, wasting no time but using every hour for the highest ends."},
+
+  /* — honoured, but no verified wording available to us — */
+  {id:"kuhlman", who:"Kathryn Kuhlman", tag:"Healing evangelist · 1907–1976", src:"", q:"",
+   note:"Famous for a ministry of healing and for saying that she believed in miracles because she had seen them. Her exact words are widely repeated online without a reliable source, so none are printed here."},
+  {id:"hagin", who:"Kenneth E. Hagin", tag:"Word of Faith · 1917–2003", src:"", q:"",
+   note:"Taught a generation to speak faith boldly. His books are still in print; his exact lines vary between editions, so we point you to the books rather than risk misquoting him."},
+  {id:"kenyon", who:"E. W. Kenyon", tag:"New Covenant teacher · 1867–1948", src:"", q:"",
+   note:"Wrote of the believer's standing in Christ a century ago. His works are public domain in places and disputed in others; read him and judge for yourself."},
+  {id:"munroe", who:"Myles Munroe", tag:"Purpose & leadership · 1954–2014", src:"", q:"",
+   note:"Taught that purpose precedes production, and that a life without purpose is the real tragedy. His teaching is best met in his own books and messages."}
+];
+
+/* Witnesses verified enough to be quoted in play. */
+function quotableWitnesses(){ return WITNESSES.filter(function(w){ return !!w.q; }); }
+
+/* A witness chosen by chapter and level — deterministic, so a level
+   always speaks with the same voice, but the road keeps changing. */
+function witnessFor(ch,lv){
+  var list=quotableWitnesses();
+  if(!list.length) return null;
+  return list[(ch*7+lv*3)%list.length];
+}
+/* A scripture witness for a chapter — the Bible answers first. */
+function scriptureFor(ch){
+  var list=WITNESSES.filter(function(w){ return w.scrip; });
+  return list[(ch-1)%list.length];
+}
+
+/* ---------- the witness card (shown after a level) ---------- */
+function witnessCard(ch,lv){
+  var w=witnessFor(ch,lv); if(!w) return "";
+  var u=me();
+  if(u){ u.met=u.met||{}; if(!u.met[w.id]){ u.met[w.id]=1; save(); } }
+  return '<div class="witness">'
+   +'<div class="wtop"><span class="wtag">☁ A witness</span><span class="who">'+esc(w.who)+'</span></div>'
+   +'<blockquote>'+esc(w.q)+'</blockquote>'
+   +'<div class="src">— '+esc(w.who)+', <i>'+esc(w.src)+'</i></div>'
+   +'<div class="tiny" style="margin-top:6px">'+esc(w.tag)+'</div>'
+   +'</div>';
+}
+
+/* ---------- the Cloud of Witnesses screen ---------- */
+function openWitnesses(){
+  showScreen("witnesses"); var u=me();
+  var met=(u&&u.met)||{};
+  var got=Object.keys(met).length;
+  var rows=WITNESSES.map(function(w){
+    var have=!!met[w.id];
+    if(w.q){
+      return '<div class="wcard'+(have?' met':'')+'">'
+       +'<div class="wtop"><span class="who">'+esc(w.who)+'</span>'+(have?'<span class="wtag">✓ met</span>':'')+'</div>'
+       +'<blockquote>'+esc(w.q)+'</blockquote>'
+       +'<div class="src">— <i>'+esc(w.src)+'</i></div>'
+       +'<div class="tiny">'+esc(w.tag)+'</div></div>';
+    }
+    return '<div class="wcard quiet">'
+     +'<div class="wtop"><span class="who">'+esc(w.who)+'</span><span class="wtag">not quoted</span></div>'
+     +'<p class="tiny" style="margin:6px 0 0">'+esc(w.note)+'</p>'
+     +'<div class="tiny" style="margin-top:4px">'+esc(w.tag)+'</div></div>';
+  }).join("");
+  el("witBody").innerHTML=
+    '<div class="card"><h2>The Cloud of Witnesses</h2>'
+   +'<p class="muted">“Wherefore seeing we also are compassed about with so great a cloud of witnesses…” — Hebrews 12:1</p>'
+   +'<p class="tiny">The words below are printed only where the wording could be checked against a real source. Where it could not, the person is still named and honoured — but no words are invented for them.</p>'
+   +'<div class="goal"><span>Voices met in play</span><b>'+got+' / '+quotableWitnesses().length+'</b></div></div>'
+   + rows;
+  navSet("witnesses", openChapters, "Read a chapter →");
+}
+
 /* ---------- the fruit: learn after you play ---------- */
 function showFruit(){
   var c=chapterOf(A.ch), d=DEVOTION[A.ch], ex=EXERCISE[A.mode], wm=WORD_MEANING[A.ch];
@@ -2444,6 +2689,7 @@ function showFruit(){
    +'<div class="fruit"><b>'+(got?"You gathered the whole word.":"The word was there to gather.")+'</b> '+esc(FRUIT[A.ch])+'</div>'
    +'<p class="tiny">'+esc(ex.after)+'</p>'
    +'<div class="exercise"><div class="t">Practice today</div>'+esc(d.practice)+'</div>'
+   + witnessCard(A.ch,A.lv)
    +'<div class="row" style="margin-top:14px"><button class="btn gold" id="fruitGo">Continue →</button></div>';
   el("ovFruit").classList.add("on");
   el("fruitGo").onclick=function(){ el("ovFruit").classList.remove("on"); showResults(); };
@@ -2889,7 +3135,8 @@ document.querySelectorAll("[data-go]").forEach(function(b){ b.onclick=function()
   if(g==="menu"){ stopGame(); showScreen("menu"); refreshChips(); }
   else if(g==="chapters") openChapters(); else if(g==="notebook") openNotebook();
   else if(g==="community") openCommunity(); else if(g==="about") openAbout();
-  else if(g==="settings") openSettings(); else if(g==="lan") openLan(); }; });
+  else if(g==="settings") openSettings(); else if(g==="lan") openLan();
+  else if(g==="witnesses") openWitnesses(); }; });
 el("playBtn").onclick=function(){ actx(); MUS.gestured=true; if(PREFS.music) musicStart(); SFX.tap(); if(!DB.active) return openProfiles(); maybeIntro(openChapters); };
 el("introBtn").onclick=function(){ actx(); SFX.tap(); openIntro(); };
 el("dailyBtn").onclick=function(){ actx(); SFX.tap(); if(!DB.active) return openProfiles(); openDaily(); };

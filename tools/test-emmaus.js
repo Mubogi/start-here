@@ -67,6 +67,9 @@ const api = new Function(
     + "chancesLeft:chancesLeft, levelResting:levelResting, renewalText:renewalText, freePlay:freePlay, "
     + "beginWithTrial:beginWithTrial, showTrial:showTrial, passTrial:passTrial, failTrial:failTrial, showRenewal:showRenewal, "
     + "trialKey:trialKey, openLevels:openLevels, renewalDue:renewalDue, clearRenewal:clearRenewal, "
+    + "WITNESSES:WITNESSES, quotableWitnesses:quotableWitnesses, witnessFor:witnessFor, witnessCard:witnessCard, "
+    + "scriptureFor:scriptureFor, openWitnesses:openWitnesses, "
+    + "faithStep:faithStep, drawFaith:drawFaith, gainFaith:gainFaith, speakWitness:speakWitness, "
     + "TITLES:TITLES, CUTSCENES:CUTSCENES, LAMPS:LAMPS, lampState:lampState, newLamps:newLamps, cutArt:cutArt, "
     + "openIntro:openIntro, showCutscene:showCutscene, maybeIntro:maybeIntro, onIntroDone:function(){ return onIntroDone; }, "
     + "openChapters:openChapters, openLan:openLan, renderLan:renderLan, "
@@ -589,6 +592,81 @@ api.prefToggle("free", false);
 check(api.chapterOpen(fu, 10) === false, "turning free play off restores the road");
 check(/id="prefFree"/.test(api.getEl("setBody").innerHTML) || (api.openSettings(), /id="prefFree"/.test(api.getEl("setBody").innerHTML)),
   "settings offers the free-play switch");
+
+/* 32. the cloud of witnesses */
+console.log("32. The cloud of witnesses");
+check(api.WITNESSES.length >= 12, "there is a cloud of witnesses");
+const quoted = api.quotableWitnesses();
+check(quoted.length >= 10, "many voices carry verified wording");
+check(quoted.every(w => w.q && w.q.length > 20), "every quoted witness has real words");
+check(quoted.every(w => w.src && w.src.length > 3), "every quoted witness names its source");
+check(quoted.every(w => w.who && w.tag), "every witness is named and described");
+const silent = api.WITNESSES.filter(w => !w.q);
+check(silent.length >= 1, "unverified preachers are still honoured");
+check(silent.every(w => w.note && w.note.length > 30), "an unquoted witness explains why");
+check(silent.every(w => !w.src), "an unquoted witness claims no source");
+const scrip = api.WITNESSES.filter(w => w.scrip);
+check(scrip.length >= 8, "Christ, the apostles and the prophets speak");
+const BOOKS = /^(Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Proverbs|Ecclesiastes|Song|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation)\s+\d/;
+check(scrip.every(w => BOOKS.test(w.src)), "a scripture witness cites a real book");
+/* every level can name a voice, and the voice is stable for that level */
+const w1 = api.witnessFor(1, 1), w1b = api.witnessFor(1, 1), w2 = api.witnessFor(5, 7);
+check(w1 && w1.q, "a level can name a witness");
+check(w1.id === w1b.id, "the same level always names the same witness");
+check(w2 && w2.q, "another level names another witness");
+const voices = {}; for (let ch = 1; ch <= 10; ch++) for (let lv = 1; lv < api.LEVELS_PER_CH; lv++) voices[api.witnessFor(ch, lv).id] = 1;
+check(Object.keys(voices).length >= 8, "the road meets many voices");
+/* the card renders and records the meeting */
+const wu = api.setUser("witnessed");
+api.startLevel(1, 1);
+const card = api.witnessCard(1, 1);
+check(/class="witness"/.test(card), "the witness card renders");
+check(/blockquote/.test(card) && /<i>/.test(card), "the card carries the words and the source");
+check(wu.met && Object.keys(wu.met).length >= 1, "meeting a witness is remembered");
+api.openWitnesses();
+const witHtml = api.getEl("witBody").innerHTML;
+check(/Cloud of Witnesses/.test(witHtml), "the collection screen opens");
+check(/not quoted/.test(witHtml), "unverified voices are marked, not faked");
+check(/Voices met in play/.test(witHtml), "the collection counts what you have met");
+
+/* the witness appears after a level, in the fruit screen */
+const fu2 = api.setUser("fruitcheck");
+api.startLevel(4, 5);
+api.getA().won = true;
+api.showFruit();
+const fruitHtml = api.getEl("fruitBody").innerHTML;
+check(/class="witness"/.test(fruitHtml), "the fruit screen carries a witness");
+check(/A witness/.test(fruitHtml), "the fruit screen marks it as a witness");
+check(/<blockquote>/.test(fruitHtml), "the fruit screen quotes the words");
+check(/Practice today/.test(fruitHtml), "the practice still comes first");
+
+/* 33. the faith step */
+console.log("33. The faith step");
+const fuser = api.setUser("faithful");
+api.startLevel(1, 1);
+let fa = api.getA();
+check(fa.faith === 0, "a level begins with no gathered faith");
+api.gainFaith(40);
+check(api.getA().faith === 40, "good play gathers faith");
+api.gainFaith(500);
+check(api.getA().faith === api.getA().faithMax, "faith cannot overflow");
+api.faithStep();
+check(api.getA().calm > 0, "a full faith step stills the world");
+check(api.getA().faith === 0, "the step spends everything gathered");
+api.startLevel(1, 1);
+api.gainFaith(10);
+api.faithStep();
+check(api.getA().calm === 0, "a step cannot be taken on partial faith");
+check(api.getA().faith === 10, "a refused step spends nothing");
+check(/faithBtn/.test(api.getEl("hud").innerHTML) || api.getEl("faithBtn"), "the HUD offers the step");
+api.startLevel(2, 3);
+api.gainFaith(100); api.drawFaith();
+check(api.getEl("faithBtn").classList.contains("ready"), "the button lights when faith is full");
+api.faithStep();
+check(!api.getEl("faithBtn").classList.contains("ready"), "the button dims after the step");
+check(api.getEl("witnessVoice").classList.contains("on"), "a witness speaks when the world is stilled");
+check(/wv-q/.test(api.getEl("witnessVoice").innerHTML), "the voice carries the words themselves");
+check(/wv-src/.test(api.getEl("witnessVoice").innerHTML), "the voice names its source");
 
 console.log(`\n10 chapters, 10 modes, ${Object.keys(MODES).length} games, ${api.LEVELS_PER_CH} levels each.`);
 console.log(failures ? `${failures} FAILURES` : "ALL PASS");
