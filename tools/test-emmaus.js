@@ -493,16 +493,18 @@ check(!dom.document.body.classList.contains("cb-safe"), "turning it off removes 
 /* 28. the trial — a question on what you just read */
 console.log("28. The trial before every level");
 check(Object.keys(api.TRIALS).length === 10, "every chapter has a trial bank");
-let trialOk = true, optOk = true, ansOk = true;
+let trialOk = true, optOk = true, ansOk = true, uniqOk = true;
 for (let ch = 1; ch <= 10; ch++) {
   const bank = api.TRIALS[ch];
-  if (!bank || bank.length < 4) trialOk = false;
+  if (!bank || bank.length < 6) trialOk = false;
+  if (bank && new Set(bank.map((q) => q.q)).size !== bank.length) uniqOk = false;
   bank.forEach((q) => {
     if (!q.q || !Array.isArray(q.o) || q.o.length < 2 || !q.why) optOk = false;
     if (typeof q.a !== "number" || q.a < 0 || q.a >= q.o.length) ansOk = false;
   });
 }
-check(trialOk, "each chapter has at least four trial questions");
+check(trialOk, "each chapter has at least six trial questions");
+check(uniqOk, "no chapter repeats a trial question");
 check(optOk, "every question has text, options and a why");
 check(ansOk, "every answer index points at a real option");
 const q1 = api.trialFor(1, 1), q2 = api.trialFor(1, 2);
